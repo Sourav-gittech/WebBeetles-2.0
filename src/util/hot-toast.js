@@ -1,9 +1,22 @@
 import toast from "react-hot-toast";
-import React from "react";
 
-const hotToast = (message) => toast(React.createElement("div", { className: "text-center" }, message));
+const hotToast = (message, type = "success") => {
+    if (type === "success") {
+        toast.success(message, {
+            className: "text-center",
+        });
+    } else if (type === "error") {
+        toast.error(message, {
+            className: "text-center",
+        });
+    } else {
+        toast(message, {
+            className: "text-center",
+        });
+    }
+};
 
 export default hotToast;
 
-
-// toast('Here is your toast.');
+// hotToast("User registered successfully!", "success");
+// hotToast("Something went wrong!", "error");

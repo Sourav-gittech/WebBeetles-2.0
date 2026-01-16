@@ -1,31 +1,38 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
-// Layouts
-import Navbar from "../layout/navbar";
-import Footer from "../layout/footer";
 import ScrollToTop from "../layout/scrollonTop";
 
-// Pages
-import Home from "../pages/Home";
-import Signin from "../pages/auth/login/Signin";
-import Signup from "../pages/auth/register/Signup";
-import Error404 from "../pages/Error404";
-import ForgetPassword from "../pages/auth/forgetPassword/ForgetPassword";
-import ResetPassword from "../pages/auth/resetPassword/ResetPassword";
-import Otp from "../pages/auth/otp/Otp";
-import Course from "../pages/Course";
-import Category from "../pages/Category";
-import ContactUs from "../pages/ContactUs";
-import CourseDetails from "../pages/CourseDetails";
-import AboutUs from "../pages/AboutUs";
-import CategoryDetails from "../pages/CategoryDetails";
-import TermsOfService from "../pages/terms&policy/TermsOfService";
-import PrivacyPolicy from "../pages/terms&policy/PrivacyPolicy";
-import DashboardLayout from "../pages/dashboard/DashboardLayout";
+// student - Layouts
+import StudentNavbar from "../layout/student/StudentNavbar";
+import StudentFooter from "../layout/student/StudentFooter";
 
-// Layout wrapper (must be used inside Router!)
-const Layout = ({ children }) => {
+// Pages - student
+import Home from "../pages/student/Home";
+import Signin from "../pages/student/auth/login/Signin";
+import Signup from "../pages/student/auth/register/Signup";
+import Error404 from "../pages/common/Error404";
+import ForgetPassword from "../pages/student/auth/forgetPassword/ForgetPassword";
+import ResetPassword from "../pages/student/auth/resetPassword/ResetPassword";
+import Otp from "../pages/student/auth/otp/Otp";
+import Course from "../pages/student/Course";
+import Category from "../pages/student/Category";
+import ContactUs from "../pages/student/ContactUs";
+import CourseDetails from "../pages/student/CourseDetails";
+import AboutUs from "../pages/student/AboutUs";
+import CategoryDetails from "../pages/student/CategoryDetails";
+import TermsOfService from "../pages/common/terms&policy/TermsOfService";
+import PrivacyPolicy from "../pages/common/terms&policy/PrivacyPolicy";
+import DashboardLayout from "../pages/common/dashboard/DashboardLayout";
+
+// Pages - instructor
+import InstructorNavbar from "../layout/instructor/InstructorNavbar";
+import InstructorFooter from "../layout/instructor/InstructorFooter";
+import InstructorHome from "../pages/instructor/InstructorHome";
+
+
+// Student Layout wrapper (must be used inside Router!)
+const StudentLayout = ({ children }) => {
   const location = useLocation();
 
   // routes that should NOT show navbar + footer
@@ -34,9 +41,26 @@ const Layout = ({ children }) => {
 
   return (
     <>
-      {!hideLayout && <Navbar />}
+      {!hideLayout && <StudentNavbar />}
       {children}
-      {!hideLayout && <Footer />}
+      {!hideLayout && <StudentFooter />}
+    </>
+  );
+};
+
+// Instructor Layout wrapper (must be used inside Router!)
+const InstructorLayout = ({ children }) => {
+  const location = useLocation();
+
+  // routes that should NOT show navbar + footer
+  const hideLayoutRoutes = ["/user-signin", "/user-signup", "/404"];
+  const hideLayout = hideLayoutRoutes.includes(location.pathname);
+
+  return (
+    <>
+      {!hideLayout && <InstructorNavbar />}
+      {children}
+      {!hideLayout && <InstructorFooter />}
     </>
   );
 };
@@ -46,16 +70,19 @@ const Routing = () => {
     <>
       <ScrollToTop />
       <Routes>
+
+        {/* student  */}
+
         {/* Pages with Layout */}
-        <Route path="/" element={<Layout> <Home /></Layout>} />
-        <Route path="/about" element={<Layout> <AboutUs /></Layout>} />
-        <Route path="/course" element={<Layout> <Course /></Layout>} />
-        <Route path="/course/course-details/:courseId" element={<Layout> <CourseDetails /></Layout>} />
-        <Route path="/category" element={<Layout> <Category /></Layout>} />
-        <Route path="/category/category-details/:categoryName" element={<Layout> <CategoryDetails /></Layout>} />
-        <Route path="/contact" element={<Layout> <ContactUs /></Layout>} />
-        <Route path="/terms" element={<Layout> <TermsOfService /></Layout>} />
-        <Route path="/privacy" element={<Layout> <PrivacyPolicy /></Layout>} />
+        <Route path="/" element={<StudentLayout> <Home /></StudentLayout>} />
+        <Route path="/about" element={<StudentLayout> <AboutUs /></StudentLayout>} />
+        <Route path="/course" element={<StudentLayout> <Course /></StudentLayout>} />
+        <Route path="/course/course-details/:courseId" element={<StudentLayout> <CourseDetails /></StudentLayout>} />
+        <Route path="/category" element={<StudentLayout> <Category /></StudentLayout>} />
+        <Route path="/category/category-details/:categoryName" element={<StudentLayout> <CategoryDetails /></StudentLayout>} />
+        <Route path="/contact" element={<StudentLayout> <ContactUs /></StudentLayout>} />
+        <Route path="/terms" element={<StudentLayout> <TermsOfService /></StudentLayout>} />
+        <Route path="/privacy" element={<StudentLayout> <PrivacyPolicy /></StudentLayout>} />
 
         {/* Pages (no navbar/footer) */}
         <Route path="/signin" element={<Signin />} />
@@ -63,7 +90,13 @@ const Routing = () => {
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/otp" element={<Otp />} />
-        <Route path="/dashboard" element={<DashboardLayout/>} />
+        <Route path="/:user_type/dashboard" element={<DashboardLayout />} />
+
+
+        {/* instructor */}
+        <Route path="/instructor/" element={<InstructorLayout> <InstructorHome /></InstructorLayout>} />
+
+
 
 
 

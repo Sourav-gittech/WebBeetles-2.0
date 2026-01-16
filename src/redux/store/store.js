@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userAuthSliceReducer from "../slice/authSlice/authSlice";
+import studentAuthSliceReducer from "../slice/authSlice/studentAuthSlice";
 import categorySliceReducer from "../slice/categorySlice";
-import authSliceReducer from "../slice/authSlice/checkAuth";
+import checkStudentAuthSliceReducer from "../slice/authSlice/checkStudentAuthSlice";
 import courseSliceReducer from "../slice/couseSlice";
-import userProfileSliceReducer from "../slice/userSlice";
+import studentProfileSliceReducer from "../slice/studentSlice";
 import specificCourseSliceReducer from "../slice/specificCourseSlice";
 import specificCategorySliceReducer from "../slice/specificCategorySlice";
 import contactAuthSliceReducer from "../slice/contactSlice";
@@ -13,16 +13,16 @@ import reviewSliceReducer from "../slice/reviewSlice";
 
 const store = configureStore({
     reducer: {
-        checkAuth: authSliceReducer,
-        userAuth: userAuthSliceReducer,
-        user: userProfileSliceReducer,
+        checkAuth: checkStudentAuthSliceReducer,
+        studentAuth: studentAuthSliceReducer,
+        student: studentProfileSliceReducer,
         category: categorySliceReducer,
         course: courseSliceReducer,
         specificCourse: specificCourseSliceReducer,
         specificCategory: specificCategorySliceReducer,
         query: contactAuthSliceReducer,
         review: reviewSliceReducer,
-        instructor:instructorSliceReducer,
+        instructor: instructorSliceReducer,
         specificInstructor: specificInstructorSliceReducer
     }
 });

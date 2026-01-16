@@ -1,14 +1,14 @@
 import { ToastContainer } from "react-toastify";
-import "./App.css";
-import Routing from "./routing/routing"; 
+import Routing from "./routing/routing";
 import { Toaster } from "react-hot-toast";
+import "./App.css";
 
 function App() {
- 
+
   return (
     <>
-    <ToastContainer/>
-    <Toaster />
+      <ToastContainer />
+      <Toaster />
       <Routing />
     </>
   );
