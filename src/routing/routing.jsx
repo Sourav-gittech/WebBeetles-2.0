@@ -25,10 +25,14 @@ import TermsOfService from "../pages/common/terms&policy/TermsOfService";
 import PrivacyPolicy from "../pages/common/terms&policy/PrivacyPolicy";
 import DashboardLayout from "../pages/common/dashboard/DashboardLayout";
 
-// Pages - instructor
+// instructor - Layout
 import InstructorNavbar from "../layout/instructor/InstructorNavbar";
 import InstructorFooter from "../layout/instructor/InstructorFooter";
+
+// Pages - instructor
 import InstructorHome from "../pages/instructor/InstructorHome";
+import InstructorSignup from "../pages/instructor/auth/register/InstructorSignup";
+import InstructorSignin from "../pages/instructor/auth/login/InstructorSignin";
 
 
 // Student Layout wrapper (must be used inside Router!)
@@ -97,6 +101,10 @@ const Routing = () => {
         <Route path="/instructor/" element={<InstructorLayout> <InstructorHome /></InstructorLayout>} />
 
 
+
+        {/* Pages (no navbar/footer) */}
+        <Route path="/instructor/signin" element={<InstructorSignin />} />
+        <Route path="/instructor/signup" element={<InstructorSignup />} />
 
 
 

@@ -10,7 +10,7 @@ import getSweetAlert from '../../../../util/sweetAlert'
 // import Lottie from 'lottie-react'
 // import loaderAnimation from '../../../assets/animations/Loading Dots Blue.json';
 
-const Signin = () => {
+const InstructorSignin = () => {
 
   const form = useForm(),
     { register, handleSubmit, formState } = form,
@@ -63,7 +63,7 @@ const Signin = () => {
       <div aria-hidden="true" className="absolute inset-0 -z-10"
         style={{
           backgroundImage:
-            `linear-gradient(rgba(44,6,159,0.8), #25004D), url('/auth/signin/c2f6150a61f3119b499a9fad384211c20ac49766.jpg')`,
+            `linear-gradient(#ea5645,#ec0505), url('/auth/signin/c2f6150a61f3119b499a9fad384211c20ac49766.jpg')`,
           backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'top', transform: 'scaleX(-1)'
         }} />
       <div className="container mx-auto px-4 lg:px-6 h-full max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">
@@ -80,7 +80,7 @@ const Signin = () => {
         <div className="w-full md:w-1/2 flex justify-center md:justify-end h-full items-center">
           <div className="w-full max-w-[500px] lg:max-w-[500px] bg-white/10 backdrop-blur-sm rounded-2xl lg:rounded-3xl p-6 lg:p-8 shadow-2xl my-4">
             <h2 className="text-2xl lg:text-3xl xl:text-4xl font-display text-white text-center mb-6">
-              Welcome to <Link className="text-blue-400 font-bold" to='/'>WebBeetles</Link>
+              Welcome to <Link className="text-red-900 font-bold" to='/instructor/'>WebBeetles</Link>
             </h2>
 
             <form className="space-y-4 lg:space-y-5 text-white" onSubmit={handleSubmit(loginDataHandler)}>
@@ -114,7 +114,7 @@ const Signin = () => {
                       }
                     })} />
                   <button type="button" className="absolute inset-y-0 right-4 flex items-center text-lg text-gray-600 hover:text-[rgba(44,6,159,0.8)]" onClick={() => setShow(!show)}>
-                    {show ? <FaRegEyeSlash className='text-[#8200db]' /> : <FaRegEye className='text-[#8200db]' />}
+                    {show ? <FaRegEyeSlash className='text-[#ec0505]' /> : <FaRegEye className='text-[#ec0505]' />}
                   </button>
                 </div>
                 {errors.password && <p className='text-xs text-red-400 mt-1'>{errors.password?.message}</p>}
@@ -126,7 +126,7 @@ const Signin = () => {
 
               <button type="submit" disabled={isStudentAuthLoading}
                 className={`w-full py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold text-white transition-colors
-                ${isStudentAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "bg-[#2696f5] hover:bg-[#1679c1]"}`}>
+                ${isStudentAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "bg-[#f70202] hover:bg-[#f74747] hover:border-2 hover:border-white"}`}>
                 {isStudentAuthLoading ? "Logging in..." : "Login"}
               </button>
             </form>
@@ -138,7 +138,7 @@ const Signin = () => {
             </div>
 
             <div className="space-y-3">
-              <Link to="/signup" className="block w-full text-center border-2 border-[#b97fff] text-[#b97fff] hover:bg-[#b97fff] hover:text-white py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold transition-all">
+              <Link to="/instructor/signup" className="block w-full text-center border-2 border-[#fff] text-[#fff] hover:bg-[#f74747] hover:text-white py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold transition-all">
                 Register
               </Link>
             </div>
@@ -180,4 +180,4 @@ const Signin = () => {
   )
 }
 
-export default Signin
+export default InstructorSignin
