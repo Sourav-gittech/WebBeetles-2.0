@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form'
 import { FaFacebook, FaInstagram, FaLinkedinIn, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
+import { loginSlice, updateLastSignInAt } from '../../../../redux/slice/authSlice/authSlice'
 import { Link, useNavigate } from 'react-router-dom'
-import { studentLogin } from '../../../../redux/slice/authSlice/studentAuthSlice'
 import toastifyAlert from '../../../../util/toastify'
 import getSweetAlert from '../../../../util/sweetAlert'
 // import Lottie from 'lottie-react'
@@ -19,7 +19,7 @@ const Signin = () => {
     navigate = useNavigate(),
     [show, setShow] = useState(false),
     { isAuth } = useSelector(state => state.checkAuth),
-    { isStudentAuthLoading } = useSelector(state => state.studentAuth),
+    { isStudentAuthLoading } = useSelector(state => state.auth),
     user_type = 'student';
 
   useEffect(() => {
@@ -37,14 +37,27 @@ const Signin = () => {
       password: data.password
     }
 
-    dispatch(studentLogin(login_obj))
+    dispatch(loginSlice(login_obj))
       .then(res => {
         // console.log("Response after user login:", res);
 
         if (res.meta.requestStatus === "fulfilled") {
-          toastifyAlert.success('Logged In Successfully');
-          sessionStorage.setItem('user_token', res.payload.session.access_token);
-          navigate(`/${user_type}/dashboard`);
+          sessionStorage.setItem('student_token', res.payload.session.access_token);
+
+          dispatch(updateLastSignInAt({ id: res?.payload?.user?.id, user_type }))
+            .then(res => {
+              
+              if (res.meta.requestStatus === "fulfilled") {
+                toastifyAlert.success('Logged In Successfully');
+                navigate(`/${user_type}/dashboard`);
+              } else {
+                getSweetAlert('Oops...', res.payload, 'info');
+              }
+            })
+            .catch(err => {
+              console.log('Error occured', err);
+              getSweetAlert('Oops...', 'Something went wrong!', 'error');
+            });
         }
         else {
           // getSweetAlert('Oops...', 'Something went wrong!', 'error');

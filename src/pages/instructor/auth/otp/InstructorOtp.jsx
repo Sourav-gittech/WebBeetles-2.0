@@ -7,10 +7,10 @@ import { emailVerifySlice, resendOTPSlice } from "../../../../redux/slice/authSl
 import getSweetAlert from "../../../../util/sweetAlert";
 import toastifyAlert from "../../../../util/toastify";
 
-const Otp = () => {
+const InstructorOtp = () => {
     const { handleSubmit, control } = useForm(),
         dispatch = useDispatch(),
-        navigator = useNavigate(),
+        navigate = useNavigate(),
         location = useLocation(),
         { isStudentAuthLoading } = useSelector(state => state.auth);
 
@@ -78,7 +78,8 @@ const Otp = () => {
 
                 if (res.meta.requestStatus === "fulfilled") {
                     getSweetAlert('Congrates', 'OTP Verified Successfully', 'success');
-                    navigator('/signin');
+                    navigate('/instructor/signin');
+                    // navigate('/instructor/profile-form');
                 }
                 else {
                     getSweetAlert('Oops...', res.payload.message, 'error');
@@ -92,7 +93,7 @@ const Otp = () => {
 
     return (
         <div className="relative h-screen overflow-hidden">
-            <button onClick={() => navigator(-1)}
+            <button onClick={() => navigate(-1)}
                 className="absolute top-5 left-5 md:top-8 md:left-8 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
             >
                 <FaArrowLeft className="text-gray-700 text-lg" />
@@ -208,4 +209,4 @@ const Otp = () => {
     );
 };
 
-export default Otp;
+export default InstructorOtp;

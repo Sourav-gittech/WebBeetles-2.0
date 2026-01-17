@@ -7,13 +7,13 @@ import { forgetPasswordSlice } from '../../../../redux/slice/authSlice/authSlice
 import getSweetAlert from '../../../../util/sweetAlert'
 import hotToast from '../../../../util/hot-toast'
 
-const ForgetPassword = () => {
+const InstructorForgetPassword = () => {
 
     const form = useForm(),
         { register, handleSubmit, formState } = form,
         { errors } = formState,
         dispatch = useDispatch(),
-        navigator = useNavigate(),
+        navigate = useNavigate(),
         { isStudentAuthLoading } = useSelector(state => state.auth);
 
     const forgetPasswordDataHandler = (data) => {
@@ -29,7 +29,7 @@ const ForgetPassword = () => {
 
                 if (res.meta.requestStatus === "fulfilled") {
                     hotToast('OTP sent successfully. Please check your email.');
-                    navigator('/reset-password', {
+                    navigate('/instructor/reset-password', {
                         state: { email: data.email }
                     });
                 }
@@ -112,4 +112,4 @@ const ForgetPassword = () => {
     )
 }
 
-export default ForgetPassword
+export default InstructorForgetPassword

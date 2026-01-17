@@ -72,9 +72,9 @@ const InstructorBanner = () => {
               className="flex-1 flex justify-center relative order-2 lg:order-2 w-full">
               {/* Student Image with Bottom Blur Effect */}
               <div className="relative">
-                {/* <img
+                <img
                   src="/images/banner-img.jpg" alt="Student"
-                  className="relative z-20 w-72 sm:w-96 lg:w-[28rem] xl:w-[32rem] object-contain" /> */}
+                  className="relative z-20 w-72 sm:w-96 lg:w-[28rem] xl:w-[32rem] object-contain" />
 
                 {/* Bottom Blur Gradient Overlay */}
                 <div className="absolute bottom-0 left-0 right-0 h-32 sm:h-40 lg:h-10 bg-gradient-to-t from-black via-black/60 to-transparent z-30 pointer-events-none"></div>

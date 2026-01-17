@@ -33,6 +33,11 @@ import InstructorFooter from "../layout/instructor/InstructorFooter";
 import InstructorHome from "../pages/instructor/InstructorHome";
 import InstructorSignup from "../pages/instructor/auth/register/InstructorSignup";
 import InstructorSignin from "../pages/instructor/auth/login/InstructorSignin";
+import InstructorResetPassword from "../pages/instructor/auth/resetPassword/InstructorResetPassword";
+import InstructorForgetPassword from "../pages/instructor/auth/forgetPassword/InstructorForgetPassword";
+import InstructorOtp from "../pages/instructor/auth/otp/InstructorOtp";
+import InstructorRequestForm from "../pages/instructor/request/form/InstructorRequestForm";
+import InstructorRequestStatus from "../pages/instructor/request/status/InstructorRequestStatus";
 
 
 // Student Layout wrapper (must be used inside Router!)
@@ -94,10 +99,11 @@ const Routing = () => {
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/otp" element={<Otp />} />
-        <Route path="/:user_type/dashboard" element={<DashboardLayout />} />
 
 
         {/* instructor */}
+
+        {/* Pages with Layout */}
         <Route path="/instructor/" element={<InstructorLayout> <InstructorHome /></InstructorLayout>} />
 
 
@@ -105,7 +111,17 @@ const Routing = () => {
         {/* Pages (no navbar/footer) */}
         <Route path="/instructor/signin" element={<InstructorSignin />} />
         <Route path="/instructor/signup" element={<InstructorSignup />} />
+        <Route path="/instructor/forget-password" element={<InstructorForgetPassword />} />
+        <Route path="/instructor/reset-password" element={<InstructorResetPassword />} />
+        <Route path="/instructor/otp" element={<InstructorOtp />} />
+        <Route path="/instructor/profile-form" element={<InstructorRequestForm />} />
+        <Route path="/instructor/request-status" element={<InstructorRequestStatus />} />
 
+
+        {/* common  */}
+
+        {/* Pages (no navbar/footer) */}
+        <Route path="/:user_type/dashboard" element={<DashboardLayout />} />
 
 
         {/* 404 Page (no navbar/footer) */}

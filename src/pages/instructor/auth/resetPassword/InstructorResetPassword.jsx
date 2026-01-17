@@ -10,13 +10,13 @@ import hotToast from '../../../../util/hot-toast'
 import supabase from '../../../../util/supabase'
 import { forgetPasswordSlice, resetPasswordSlice } from '../../../../redux/slice/authSlice/authSlice'
 
-const ResetPassword = () => {
+const InstructorResetPassword = () => {
 
     const form = useForm(),
         { register, handleSubmit, formState, control } = form,
         { errors } = formState,
         dispatch = useDispatch(),
-        navigator = useNavigate(),
+        navigate = useNavigate(),
         [passShow, setPassShow] = useState(false),
         [conPassShow, setConPassShow] = useState(false),
         location = useLocation(),
@@ -106,7 +106,7 @@ const ResetPassword = () => {
                         await supabase.auth.signOut();
 
                         getSweetAlert('Congrates', 'Password reset successfully', 'success');
-                        navigator('/signin');
+                        navigate('/instructor/signin');
                     }
                     else {
                         getSweetAlert('Oops...', res.payload.message, 'info');
@@ -258,4 +258,4 @@ const ResetPassword = () => {
     )
 }
 
-export default ResetPassword
+export default InstructorResetPassword

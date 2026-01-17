@@ -38,7 +38,7 @@ const DashboardLayout = ({ currentPage }) => {
 
 
   useEffect(() => {
-    const handleOpenAddCourse = () => setActivePage("user-myCourses");
+    const handleOpenAddCourse = () => setActivePage("student-myCourses");
     window.addEventListener("open-user-course", handleOpenAddCourse);
 
     return () => {
@@ -47,7 +47,7 @@ const DashboardLayout = ({ currentPage }) => {
   }, []);
 
   useEffect(() => {
-    const handleOpenAddCourse = () => setActivePage("add-myCourses");
+    const handleOpenAddCourse = () => setActivePage("instructor-add-myCourses");
     window.addEventListener("open-add-course", handleOpenAddCourse);
 
     return () => {
@@ -77,7 +77,7 @@ const DashboardLayout = ({ currentPage }) => {
 
   const renderContent = () => {
     switch (activePage) {
-      case 'user-dashboard':
+      case 'student-dashboard':
         return <StudentDashboard studentDetails={getStudentData} />;
       case 'home':
         navigate('/');
@@ -85,13 +85,13 @@ const DashboardLayout = ({ currentPage }) => {
       case 'allCourses':
         navigate('/course');
         return;
-      case 'user-myCourses':
+      case 'student-myCourses':
         return <MyCoursesPage studentData={getStudentData} />;
       case 'instructor-dashboard':
         return <InstructorDashboard instructorDetails={getInstructorData} />
       case 'instructor-myCourses':
         return <InstructorCourse instructorDetails={getInstructorData} />;
-      case 'add-myCourses':
+      case 'instructor-add-myCourses':
         return <AddCourseForm />;
       default:
         // return <InstructorDashboard instructorDetails={getInstructorData} />

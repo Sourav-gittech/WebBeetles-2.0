@@ -3,11 +3,11 @@ import { useForm } from 'react-hook-form';
 import { FaFacebook, FaInstagram, FaLinkedinIn, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom'
-import { studentRegister } from '../../../../redux/slice/authSlice/studentAuthSlice';
+import { Link, useNavigate } from 'react-router-dom';
 import getSweetAlert from '../../../../util/sweetAlert';
 import toastifyAlert from '../../../../util/toastify';
 import hotToast from '../../../../util/hot-toast';
+import { registerSlice } from '../../../../redux/slice/authSlice/authSlice';
 
 const Signup = () => {
   const form = useForm(),
@@ -18,7 +18,7 @@ const Signup = () => {
     [show, setShow] = useState(false),
     [confirmShow, setConfirmShow] = useState(false),
     imgType = ['jpeg', 'jpg', 'png'],
-    { isStudentAuthLoading } = useSelector(state => state.studentAuth);
+    { isStudentAuthLoading } = useSelector(state => state.auth);
 
   const registerDataHandler = (data) => {
     // console.log('Received data',data);
@@ -45,12 +45,12 @@ const Signup = () => {
     }
 
     else {
-      dispatch(studentRegister(register_obj))
+      dispatch(registerSlice({ data: register_obj, userType: 'student' }))
         .then(res => {
           // console.log('Response from registration form', res);
 
           if (res.meta.requestStatus === "fulfilled") {
-            hotToast('Registration successfull. Please verify your email',"success");
+            hotToast('Registration successfull. Please verify your email', "success");
             navigator('/otp', {
               state: { email: data.email }
             });

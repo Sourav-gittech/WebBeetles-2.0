@@ -65,10 +65,11 @@ export const listenAuthChanges = () => (dispatch) => {
 }
 
 // Logout
-export const logoutUser = () => async (dispatch) => {
+export const logoutUser = ({ user_type }) => async (dispatch) => {
   try {
-    const token = sessionStorage.getItem("user_token");
-    if (token) sessionStorage.removeItem("user_token");
+    const user_token = user_type == 'student' ? "student_token" : "instructor_token";
+    const token = sessionStorage.getItem(user_token);
+    if (token) sessionStorage.removeItem(user_token);
 
     const { error } = await supabase.auth.signOut();
 

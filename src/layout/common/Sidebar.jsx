@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Home, BookOpen, ChevronLeft, GraduationCap, LogOut } from "lucide-react";
+import { Home, BookOpen, ChevronLeft, GraduationCap, LogOut, LayoutDashboard, BookPlus, BookMarked, BookText } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import getSweetAlert from "../../util/sweetAlert";
@@ -13,9 +13,9 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
   // console.log('Logged user data from sidebar', userData);
   // console.log('user type', user_type,activePage);
 
-useEffect(() => {
-  setActivePage(user_type === "student" ? "user-dashboard" : "instructor-dashboard");
-}, [user_type]);
+  useEffect(() => {
+    setActivePage(user_type === "student" ? "student-dashboard" : "instructor-dashboard");
+  }, [user_type]);
 
 
 
@@ -30,31 +30,31 @@ useEffect(() => {
   // Safely access user from Redux state
   const user = useSelector((state) => state.auth?.user);
   const role = user_type === "student" ? 'Student' : 'Instructor';
-  const userName = userData?.name || "User";
+  const userName = userData?.name || user_type === "student" ? "Student" : "Instructor";
   const userEmail = userData?.email || "";
   const userPhoto = userData?.profile_image_url;
 
   // Sidebar menu items
   const studentMenu = [
-    { name: "Dashboard", icon: <Home size={20} />, key: 'user-dashboard' },
+    { name: "Dashboard", icon: <LayoutDashboard size={20} />, key: 'student-dashboard' },
     { name: "Home", icon: <Home size={20} />, key: 'home' },
     { name: "All Courses", icon: <BookOpen size={20} />, key: 'allCourses' },
-    { name: "My Courses", icon: <BookOpen size={20} />, key: 'user-myCourses' }
+    { name: "My Courses", icon: <BookText size={20} />, key: 'student-myCourses' }
   ];
 
   const instructorMenu = [
-    { name: "Dashboard", icon: <Home size={20} />, key: 'instructor-dashboard' },
+    { name: "Dashboard", icon: <LayoutDashboard size={20} />, key: 'instructor-dashboard' },
     { name: "Home", icon: <Home size={20} />, key: 'home' },
     { name: "All Courses", icon: <BookOpen size={20} />, key: 'allCourses' },
-    { name: "My Courses", icon: <BookOpen size={20} />, key: 'instructor-myCourses' },
-    { name: "Add Courses", icon: <BookOpen size={20} />, key: 'add-myCourses' },
+    { name: "My Courses", icon: <BookMarked size={20} />, key: 'instructor-myCourses' },
+    { name: "Add Courses", icon: <BookPlus size={20} />, key: 'instructor-add-myCourses' },
   ];
 
   const sidebarMenu = user_type === "student" ? studentMenu : instructorMenu;
 
   const userLogout = async () => {
 
-    await dispatch(logoutUser())
+    await dispatch(logoutUser({user_type}))
       .then(res => {
         // console.log('Response for logout', res);
         navigate("/");

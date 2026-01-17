@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import studentAuthSliceReducer from "../slice/authSlice/studentAuthSlice";
+import authSliceReducer from "../slice/authSlice/authSlice";
 import categorySliceReducer from "../slice/categorySlice";
 import checkStudentAuthSliceReducer from "../slice/authSlice/checkStudentAuthSlice";
 import courseSliceReducer from "../slice/couseSlice";
@@ -14,7 +14,7 @@ import reviewSliceReducer from "../slice/reviewSlice";
 const store = configureStore({
     reducer: {
         checkAuth: checkStudentAuthSliceReducer,
-        studentAuth: studentAuthSliceReducer,
+        auth: authSliceReducer,
         student: studentProfileSliceReducer,
         category: categorySliceReducer,
         course: courseSliceReducer,
