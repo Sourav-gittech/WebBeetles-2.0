@@ -7,8 +7,7 @@ import InstructorDashboard from "../../../components/instructor/dashboard/Instru
 import AddCourseForm from "../../../components/instructor/dashboard/AddCourseForm";
 import MyCoursesPage from "../../../components/student/dashboard/MyCoursesPage";
 import InstructorCourse from "../../../components/instructor/dashboard/InstructorCourse";
-import { specificInstructor } from "../../../redux/slice/instructorSlice";
-import { checkLoggedInStudent } from "../../../redux/slice/authSlice/checkStudentAuthSlice";
+import { checkLoggedInUser } from "../../../redux/slice/authSlice/checkUserAuthSlice";
 import { Loader2 } from "lucide-react";
 
 const DashboardLayout = ({ currentPage }) => {
@@ -17,16 +16,14 @@ const DashboardLayout = ({ currentPage }) => {
     { user_type } = useParams(),
     navigate = useNavigate(),
     dispatch = useDispatch(),
-    { isStudentLoading, studentAuthData: getStudentData, studentError } = useSelector(state => state.checkAuth),
-    { isInstructorPending, getInstructorData, isInstructorError } = useSelector(state => state.instructor);
+    { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth);
 
   // console.log('user_type', user_type);
   // console.log('currentPage', currentPage);
-  // console.log('student Auth Data', getStudentData);
-  // console.log('Instructor details', getInstructorData);
+  // console.log('User Auth Data', userAuthData);
 
   useEffect(() => {
-    dispatch(checkLoggedInStudent())
+    dispatch(checkLoggedInUser())
       .then(res => {
         // console.log('Response for fetching user profile', res);
       })
@@ -78,7 +75,7 @@ const DashboardLayout = ({ currentPage }) => {
   const renderContent = () => {
     switch (activePage) {
       case 'student-dashboard':
-        return <StudentDashboard studentDetails={getStudentData} />;
+        return <StudentDashboard studentDetails={userAuthData} />;
       case 'home':
         navigate('/');
         return;
@@ -86,24 +83,24 @@ const DashboardLayout = ({ currentPage }) => {
         navigate('/course');
         return;
       case 'student-myCourses':
-        return <MyCoursesPage studentData={getStudentData} />;
+        return <MyCoursesPage studentData={userAuthData} />;
       case 'instructor-dashboard':
-        return <InstructorDashboard instructorDetails={getInstructorData} />
+        return <InstructorDashboard instructorDetails={userAuthData} />
       case 'instructor-myCourses':
-        return <InstructorCourse instructorDetails={getInstructorData} />;
+        return <InstructorCourse instructorDetails={userAuthData} />;
       case 'instructor-add-myCourses':
         return <AddCourseForm />;
       default:
-        // return <InstructorDashboard instructorDetails={getInstructorData} />
-      return user_type === "student" ? (
-        <StudentDashboard studentDetails={getStudentData} />
-      ) : (
-        <InstructorDashboard instructorDetails={getInstructorData} />
-      );
+        // return <InstructorDashboard instructorDetails={userAuthData} />
+        return user_type === "student" ? (
+          <StudentDashboard studentDetails={userAuthData} />
+        ) : (
+          <InstructorDashboard instructorDetails={userAuthData} />
+        );
     }
   }
 
-  if (isStudentLoading) return (
+  if (isUserLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
@@ -115,8 +112,7 @@ const DashboardLayout = ({ currentPage }) => {
   return (
     <div className="flex min-h-screen w-full bg-black text-white">
       {/* Pass setActivePage as a prop to Sidebar */}
-      <DashboardSidebar setActivePage={setActivePage} activePage={activePage} user_type={user_type} userData={user_type === "student" ? getStudentData : getInstructorData} />
-
+      <DashboardSidebar setActivePage={setActivePage} activePage={activePage} user_type={user_type} userData={userAuthData} />
       {/* Main content */}
       <main className="flex-1 overflow-y-auto px-6 py-8">
         <div className="max-w-7xl mx-auto">

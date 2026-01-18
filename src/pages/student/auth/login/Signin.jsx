@@ -5,21 +5,23 @@ import { FaXTwitter } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginSlice, updateLastSignInAt } from '../../../../redux/slice/authSlice/authSlice'
 import { Link, useNavigate } from 'react-router-dom'
-import toastifyAlert from '../../../../util/toastify'
-import getSweetAlert from '../../../../util/sweetAlert'
+import toastifyAlert from '../../../../util/alert/toastify'
+import getSweetAlert from '../../../../util/alert/sweetAlert'
+import { Loader2 } from 'lucide-react'
+import { logoutUser } from '../../../../redux/slice/authSlice/checkUserAuthSlice'
 // import Lottie from 'lottie-react'
 // import loaderAnimation from '../../../assets/animations/Loading Dots Blue.json';
 
 const Signin = () => {
 
   const form = useForm(),
-    { register, handleSubmit, formState } = form,
-    { errors } = formState,
     dispatch = useDispatch(),
     navigate = useNavigate(),
     [show, setShow] = useState(false),
+    { register, handleSubmit, formState } = form,
+    { errors } = formState,
     { isAuth } = useSelector(state => state.checkAuth),
-    { isStudentAuthLoading } = useSelector(state => state.auth),
+    { isUserAuthLoading } = useSelector(state => state.auth),
     user_type = 'student';
 
   useEffect(() => {
@@ -37,17 +39,24 @@ const Signin = () => {
       password: data.password
     }
 
-    dispatch(loginSlice(login_obj))
+    dispatch(loginSlice({ data: login_obj, role: 'student' }))
       .then(res => {
-        // console.log("Response after user login:", res);
+        console.log("Response after user login:", res);
+
+        if (res?.payload?.userData?.role !== user_type) {
+          getSweetAlert('Oops...', "Invalid login credentials", 'error');
+          dispatch(logoutUser({ user_type, status: false }))
+          return;
+        }
 
         if (res.meta.requestStatus === "fulfilled") {
           sessionStorage.setItem('student_token', res.payload.session.access_token);
 
           dispatch(updateLastSignInAt({ id: res?.payload?.user?.id, user_type }))
             .then(res => {
-              
+
               if (res.meta.requestStatus === "fulfilled") {
+
                 toastifyAlert.success('Logged In Successfully');
                 navigate(`/${user_type}/dashboard`);
               } else {
@@ -137,10 +146,10 @@ const Signin = () => {
                 Forgot your password?
               </Link>
 
-              <button type="submit" disabled={isStudentAuthLoading}
+              <button type="submit" disabled={isUserAuthLoading}
                 className={`w-full py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold text-white transition-colors
-                ${isStudentAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "bg-[#2696f5] hover:bg-[#1679c1]"}`}>
-                {isStudentAuthLoading ? "Logging in..." : "Login"}
+                ${isUserAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "bg-[#2696f5] hover:bg-[#1679c1]"}`}>
+                {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Logging in..." : "Login"}
               </button>
             </form>
 

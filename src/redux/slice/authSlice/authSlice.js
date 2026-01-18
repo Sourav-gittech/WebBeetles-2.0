@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import supabase from "../../../util/supabase";
+import supabase from "../../../util/supabase/supabase";
 
 // register action
 export const registerSlice = createAsyncThunk('authSlice/registerSlice',
@@ -42,6 +42,7 @@ export const registerSlice = createAsyncThunk('authSlice/registerSlice',
                     profile_image_url: imageUrl,
                     profile_image: imageId,
                     is_verified: "pending",
+                    role: "student",
                     is_blocked: false,
                     last_login: null,
                     created_at: new Date(),
@@ -57,9 +58,10 @@ export const registerSlice = createAsyncThunk('authSlice/registerSlice',
                     profile_image: imageId,
                     document: null,
                     application_status: "pending",
+                    role: "instructor",
                     bio: null,
                     expertise: [],
-                    is_approved: false,
+                    application_complete: false,
                     social_links: null,
                     is_verified: "pending",
                     is_blocked: false,
@@ -85,31 +87,31 @@ export const registerSlice = createAsyncThunk('authSlice/registerSlice',
 
 // verify-email action
 export const emailVerifySlice = createAsyncThunk('authSlice/emailVerifySlice',
-    async ({ data, userType }, { rejectWithValue }) => {
+    async ({ data: verificationData, userType }, { rejectWithValue }) => {
         try {
             // Verify OTP with Supabase
             const { data, error } = await supabase.auth.verifyOtp({
-                email: data?.email,
-                token: data?.otp,
+                email: verificationData?.email,
+                token: verificationData?.otp,
                 type: 'email',
             });
 
             if (error) {
                 // On failed OTP verification → mark rejected if still pending
-                const { data: user } = await supabase.from(userType == 'student' ? "students" : "instructors").select("is_verified").eq("email", data?.email).single();
+                const { data: user } = await supabase.from(userType == 'student' ? "students" : "instructors").select("is_verified").eq("email", verificationData?.email).single();
 
                 if (user?.is_verified === "pending") {
-                    await supabase.from(userType == 'student' ? "students" : "instructors").update({ is_verified: "rejected" }).eq("email", data?.email);
+                    await supabase.from(userType == 'student' ? "students" : "instructors").update({ is_verified: "rejected" }).eq("email", verificationData?.email);
                 }
 
                 throw error;
             }
 
             // OTP success → mark fulfilled if still pending
-            const { data: user } = await supabase.from(userType == 'student' ? "students" : "instructors").select("is_verified").eq("email", data?.email).single();
+            const { data: user } = await supabase.from(userType == 'student' ? "students" : "instructors").select("is_verified").eq("email", verificationData?.email).single();
 
             if (user?.is_verified === "pending" || user?.is_verified === "rejected") {
-                await supabase.from(userType == 'student' ? "students" : "instructors").update({ is_verified: "fulfilled" }).eq("email", data?.email);
+                await supabase.from(userType == 'student' ? "students" : "instructors").update({ is_verified: "fulfilled" }).eq("email", verificationData?.email);
             }
 
             return data;
@@ -121,7 +123,7 @@ export const emailVerifySlice = createAsyncThunk('authSlice/emailVerifySlice',
 
 // login action
 export const loginSlice = createAsyncThunk('authSlice/loginSlice',
-    async (data, { rejectWithValue }) => {
+    async ({ data, role }, { rejectWithValue }) => {
         try {
             // console.log('Data received for user login', data);
 
@@ -129,11 +131,26 @@ export const loginSlice = createAsyncThunk('authSlice/loginSlice',
                 email: data.email,
                 password: data.password,
             });
+            // console.log("Response for user login", res);
+
             if (res.error) throw res.error;
 
+            const userId = res?.data.user.id;
+            let userData = null, userError = null;
+
+            if (role == 'student') {
+                ({ data: userData, error: userError } = await supabase.from("students").select("*").eq("id", userId).single());
+            }
+            else if (role == 'instructor') {
+                ({ data: userData, error: userError } = await supabase.from("instructors").select("*").eq("id", userId).single());
+            }
+            else {
+                userData = null, userError = null;
+            }
             // console.log('Response for user login', res);
 
-            return res.data;
+            return { ...res.data, userData: userData };
+
         } catch (err) {
             if (err.response && err.response.data) {
                 return rejectWithValue(err.response.data);
@@ -261,7 +278,7 @@ export const verifyOtpForReset = createAsyncThunk("authSlice/verifyOtpForReset",
 export const resetPasswordSlice = createAsyncThunk("authSlice/resetPasswordSlice",
     async (data, { rejectWithValue, getState, dispatch }) => {
         try {
-            let session = getState().studentAuth.otpSession; // stored previously
+            let session = getState().auth.otpSession; // stored previously
             // console.log('session', session);
 
             // If session is missing → dispatch OTP verification
@@ -332,10 +349,10 @@ export const resendOTPSlice = createAsyncThunk('authSlice/resendOTPSlice',
 
 
 const initialState = {
-    isStudentAuthLoading: false,
-    getStudentAuthData: [],
+    isUserAuthLoading: false,
+    getUserAuthData: [],
     otpSession: null,
-    isStudentAuthError: null
+    isUserAuthError: null
 }
 
 export const authSlice = createSlice({
@@ -345,121 +362,121 @@ export const authSlice = createSlice({
         builder
             // register reducer
             .addCase(registerSlice.pending, (state, action) => {
-                state.isStudentAuthLoading = true;
+                state.isUserAuthLoading = true;
             })
             .addCase(registerSlice.fulfilled, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = action.payload;
-                state.isStudentAuthError = null;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = action.payload;
+                state.isUserAuthError = null;
             })
             .addCase(registerSlice.rejected, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = [];
-                state.isStudentAuthError = action.error?.message;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = [];
+                state.isUserAuthError = action.error?.message;
             })
 
             // email verify reducer
             .addCase(emailVerifySlice.pending, (state, action) => {
-                state.isStudentAuthLoading = true;
+                state.isUserAuthLoading = true;
             })
             .addCase(emailVerifySlice.fulfilled, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = action.payload;
-                state.isStudentAuthError = null;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = action.payload;
+                state.isUserAuthError = null;
             })
             .addCase(emailVerifySlice.rejected, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = [];
-                state.isStudentAuthError = action.error?.message;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = [];
+                state.isUserAuthError = action.error?.message;
             })
 
             // login reducer
             .addCase(loginSlice.pending, (state, action) => {
-                state.isStudentAuthLoading = true;
+                state.isUserAuthLoading = true;
             })
             .addCase(loginSlice.fulfilled, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = action.payload;
-                state.isStudentAuthError = null;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = action.payload;
+                state.isUserAuthError = null;
             })
             .addCase(loginSlice.rejected, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = [];
-                state.isStudentAuthError = action.error?.message;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = [];
+                state.isUserAuthError = action.error?.message;
             })
-            
+
             // update last-login reducer
             .addCase(updateLastSignInAt.pending, (state, action) => {
-                state.isStudentAuthLoading = true;
+                state.isUserAuthLoading = true;
             })
             .addCase(updateLastSignInAt.fulfilled, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = action.payload;
-                state.isStudentAuthError = null;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = action.payload;
+                state.isUserAuthError = null;
             })
             .addCase(updateLastSignInAt.rejected, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = [];
-                state.isStudentAuthError = action.error?.message;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = [];
+                state.isUserAuthError = action.error?.message;
             })
 
             // forget password reducer
             .addCase(forgetPasswordSlice.pending, (state, action) => {
-                state.isStudentAuthLoading = true;
+                state.isUserAuthLoading = true;
             })
             .addCase(forgetPasswordSlice.fulfilled, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = action.payload;
-                state.isStudentAuthError = null;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = action.payload;
+                state.isUserAuthError = null;
             })
             .addCase(forgetPasswordSlice.rejected, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = [];
-                state.isStudentAuthError = action.error?.message;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = [];
+                state.isUserAuthError = action.error?.message;
             })
 
             // reset password reducer
             .addCase(resetPasswordSlice.pending, (state, action) => {
-                state.isStudentAuthLoading = true;
+                state.isUserAuthLoading = true;
             })
             .addCase(resetPasswordSlice.fulfilled, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = action.payload;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = action.payload;
                 state.otpSession = null;
-                state.isStudentAuthError = null;
+                state.isUserAuthError = null;
             })
             .addCase(resetPasswordSlice.rejected, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = [];
-                state.isStudentAuthError = action.error?.message;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = [];
+                state.isUserAuthError = action.error?.message;
             })
 
             // verify OTP reducer
             .addCase(verifyOtpForReset.pending, (state, action) => {
-                state.isStudentAuthLoading = true;
+                state.isUserAuthLoading = true;
             })
             .addCase(verifyOtpForReset.fulfilled, (state, action) => {
-                state.isStudentAuthLoading = false;
+                state.isUserAuthLoading = false;
                 state.otpSession = action.payload;
             })
             .addCase(verifyOtpForReset.rejected, (state, action) => {
-                state.isStudentAuthLoading = false;
+                state.isUserAuthLoading = false;
                 state.otpSession = null;
             })
 
             // resend OTP reducer
             .addCase(resendOTPSlice.pending, (state, action) => {
-                state.isStudentAuthLoading = true;
+                state.isUserAuthLoading = true;
             })
             .addCase(resendOTPSlice.fulfilled, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = action.payload;
-                state.isStudentAuthError = null;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = action.payload;
+                state.isUserAuthError = null;
             })
             .addCase(resendOTPSlice.rejected, (state, action) => {
-                state.isStudentAuthLoading = false;
-                state.getStudentAuthData = [];
-                state.isStudentAuthError = action.error?.message;
+                state.isUserAuthLoading = false;
+                state.getUserAuthData = [];
+                state.isUserAuthError = action.error?.message;
             })
     }
 });

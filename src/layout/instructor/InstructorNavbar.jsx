@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { checkLoggedInUser, logoutUser } from "../../redux/slice/authSlice/checkUserAuthSlice";
+import getSweetAlert from "../../util/alert/sweetAlert";
 
 const InstructorNavbar = () => {
   const [isOpen, setIsOpen] = useState(false),
     [activeDropdown, setActiveDropdown] = useState(null),
-    [scrolled, setScrolled] = useState(false);
+    [scrolled, setScrolled] = useState(false),
+    dispatch = useDispatch(),
+    navigate = useNavigate(),
+    { isUserLoading, userAuthData: getInstructorData, userError } = useSelector(state => state.checkAuth);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +23,35 @@ const InstructorNavbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const userLogout = async () => {
+
+    await dispatch(logoutUser({ user_type: 'instructor', status: true }))
+      .then(res => {
+        // console.log('Response for logout', res);
+        navigate("/instructor/");
+      })
+      .catch(err => {
+        console.log('Error occured', err);
+        getSweetAlert({
+          title: "Logout Failed!",
+          text: "Something went wrong.",
+          icon: "error"
+        });
+      });
+  }
+
+  useEffect(() => {
+    dispatch(checkLoggedInUser())
+      .then(res => {
+        // console.log('Response for fetching user profile', res);
+      })
+      .catch((err) => {
+        getSweetAlert('Oops...', 'Something went wrong!', 'error');
+        console.log("Error occurred", err);
+      });
+  }, [dispatch]);
+
+  // console.log('User data', getInstructorData);
   const handleNavClick = () => {
     setIsOpen(false);
     setActiveDropdown(null);
@@ -66,12 +101,46 @@ const InstructorNavbar = () => {
 
             {/* Let's Start Button (Desktop + Tablet) */}
             <div className="hidden md:block">
-              <Link
-                to="/instructor/signin"
-                className="bg-white/20 backdrop-blur-sm border border-white/30 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-semibold hover:bg-white/40 transition-all duration-300 transform hover:scale-105 text-sm lg:text-base"
-              >
-                Let's Start
-              </Link>
+              {!getInstructorData ? (
+                <Link
+                  to="/instructor/signin"
+                  className="bg-white/20 backdrop-blur-sm border border-white/30 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-semibold hover:bg-white/40 transition-all duration-300 transform hover:scale-105 text-sm lg:text-base"
+                >
+                  Let's Start
+                </Link>) :
+                <>
+                  <div className="relative group inline-block">
+                    {/* Round Profile Button */}
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg group-hover:bg-white/30 transition-all duration-300 cursor-pointer">
+                      <span className="text-white text-lg sm:text-xl lg:text-2xl font-bold">
+                        {getInstructorData ? (
+                          <img className="rounded-full border-3 border-white/20 w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14"
+                            src={
+                              getInstructorData.profile_image_url
+                                ? `${getInstructorData.profile_image_url}`
+                                : "/demo/user.png"
+                            }
+                            alt={getInstructorData?.name?.charAt(0)} />) : null}
+                      </span>
+                    </div>
+
+                    {/* Dropdown Menu (visible on hover) */}
+                    <div className="absolute right-0 mt-2 w-40 bg-white/10 backdrop-blur-md rounded-lg shadow-lg py-2 text-white font-medium text-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                      <Link
+                        to="/instructor/dashboard"
+                        className="block px-4 py-2 hover:bg-white/20 transition-all duration-200"
+                      >
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={() => userLogout()}
+                        className="w-full text-left px-4 py-2 hover:bg-white/20 transition-all duration-200"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                </>}
             </div>
 
             {/* Mobile Hamburger */}
@@ -146,13 +215,34 @@ const InstructorNavbar = () => {
 
               {/* Let's Start / Profile */}
               <div className="mt-6">
-                <Link
-                  to="/instructor/signin"
-                  className="block bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-4 rounded-xl font-semibold text-center transition-all duration-300 transform hover:scale-105 shadow-lg"
-                  onClick={handleNavClick}
-                >
-                  Let's Start
-                </Link>
+                {!getInstructorData ? (
+                  <Link
+                    to="/instructor/signin"
+                    className="block bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-4 rounded-xl font-semibold text-center transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    onClick={handleNavClick}
+                  >
+                    Let's Start
+                  </Link>) : (
+                  <>
+                    <Link
+                      to="/instructor/dashboard"
+                      className="block text-white hover:text-purple-300 hover:bg-white/5 transition-all duration-200 font-medium py-4 px-4 rounded-lg mb-3"
+                      onClick={handleNavClick}
+                    >
+                      Dashboard
+                    </Link>
+
+                    <button
+                      onClick={() => {
+                        userLogout();
+                        handleNavClick();
+                      }}
+                      className="block bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-white px-6 py-4 rounded-xl font-semibold text-center transition-all duration-300 w-full"
+                    >
+                      Logout
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

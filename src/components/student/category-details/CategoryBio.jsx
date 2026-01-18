@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { specificCategory } from "../../../redux/slice/specificCategorySlice";
-import getSweetAlert from "../../../util/sweetAlert";
+import getSweetAlert from "../../../util/alert/sweetAlert";
 
 const CategoryBio = ({ categoryName }) => {
     const dispatch = useDispatch();

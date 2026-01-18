@@ -4,15 +4,16 @@ import { FaArrowLeft } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { emailVerifySlice, resendOTPSlice } from "../../../../redux/slice/authSlice/authSlice";
-import getSweetAlert from "../../../../util/sweetAlert";
-import toastifyAlert from "../../../../util/toastify";
+import getSweetAlert from "../../../../util/alert/sweetAlert";
+import toastifyAlert from "../../../../util/alert/toastify";
+import { Loader2 } from "lucide-react";
 
 const Otp = () => {
-    const { handleSubmit, control } = useForm(),
+    const { handleSubmit, control, reset } = useForm(),
         dispatch = useDispatch(),
         navigator = useNavigate(),
         location = useLocation(),
-        { isStudentAuthLoading } = useSelector(state => state.auth);
+        { isUserAuthLoading } = useSelector(state => state.auth);
 
     const [counter, setCounter] = useState(180);
     const [disabled, setDisabled] = useState(true);
@@ -49,6 +50,18 @@ const Otp = () => {
                 // console.log('Response from form', res);
 
                 toastifyAlert.success(res.payload.message);
+
+                reset({
+                    otpField: {
+                        0: "", 1: "", 2: "", 3: "",
+                        4: "", 5: "", 6: "", 7: ""
+                    }
+                });
+
+                setTimeout(() => {
+                    document.getElementById("otp-input-0")?.focus();
+                }, 100);
+
                 if (!disabled) setCounter(180);
             })
             .catch(err => {
@@ -187,7 +200,7 @@ const Otp = () => {
                                     </p>
 
                                 ) : (
-                                    <button type="button" onClick={() => handleResend(email)} className="text-white text-sm font-medium hover:text-blue-300">
+                                    <button type="button" disabled={isUserAuthLoading} onClick={() => handleResend(email)} className="text-white text-sm font-medium hover:text-blue-300 cursor-pointer">
                                         Resend OTP
                                     </button>
                                 )}
@@ -198,7 +211,7 @@ const Otp = () => {
                                 type="submit"
                                 className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full text-base font-semibold"
                             >
-                                {isStudentAuthLoading ? 'Verifying...' : 'Verify OTP'}
+                                {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? 'Verifying...' : 'Verify OTP'}
                             </button>
                         </form>
                     </div>

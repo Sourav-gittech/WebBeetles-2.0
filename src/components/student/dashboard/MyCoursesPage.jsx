@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userWiseCourse } from '../../../redux/slice/couseSlice';
 import { specificCourse } from '../../../redux/slice/specificCourseSlice';
 import CourseRating from './student-myCourse/rating-review/CourseRating';
-import getSweetAlert from '../../../util/sweetAlert';
+import getSweetAlert from '../../../util/alert/sweetAlert';
 import ReviewCard from './student-myCourse/rating-review/ReviewCard';
 import ReviewForm from './student-myCourse/rating-review/ReviewForm';
 import StudentMyCourseStats from './student-myCourse/StudentMyCourseStats';

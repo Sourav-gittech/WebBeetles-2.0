@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from 'react-redux';
 import { addReviewRequest } from '../../../../../redux/slice/reviewSlice';
 import { Star } from 'lucide-react';
-import getSweetAlert from '../../../../../util/sweetAlert';
+import getSweetAlert from '../../../../../util/alert/sweetAlert';
 import { specificCourse } from '../../../../../redux/slice/specificCourseSlice';
 
 const ReviewForm = ({ getSpecificCourseData, setShowReviewForm}) => {

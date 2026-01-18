@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { allCourse } from '../../../redux/slice/couseSlice';
 import { HiCurrencyRupee } from 'react-icons/hi';
-import getSweetAlert from '../../../util/sweetAlert';
+import getSweetAlert from '../../../util/alert/sweetAlert';
 import Lottie from "lottie-react";
 import loaderAnimation from '../../../assets/animations/loader.json';
 

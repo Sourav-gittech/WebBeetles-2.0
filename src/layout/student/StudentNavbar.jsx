@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import getSweetAlert from "../../util/sweetAlert";
-import { checkLoggedInStudent, logoutUser } from "../../redux/slice/authSlice/checkStudentAuthSlice";
+import getSweetAlert from "../../util/alert/sweetAlert";
+import { checkLoggedInUser, logoutUser } from "../../redux/slice/authSlice/checkUserAuthSlice";
 
 const StudentNavbar = () => {
   const [isOpen, setIsOpen] = useState(false),
     [activeDropdown, setActiveDropdown] = useState(null),
     [scrolled, setScrolled] = useState(false),
-    { isStudentLoading, studentAuthData: getStudentData, studentError } = useSelector(state => state.checkAuth),
+    { isUserLoading, userAuthData: getStudentData, userError } = useSelector(state => state.checkAuth),
     dispatch = useDispatch(),
     navigate = useNavigate();
 
@@ -27,7 +27,7 @@ const StudentNavbar = () => {
 
   const userLogout = async () => {
 
-    await dispatch(logoutUser())
+    await dispatch(logoutUser({ user_type: 'student',status:true }))
       .then(res => {
         // console.log('Response for logout', res);
         navigate("/");
@@ -43,7 +43,7 @@ const StudentNavbar = () => {
   }
 
   useEffect(() => {
-    dispatch(checkLoggedInStudent())
+    dispatch(checkLoggedInUser())
       .then(res => {
         // console.log('Response for fetching user profile', res);
       })

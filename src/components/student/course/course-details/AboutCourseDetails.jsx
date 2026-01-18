@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { FaCheckCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import getSweetAlert from "../../../../util/sweetAlert";
+import getSweetAlert from "../../../../util/alert/sweetAlert";
 import { specificCourse } from "../../../../redux/slice/specificCourseSlice";
 import Lottie from "lottie-react";
 import loaderAnimation from "../../../../assets/animations/loader.json";

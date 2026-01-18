@@ -3,24 +3,25 @@ import { Controller, useForm } from 'react-hook-form'
 import { FaArrowLeft } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import toastifyAlert from '../../../../util/toastify'
-import getSweetAlert from '../../../../util/sweetAlert'
+import toastifyAlert from '../../../../util/alert/toastify'
+import getSweetAlert from '../../../../util/alert/sweetAlert'
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6'
-import hotToast from '../../../../util/hot-toast'
-import supabase from '../../../../util/supabase'
+import hotToast from '../../../../util/alert/hot-toast'
+import supabase from '../../../../util/supabase/supabase'
 import { forgetPasswordSlice, resetPasswordSlice } from '../../../../redux/slice/authSlice/authSlice'
+import { Loader2 } from 'lucide-react'
 
 const ResetPassword = () => {
 
     const form = useForm(),
-        { register, handleSubmit, formState, control } = form,
+        { register, handleSubmit, formState, control, reset } = form,
         { errors } = formState,
         dispatch = useDispatch(),
         navigator = useNavigate(),
         [passShow, setPassShow] = useState(false),
         [conPassShow, setConPassShow] = useState(false),
         location = useLocation(),
-        { isStudentAuthLoading } = useSelector(state => state.auth);
+        { isUserAuthLoading } = useSelector(state => state.auth);
 
     const [counter, setCounter] = useState(180);
     const [disabled, setDisabled] = useState(true);
@@ -57,6 +58,17 @@ const ResetPassword = () => {
                 if (res.meta.requestStatus === "fulfilled") {
 
                     hotToast("OTP re-sent successfully!");
+
+                    reset({
+                        otpField: {
+                            0: "", 1: "", 2: "", 3: "",
+                            4: "", 5: "", 6: "", 7: ""
+                        }
+                    });
+
+                    setTimeout(() => {
+                        document.getElementById("otp-input-0")?.focus();
+                    }, 100);
 
                     // Reset timer
                     setCounter(180);
@@ -206,7 +218,7 @@ const ResetPassword = () => {
                                     </p>
 
                                 ) : (
-                                    <button type="button" onClick={() => handleResend(email)} className="text-white text-sm font-medium hover:text-blue-300">
+                                    <button type="button" onClick={() => handleResend(email)} className="text-white text-sm font-medium hover:text-blue-300 cursor-pointer">
                                         Resend OTP
                                     </button>
                                 )}
@@ -218,7 +230,7 @@ const ResetPassword = () => {
                                 </label>
                                 <div className="relative">
                                     <input type={passShow ? "text" : "password"} autoComplete='new-password' placeholder="Enter password" {...register('pwd', {
-                                        required: 'Required*',
+                                        required: 'Password is required*',
                                         pattern: {
                                             value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/,
                                             message: 'Password must be 8+ chars with uppercase, lowercase, number, and special char'
@@ -243,10 +255,10 @@ const ResetPassword = () => {
                             </div>
 
                             <button
-                                type="submit" disabled={isStudentAuthLoading}
+                                type="submit" disabled={isUserAuthLoading}
                                 className={`w-full text-white py-2 rounded-full text-base font-semibold mt-0 transition-colors
-                                ${isStudentAuthLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}>
-                                {isStudentAuthLoading ? "Processing..." : "Reset Password"}
+                                ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}>
+                                {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Processing..." : "Reset Password"}
                             </button>
                         </form>
                     </div>

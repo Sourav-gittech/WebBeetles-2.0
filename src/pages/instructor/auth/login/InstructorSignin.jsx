@@ -5,8 +5,10 @@ import { FaXTwitter } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginSlice, updateLastSignInAt } from '../../../../redux/slice/authSlice/authSlice'
 import { Link, useNavigate } from 'react-router-dom'
-import toastifyAlert from '../../../../util/toastify'
-import getSweetAlert from '../../../../util/sweetAlert'
+import toastifyAlert from '../../../../util/alert/toastify'
+import getSweetAlert from '../../../../util/alert/sweetAlert'
+import { Loader2 } from 'lucide-react'
+import { logoutUser } from '../../../../redux/slice/authSlice/checkUserAuthSlice'
 // import Lottie from 'lottie-react'
 // import loaderAnimation from '../../../assets/animations/Loading Dots Blue.json';
 
@@ -19,7 +21,7 @@ const InstructorSignin = () => {
     navigate = useNavigate(),
     [show, setShow] = useState(false),
     { isAuth } = useSelector(state => state.checkAuth),
-    { isStudentAuthLoading } = useSelector(state => state.auth),
+    { isUserAuthLoading } = useSelector(state => state.auth),
     user_type = 'instructor';
 
   useEffect(() => {
@@ -37,27 +39,49 @@ const InstructorSignin = () => {
       password: data.password
     }
 
-    dispatch(loginSlice(login_obj))
+    dispatch(loginSlice({ data: login_obj, role: 'instructor' }))
       .then(res => {
         // console.log("Response after user login:", res);
 
+        if (res?.payload?.userData?.role !== user_type) {
+          getSweetAlert('Oops...', "Invalid login credentials", 'error');
+          dispatch(logoutUser({ user_type, status: false }))
+          return;
+        }
+
+        const instructorData = res?.payload?.userData;
+
         if (res.meta.requestStatus === "fulfilled") {
+
           sessionStorage.setItem('instructor_token', res.payload.session.access_token);
 
-          dispatch(updateLastSignInAt({ id: res?.payload?.user?.id, user_type: 'instructor' }))
-            .then(res => {
-              
-              if (res.meta.requestStatus === "fulfilled") {
-                toastifyAlert.success('Logged In Successfully');
-                navigate(`/${user_type}/dashboard`);
-              } else {
-                getSweetAlert('Oops...', res.payload, 'info');
-              }
-            })
-            .catch(err => {
-              console.log('Error occured', err);
-              getSweetAlert('Oops...', 'Something went wrong!', 'error');
-            });
+          if (instructorData?.application_status == 'pending' && !instructorData?.application_complete) {
+            navigate(`/instructor/profile-form`, { state: { instructorData } });
+          }
+          else if (instructorData?.application_status != 'approved' && instructorData?.application_complete) {
+            navigate(`/instructor/request-status`, { state: { instructorData } });
+          }
+          else if (instructorData?.application_status == 'approved' && instructorData?.last_login == null) {
+            navigate(`/instructor/request-status`, { state: { instructorData } });
+          }
+          else {
+            dispatch(updateLastSignInAt({ id: res?.payload?.user?.id, user_type }))
+              .then(res => {
+
+                if (res.meta.requestStatus === "fulfilled") {
+
+                  toastifyAlert.success('Logged In Successfully');
+                  navigate(`/${user_type}/dashboard`);
+
+                } else {
+                  getSweetAlert('Oops...', res.payload, 'info');
+                }
+              })
+              .catch(err => {
+                console.log('Error occured', err);
+                getSweetAlert('Oops...', 'Something went wrong!', 'error');
+              });
+          }
         }
         else {
           // getSweetAlert('Oops...', 'Something went wrong!', 'error');
@@ -137,10 +161,10 @@ const InstructorSignin = () => {
                 Forgot your password?
               </Link>
 
-              <button type="submit" disabled={isStudentAuthLoading}
+              <button type="submit" disabled={isUserAuthLoading}
                 className={`w-full py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold text-white transition-colors
-                ${isStudentAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "bg-[#f70202] hover:bg-[#f74747] hover:border-2 hover:border-white"}`}>
-                {isStudentAuthLoading ? "Logging in..." : "Login"}
+                ${isUserAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "bg-[#f70202] hover:bg-[#f74747] hover:border-2 hover:border-white"}`}>
+                {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Logging in..." : "Login"}
               </button>
             </form>
 

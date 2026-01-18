@@ -7,76 +7,76 @@ import {
   Globe, Link as LinkIcon, Tag, Code, ExternalLink
 } from "lucide-react";
 import { FaPinterest, FaDiscord, FaSlack, FaReddit } from "react-icons/fa";
-import toastifyAlert from "../../../util/toastify";
+import toastifyAlert from "../../../util/alert/toastify";
 import { useDispatch } from "react-redux";
 import { updateInstructor } from "../../../redux/slice/instructorSlice";
-import getSweetAlert from "../../../util/sweetAlert";
+import getSweetAlert from "../../../util/alert/sweetAlert";
 import { updateStudentProfile } from "../../../redux/slice/studentSlice";
 
 const InstructorDashboard = ({ instructorDetails }) => {
 
-  // console.log('Instructor data',instructorDetails);
+  console.log('Instructor data', instructorDetails);
 
-  instructorDetails = {
-    _id: {
-      $oid: "68daf332ee503750d1bbe18d"
-    },
-    slug: "sundar-pichai",
-    user: {
-      $oid: "68daf1c2ee503750d1bbe185"
-    },
-    bio: "Web Developer.",
-    expertise: [
-      "JavaScript",
-      "Node.js",
-      "MongoDB"
-    ],
-    id: "/uploads/instructors/1759179570038-643631694.jpg",
-    socialLinks: [
-      {
-        platform: "LinkedIn",
-        url: "https://linkedin.com",
-        _id: {
-          $oid: "68eb19354c634fcdc258b94b"
-        }
-      },
-      {
-        platform: "Twitter",
-        url: "https://twitter.com",
-        _id: {
-          $oid: "68eb19354c634fcdc258b94c"
-        }
-      }
-    ],
-    applicationStatus: "pending",
-    isApproved: false,
-    createdAt: {
-      $date: "2025-09-29T20:59:30.163Z"
-    },
-    updatedAt: {
-      $date: "2025-10-12T02:59:44.509Z"
-    },
-    __v: 8
+  // instructorDetails = {
+  //   _id: {
+  //     $oid: "68daf332ee503750d1bbe18d"
+  //   },
+  //   slug: "sundar-pichai",
+  //   user: {
+  //     $oid: "68daf1c2ee503750d1bbe185"
+  //   },
+  //   bio: "Web Developer.",
+  //   expertise: [
+  //     "JavaScript",
+  //     "Node.js",
+  //     "MongoDB"
+  //   ],
+  //   id: "/uploads/instructors/1759179570038-643631694.jpg",
+  //   socialLinks: [
+  //     {
+  //       platform: "LinkedIn",
+  //       url: "https://linkedin.com",
+  //       _id: {
+  //         $oid: "68eb19354c634fcdc258b94b"
+  //       }
+  //     },
+  //     {
+  //       platform: "Twitter",
+  //       url: "https://twitter.com",
+  //       _id: {
+  //         $oid: "68eb19354c634fcdc258b94c"
+  //       }
+  //     }
+  //   ],
+  //   applicationStatus: "pending",
+  //   isApproved: false,
+  //   createdAt: {
+  //     $date: "2025-09-29T20:59:30.163Z"
+  //   },
+  //   updatedAt: {
+  //     $date: "2025-10-12T02:59:44.509Z"
+  //   },
+  //   __v: 8
 
-  }
+  // }
 
-  const name = instructorDetails?.user?.name || "Instructor";
-  const [photo, setPhoto] = useState(instructorDetails?.user?.profileImage);
-  const email = instructorDetails?.user?.email || "";
-  const isVerified = instructorDetails?.user?.isVerified || false;
+  const name = instructorDetails?.name || "Instructor";
+  const [photo, setPhoto] = useState(instructorDetails?.profile_image_url || instructorDetails?.profile_image);
+  const email = instructorDetails?.email || "";
+  const isVerified = instructorDetails?.isVerified == "fulfilled" ? true : false;
   const expertise = instructorDetails?.expertise || [];
-  const socialLinks = instructorDetails?.socialLinks || [];
-  const slug = instructorDetails?.slug || "";
+  const socialLinks = instructorDetails?.social_links || [];
+  const slug = instructorDetails?.name?.toLowerCase()?.split(" ")?.join("-") || "";
   const isApproved = instructorDetails?.isApproved || false;
-  const applicationStatus = instructorDetails?.applicationStatus || "";
-  const createdAt = instructorDetails?.createdAt || "";
-  const updatedAt = instructorDetails?.updatedAt || "";
+  const applicationStatus = instructorDetails?.application_status || "";
+  const createdAt = instructorDetails?.created_at || "";
+  const updatedAt = instructorDetails?.updated_at || "";
   const dispatch = useDispatch(),
     imgType = ['jpeg', 'jpg', 'png'];
 
   useEffect(() => {
-    if (instructorDetails?.user?.profileImage) {
-      setPhoto(instructorDetails.user.profileImage);
+    if (instructorDetails?.profile_image_url) {
+      setPhoto(instructorDetails.profile_image_url);
     }
   }, [instructorDetails]);
 
@@ -370,7 +370,7 @@ const InstructorDashboard = ({ instructorDetails }) => {
           <div className="flex flex-col md:flex-row items-center md:items-start gap-4 lg:gap-6">
             <div className="relative flex-shrink-0">
               <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full ring-4 ring-white/30 overflow-hidden shadow-2xl bg-gradient-to-br from-blue-400 to-purple-500">
-                {photo?.startsWith("blob:") ? <img src={photo} /> : photo ? <img src={`http://localhost:3005${photo}`} alt={name} className="w-full h-full object-cover" /> :
+                {photo ? <img src={photo} /> :
                   <div className="w-full h-full flex items-center justify-center text-white text-2xl sm:text-3xl lg:text-4xl font-bold">{name[0].toUpperCase()}</div>}
               </div>
               {isVerified && (

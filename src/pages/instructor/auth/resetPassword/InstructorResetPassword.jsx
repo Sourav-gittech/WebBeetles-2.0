@@ -3,24 +3,25 @@ import { Controller, useForm } from 'react-hook-form'
 import { FaArrowLeft } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import toastifyAlert from '../../../../util/toastify'
-import getSweetAlert from '../../../../util/sweetAlert'
+import toastifyAlert from '../../../../util/alert/toastify'
+import getSweetAlert from '../../../../util/alert/sweetAlert'
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6'
-import hotToast from '../../../../util/hot-toast'
-import supabase from '../../../../util/supabase'
+import hotToast from '../../../../util/alert/hot-toast'
+import supabase from '../../../../util/supabase/supabase'
 import { forgetPasswordSlice, resetPasswordSlice } from '../../../../redux/slice/authSlice/authSlice'
+import { Loader2 } from 'lucide-react'
 
 const InstructorResetPassword = () => {
 
     const form = useForm(),
-        { register, handleSubmit, formState, control } = form,
+        { register, handleSubmit, formState, control, reset } = form,
         { errors } = formState,
         dispatch = useDispatch(),
         navigate = useNavigate(),
         [passShow, setPassShow] = useState(false),
         [conPassShow, setConPassShow] = useState(false),
         location = useLocation(),
-        { isStudentAuthLoading } = useSelector(state => state.auth);
+        { isUserAuthLoading } = useSelector(state => state.auth);
 
     const [counter, setCounter] = useState(180);
     const [disabled, setDisabled] = useState(true);
@@ -57,6 +58,17 @@ const InstructorResetPassword = () => {
                 if (res.meta.requestStatus === "fulfilled") {
 
                     hotToast("OTP re-sent successfully!");
+
+                    reset({
+                        otpField: {
+                            0: "", 1: "", 2: "", 3: "",
+                            4: "", 5: "", 6: "", 7: ""
+                        }
+                    });
+
+                    setTimeout(() => {
+                        document.getElementById("otp-input-0")?.focus();
+                    }, 100);
 
                     // Reset timer
                     setCounter(180);
@@ -243,10 +255,10 @@ const InstructorResetPassword = () => {
                             </div>
 
                             <button
-                                type="submit" disabled={isStudentAuthLoading}
+                                type="submit" disabled={isUserAuthLoading}
                                 className={`w-full text-white py-2 rounded-full text-base font-semibold mt-0 transition-colors
-                                ${isStudentAuthLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}>
-                                {isStudentAuthLoading ? "Processing..." : "Reset Password"}
+                                ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}>
+                                {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Processing..." : "Reset Password"}
                             </button>
                         </form>
                     </div>

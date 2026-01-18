@@ -4,8 +4,8 @@ import { MdArrowOutward, MdCheckCircle } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addQuery } from "../../../redux/slice/contactSlice";
-import getSweetAlert from "../../../util/sweetAlert";
-import { checkLoggedInStudent, fetchStudentDetails } from "../../../redux/slice/authSlice/checkStudentAuthSlice";
+import getSweetAlert from "../../../util/alert/sweetAlert";
+import { checkLoggedInUser, fetchStudentDetails } from "../../../redux/slice/authSlice/checkUserAuthSlice";
 
 const ContactForm = () => {
   const [showToast, setShowToast] = useState(false),
@@ -19,7 +19,7 @@ const ContactForm = () => {
     { errors, isSubmitting } = formState;
 
  useEffect(() => {
-     dispatch(checkLoggedInStudent())
+     dispatch(checkLoggedInUser())
        .then(res => {
          console.log('Response for fetching user profile', res);
        })

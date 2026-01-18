@@ -4,15 +4,16 @@ import { FaArrowLeft } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { emailVerifySlice, resendOTPSlice } from "../../../../redux/slice/authSlice/authSlice";
-import getSweetAlert from "../../../../util/sweetAlert";
-import toastifyAlert from "../../../../util/toastify";
+import getSweetAlert from "../../../../util/alert/sweetAlert";
+import toastifyAlert from "../../../../util/alert/toastify";
+import { Loader2 } from "lucide-react";
 
 const InstructorOtp = () => {
-    const { handleSubmit, control } = useForm(),
+    const { handleSubmit, control, reset } = useForm(),
         dispatch = useDispatch(),
         navigate = useNavigate(),
         location = useLocation(),
-        { isStudentAuthLoading } = useSelector(state => state.auth);
+        { isUserAuthLoading } = useSelector(state => state.auth);
 
     const [counter, setCounter] = useState(180);
     const [disabled, setDisabled] = useState(true);
@@ -49,6 +50,18 @@ const InstructorOtp = () => {
                 // console.log('Response from form', res);
 
                 toastifyAlert.success(res.payload.message);
+
+                reset({
+                    otpField: {
+                        0: "", 1: "", 2: "", 3: "",
+                        4: "", 5: "", 6: "", 7: ""
+                    }
+                });
+
+                setTimeout(() => {
+                    document.getElementById("otp-input-0")?.focus();
+                }, 100);
+
                 if (!disabled) setCounter(180);
             })
             .catch(err => {
@@ -72,7 +85,7 @@ const InstructorOtp = () => {
         }
         // console.log('verify data', verify_data);
 
-        dispatch(emailVerifySlice({ data: verify_data, userType: 'student' }))
+        dispatch(emailVerifySlice({ data: verify_data, userType: 'instructor' }))
             .then(res => {
                 // console.log('Response from form', res);
 
@@ -104,7 +117,7 @@ const InstructorOtp = () => {
                 aria-hidden="true"
                 className="absolute inset-0 -z-10"
                 style={{
-                    backgroundImage: `linear-gradient(rgba(44,6,159,0.8), #25004D), url('/auth/otp/abbdbe1bb567f571cfb7e27f54c7a0ded17fc6d0.png')`,
+                    backgroundImage: `linear-gradient(#ea5645,#ec0505), url('/auth/otp/abbdbe1bb567f571cfb7e27f54c7a0ded17fc6d0.png')`,
                     backgroundSize: "cover",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "top",
@@ -151,7 +164,7 @@ const InstructorOtp = () => {
                                                 type="text"
                                                 inputMode="numeric"
                                                 maxLength={1}
-                                                className="md:w-12 md:h-12 w-9 h-9 text-center rounded-xl border border-gray-300 text-lg font-bold text-white bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="md:w-12 md:h-12 w-9 h-9 text-center rounded-xl border border-gray-300 text-lg font-bold text-white bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500"
                                                 onChange={(e) => {
                                                     const value = e.target.value.replace(/[^0-9]/g, "");
                                                     if (value.length > 1) return;
@@ -188,7 +201,7 @@ const InstructorOtp = () => {
                                     </p>
 
                                 ) : (
-                                    <button type="button" onClick={() => handleResend(email)} className="text-white text-sm font-medium hover:text-blue-300">
+                                    <button type="button" disabled={isUserAuthLoading} onClick={() => handleResend(email)} className="text-white text-sm font-medium hover:text-red-300">
                                         Resend OTP
                                     </button>
                                 )}
@@ -197,9 +210,9 @@ const InstructorOtp = () => {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full text-base font-semibold"
+                                className={`w-full bg-red-500 hover:bg-red-600 border-2 border-white text-white py-2 rounded-full text-base font-semibold ${isUserAuthLoading ? 'cursor-pointer' : ''}`}
                             >
-                                {isStudentAuthLoading ? 'Verifying...' : 'Verify OTP'}
+                                {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? 'Verifying...' : 'Verify OTP'}
                             </button>
                         </form>
                     </div>

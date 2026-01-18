@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import supabase from "../../util/supabase";
-import { checkLoggedInStudent } from "./authSlice/checkStudentAuthSlice";
+import supabase from "../../util/supabase/supabase";
+import { checkLoggedInUser } from "./authSlice/checkUserAuthSlice";
 
 // update student profile action 
 export const updateStudentProfile = createAsyncThunk("studentProfileSlice/updateStudentProfile",
@@ -46,7 +46,7 @@ export const updateStudentProfile = createAsyncThunk("studentProfileSlice/update
             }).eq("id", id).select().single();
 
             if (updateErr) throw updateErr;
-            dispatch(checkLoggedInStudent());
+            dispatch(checkLoggedInUser());
             
             return updatedUser;
         } catch (err) {

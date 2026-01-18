@@ -5,7 +5,7 @@ import { Laptop, Smartphone, Palette, BarChart, Database, Sparkles } from "lucid
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { allCategory } from "../../../redux/slice/categorySlice";
-import getSweetAlert from "../../../util/sweetAlert";
+import getSweetAlert from "../../../util/alert/sweetAlert";
 import Lottie from "lottie-react";
 import loaderAnimation from '../../../assets/animations/loader.json';
 

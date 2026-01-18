@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { allCategory } from "../../../redux/slice/categorySlice";
 import { Loader2 } from "lucide-react";
 import { createCourse } from "../../../redux/slice/couseSlice";
-import getSweetAlert from "../../../util/sweetAlert";
+import getSweetAlert from "../../../util/alert/sweetAlert";
 
 const AddCourseForm = () => {
   const { register, handleSubmit, control, reset, setValue, formState: { errors, isSubmitting } } = useForm({

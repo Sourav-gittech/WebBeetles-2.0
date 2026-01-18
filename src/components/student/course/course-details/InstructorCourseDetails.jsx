@@ -8,7 +8,7 @@ import loaderAnimation from '../../../../assets/animations/loader.json';
 import ReviewCourse from './ReviewCourse';
 import { useDispatch, useSelector } from 'react-redux';
 import { specificCourse } from "../../../../redux/slice/specificCourseSlice";
-import getSweetAlert from '../../../../util/sweetAlert';
+import getSweetAlert from '../../../../util/alert/sweetAlert';
 import { useNavigate } from "react-router-dom";
 import { makePayment } from '../../../../redux/slice/paymentSlice';
 

@@ -4,10 +4,11 @@ import { FaFacebook, FaInstagram, FaLinkedinIn, FaRegEye, FaRegEyeSlash } from '
 import { FaXTwitter } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import getSweetAlert from '../../../../util/sweetAlert';
-import toastifyAlert from '../../../../util/toastify';
-import hotToast from '../../../../util/hot-toast';
+import getSweetAlert from '../../../../util/alert/sweetAlert';
+import toastifyAlert from '../../../../util/alert/toastify';
+import hotToast from '../../../../util/alert/hot-toast';
 import { registerSlice } from '../../../../redux/slice/authSlice/authSlice';
+import { Loader2 } from 'lucide-react';
 
 const Signup = () => {
   const form = useForm(),
@@ -18,13 +19,13 @@ const Signup = () => {
     [show, setShow] = useState(false),
     [confirmShow, setConfirmShow] = useState(false),
     imgType = ['jpeg', 'jpg', 'png'],
-    { isStudentAuthLoading } = useSelector(state => state.auth);
+    { isUserAuthLoading } = useSelector(state => state.auth);
 
   const registerDataHandler = (data) => {
     // console.log('Received data',data);
 
     const register_obj = {
-      name: data.name,
+      name: data.name?.split(" ")?.map(n => n?.charAt(0)?.toUpperCase() + n?.slice(1)?.toLowerCase())?.join(" "),
       email: data.email,
       password: data.password,
       profile_image: data.profile_img[0],
@@ -166,10 +167,10 @@ const Signup = () => {
 
               {/* Submit */}
               <button
-                type="submit" disabled={isStudentAuthLoading}
+                type="submit" disabled={isUserAuthLoading}
                 className={`w-full mt-6 py-3 rounded-full text-base font-semibold text-white transition
-    ${isStudentAuthLoading ? "bg-blue-400 cursor-not-allowed opacity-70" : "bg-blue-500 hover:bg-blue-600"}`}>
-                {isStudentAuthLoading ? "Registering..." : "Register"}
+    ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed opacity-70" : "bg-blue-500 hover:bg-blue-600"}`}>
+                {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Registering..." : "Register"}
               </button>
             </form>
 

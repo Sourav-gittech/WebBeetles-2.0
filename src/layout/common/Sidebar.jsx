@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Home, BookOpen, ChevronLeft, GraduationCap, LogOut, LayoutDashboard, BookPlus, BookMarked, BookText } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import getSweetAlert from "../../util/sweetAlert";
-import { logoutUser } from "../../redux/slice/authSlice/checkStudentAuthSlice";
+import getSweetAlert from "../../util/alert/sweetAlert";
+import { logoutUser } from "../../redux/slice/authSlice/checkUserAuthSlice";
 
 const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) => {
   const [isCollapsed, setIsCollapsed] = useState(false),
@@ -28,9 +28,9 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
   };
 
   // Safely access user from Redux state
-  const user = useSelector((state) => state.auth?.user);
-  const role = user_type === "student" ? 'Student' : 'Instructor';
-  const userName = userData?.name || user_type === "student" ? "Student" : "Instructor";
+  const user = useSelector(state => state.auth?.user);
+  const role = user_type == "student" ? 'Student' : 'Instructor';
+  const userName = userData?.name || role;
   const userEmail = userData?.email || "";
   const userPhoto = userData?.profile_image_url;
 
@@ -39,7 +39,7 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
     { name: "Dashboard", icon: <LayoutDashboard size={20} />, key: 'student-dashboard' },
     { name: "Home", icon: <Home size={20} />, key: 'home' },
     { name: "All Courses", icon: <BookOpen size={20} />, key: 'allCourses' },
-    { name: "My Courses", icon: <BookText size={20} />, key: 'student-myCourses' }
+    { name: "Enrolled Courses", icon: <BookText size={20} />, key: 'student-myCourses' }
   ];
 
   const instructorMenu = [
@@ -47,17 +47,17 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
     { name: "Home", icon: <Home size={20} />, key: 'home' },
     { name: "All Courses", icon: <BookOpen size={20} />, key: 'allCourses' },
     { name: "My Courses", icon: <BookMarked size={20} />, key: 'instructor-myCourses' },
-    { name: "Add Courses", icon: <BookPlus size={20} />, key: 'instructor-add-myCourses' },
+    { name: "Add New Course", icon: <BookPlus size={20} />, key: 'instructor-add-myCourses' },
   ];
 
   const sidebarMenu = user_type === "student" ? studentMenu : instructorMenu;
 
   const userLogout = async () => {
 
-    await dispatch(logoutUser({user_type}))
+    await dispatch(logoutUser({ user_type, status: true }))
       .then(res => {
         // console.log('Response for logout', res);
-        navigate("/");
+        navigate(user_type === "student" ? "/" : "/instructor/");
       })
       .catch(err => {
         console.log('Error occured', err);
@@ -79,7 +79,7 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
       {/* Collapse/Expand Sidebar Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute right-4 top-6 bg-white/10 hover:bg-white/20 rounded-lg p-2 backdrop-blur-sm border border-white/20 transition-all duration-200 z-10 group"
+        className="absolute right-4 top-6 bg-white/10 hover:bg-white/20 rounded-lg p-2 backdrop-blur-sm border border-white/20 transition-all duration-200 z-10 group cursor-pointer"
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         <ChevronLeft size={18} className={`text-white transition-transform duration-300 ${isCollapsed ? "rotate-180" : ""}`} />
@@ -132,7 +132,7 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
               <p className="text-base font-bold text-white truncate mb-0.5">{userName}</p>
               <p className="text-xs text-purple-200/80 truncate mb-2">{showMail(userEmail)}</p>
               <span className="inline-flex items-center px-2.5 py-1 bg-purple-500/40 rounded-full text-xs font-semibold text-white border border-purple-400/40 shadow-sm">
-                {user_type === "student" ? "Student" : "Instructor"}
+                {user_type == "student" ? "Student" : "Instructor"}
               </span>
             </div>
           </div>
@@ -145,7 +145,7 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
           <div
             key={item.name}
             onClick={() => handleMenuClick(item.key)}
-            className={`flex items-center ${isCollapsed ? "justify-center" : "gap-4"} px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 group relative ${activePage === item.key ? "bg-white/15 text-white shadow-lg border border-white/20 backdrop-blur-md" : "text-purple-100 hover:bg-white/10 hover:text-white"}`}
+            className={`flex items-center cursor-pointer ${isCollapsed ? "justify-center" : "gap-4"} px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 group relative ${activePage === item.key ? "bg-white/15 text-white shadow-lg border border-white/20 backdrop-blur-md" : "text-purple-100 hover:bg-white/10 hover:text-white"}`}
           >
             <span className={`flex-shrink-0 ${activePage === item.key ? "scale-110" : "group-hover:scale-110"} transition-transform duration-200`}>
               {item.icon}
@@ -158,7 +158,7 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
       {/* Footer */}
       <div className="p-4 border-t border-white/10">
         <button onClick={() => userLogout()}
-          className={`w-full flex items-center ${isCollapsed ? "justify-center" : "justify-center gap-3"} bg-white/10 backdrop-blur-md border border-white/20 hover:bg-red-500/20 hover:border-red-400/50 py-3.5 rounded-xl transition-all duration-200 text-sm font-semibold text-white shadow-md hover:shadow-lg group`}
+          className={`w-full flex items-center cursor-pointer ${isCollapsed ? "justify-center" : "justify-center gap-3"} bg-white/10 backdrop-blur-md border border-white/20 hover:bg-red-500/20 hover:border-red-400/50 py-3.5 rounded-xl transition-all duration-200 text-sm font-semibold text-white shadow-md hover:shadow-lg group`}
           title={isCollapsed ? "Logout" : ""}
         >
           <LogOut size={20} className="group-hover:scale-110 transition-transform duration-200" />

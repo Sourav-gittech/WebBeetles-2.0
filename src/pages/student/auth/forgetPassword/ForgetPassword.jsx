@@ -4,8 +4,9 @@ import { FaArrowLeft } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { forgetPasswordSlice } from '../../../../redux/slice/authSlice/authSlice'
-import getSweetAlert from '../../../../util/sweetAlert'
-import hotToast from '../../../../util/hot-toast'
+import getSweetAlert from '../../../../util/alert/sweetAlert'
+import hotToast from '../../../../util/alert/hot-toast'
+import { Loader2 } from 'lucide-react'
 
 const ForgetPassword = () => {
 
@@ -14,7 +15,7 @@ const ForgetPassword = () => {
         { errors } = formState,
         dispatch = useDispatch(),
         navigator = useNavigate(),
-        { isStudentAuthLoading } = useSelector(state => state.auth);
+        { isUserAuthLoading } = useSelector(state => state.auth);
 
     const forgetPasswordDataHandler = (data) => {
         // console.log('Forget password form data', data);
@@ -84,7 +85,7 @@ const ForgetPassword = () => {
                                     Email Address
                                 </label>
                                 <input type="email" id="emailId" autoComplete='email' placeholder="Enter email address" {...register('email', {
-                                    required: 'Required*',
+                                    required: 'Email is required*',
                                     pattern: {
                                         value: /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-zA-Z.]{2,}$/,
                                         message: 'Invalid email'
@@ -93,9 +94,9 @@ const ForgetPassword = () => {
                                 <p className="text-xs text-red-400 mb-2 mt-1">{errors.email?.message}</p>
                             </div>
 
-                            <button type="submit" disabled={isStudentAuthLoading} className={`w-full text-white py-2 rounded-full text-base font-semibold mt-0 transition-colors
-                                ${isStudentAuthLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}>
-                                {isStudentAuthLoading ? "Processing..." : "Get OTP"}
+                            <button type="submit" disabled={isUserAuthLoading} className={`w-full text-white py-2 rounded-full text-base font-semibold mt-0 transition-colors
+                                ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}>
+                                {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Processing..." : "Get OTP"}
                             </button>
                         </form>
 
