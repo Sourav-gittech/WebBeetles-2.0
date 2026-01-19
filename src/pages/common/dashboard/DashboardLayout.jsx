@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import DashboardSidebar from "../../../layout/common/sidebar";
+import DashboardSidebar from "../../../layout/common/Sidebar";
 import StudentDashboard from "../../../components/student/dashboard/StudentDashboard";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -77,8 +77,7 @@ const DashboardLayout = ({ currentPage }) => {
       case 'student-dashboard':
         return <StudentDashboard studentDetails={userAuthData} />;
       case 'home':
-        navigate('/');
-        return;
+        return navigate(user_type == "student" ? '/' : '/instructor/');
       case 'allCourses':
         navigate('/course');
         return;
@@ -92,7 +91,7 @@ const DashboardLayout = ({ currentPage }) => {
         return <AddCourseForm />;
       default:
         // return <InstructorDashboard instructorDetails={userAuthData} />
-        return user_type === "student" ? (
+        return user_type == "student" ? (
           <StudentDashboard studentDetails={userAuthData} />
         ) : (
           <InstructorDashboard instructorDetails={userAuthData} />

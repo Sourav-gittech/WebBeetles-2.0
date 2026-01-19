@@ -4,13 +4,15 @@ import { Clock, CheckCircle, XCircle, AlertCircle, Send, Mail, FileText, Calenda
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../../../../redux/slice/authSlice/checkUserAuthSlice";
 import { formatDateTimeMeridianWithoutSecond } from "../../../../util/dateFormat/dateFormat";
+import { updateLastSignInAt } from "../../../../redux/slice/authSlice/authSlice";
 
 const InstructorRequestStatus = () => {
 
   const navigate = useNavigate(),
     dispatch = useDispatch(),
     { state } = useLocation(),
-    requestData = state?.instructorData;
+    requestData = state?.instructorData,
+    user_type = 'instructor';
 
   const userLogout = async () => {
 
@@ -28,6 +30,25 @@ const InstructorRequestStatus = () => {
         });
       });
   }
+
+  const goToDashboard = (id) => {
+
+    dispatch(updateLastSignInAt({ id, user_type }))
+      .then(res => {
+
+        if (res.meta.requestStatus === "fulfilled") {
+          navigate(`/${user_type}/dashboard`);
+
+        } else {
+          getSweetAlert('Oops...', res.payload, 'info');
+        }
+      })
+      .catch(err => {
+        console.log('Error occured', err);
+        getSweetAlert('Oops...', 'Something went wrong!', 'error');
+      });
+  }
+
   const statusConfig = {
     pending: {
       icon: Clock,
@@ -170,29 +191,29 @@ const InstructorRequestStatus = () => {
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           {requestData?.application_status === "pending" && (
             <>
-              <button className="flex-1 bg-red-700  hover:from-red-400  text-white font-semibold py-2.5 px-4 rounded-xl border border-blue-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm" onClick={() => window?.location?.reload()}>
+              <button className="flex-1 bg-red-700  hover:from-red-400  text-white font-semibold py-2.5 px-4 rounded-xl border border-blue-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer" onClick={() => window?.location?.reload()}>
                 <RefreshCw size={16} />
                 Refresh Status
               </button>
-              <button onClick={() => userLogout()} className="flex-1 bg-purple-700  hover:from-purple-400  text-white font-semibold py-2.5 px-4 rounded-xl border border-blue-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm">
+              <button onClick={() => userLogout()} className="flex-1 bg-purple-700  hover:from-purple-400  text-white font-semibold py-2.5 px-4 rounded-xl border border-blue-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer">
                 <Home size={16} />
                 Go to Home
               </button>
             </>
           )}
           {requestData?.application_status === "approved" && (
-            <Link to='/instructor/dashboard' className="flex-1 bg-gradient-to-r from-green-500/30 to-emerald-500/30 hover:from-green-500/40 hover:to-emerald-500/40 text-white font-semibold py-2.5 px-4 rounded-xl border border-green-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm">
+            <button onClick={() => goToDashboard(requestData?.id)} className="flex-1 bg-gradient-to-r from-green-500/30 to-emerald-500/30 hover:from-green-500/40 hover:to-emerald-500/40 text-white font-semibold py-2.5 px-4 rounded-xl border border-green-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer">
               <Award size={16} />
               Go to Instructor Dashboard
-            </Link>
+            </button>
           )}
           {requestData?.application_status === "rejected" && (
             <>
-              <Link to='/instructor/signup' className="flex-1 bg-gradient-to-r from-red-500/30 to-pink-500/30 hover:from-red-500/40 hover:to-pink-500/40 text-white font-semibold py-2.5 px-4 rounded-xl border border-red-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm">
+              <Link to='/instructor/signup' className="flex-1 bg-gradient-to-r from-red-500/30 to-pink-500/30 hover:from-red-500/40 hover:to-pink-500/40 text-white font-semibold py-2.5 px-4 rounded-xl border border-red-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer">
                 <Send size={16} />
                 Submit New Application
               </Link>
-              <button onClick={() => userLogout()} className="flex-1 bg-purple-700  hover:from-purple-400  text-white font-semibold py-2.5 px-4 rounded-xl border border-blue-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm">
+              <button onClick={() => userLogout()} className="flex-1 bg-purple-700  hover:from-purple-400  text-white font-semibold py-2.5 px-4 rounded-xl border border-blue-400/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer">
                 <Home size={16} />
                 Go to Home
               </button>
@@ -200,7 +221,7 @@ const InstructorRequestStatus = () => {
           )}
           <button
             onClick={() => navigate("/instructor/contact")}
-            className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-2.5 px-4 rounded-xl border border-white/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm"
+            className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-2.5 px-4 rounded-xl border border-white/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer"
           >
             <Mail size={16} />
             Contact Support
