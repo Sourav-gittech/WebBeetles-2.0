@@ -2,12 +2,12 @@ import React from 'react'
 import { formatDate } from '../../../../util/dateFormat/dateFormat'
 import { CheckCircle2, Clock, Shield } from 'lucide-react'
 
-const InstructorAccountStatus = ({instructorDetails}) => {
-  
+const InstructorAccountStatus = ({ instructorDetails }) => {
+
     const applicationStatus = instructorDetails?.application_status || "";
-    const isVerified = instructorDetails?.isVerified == "fulfilled" ? true : false;
-    const isApproved = instructorDetails?.isApproved || false;
-  const updatedAt = instructorDetails?.updated_at || "";
+    const isVerified = instructorDetails?.is_verified == "fulfilled" ? true : false;
+    const isApproved = instructorDetails?.application_status == 'approved';
+    const updatedAt = instructorDetails?.updated_at || "";
 
     return (
         <div className="bg-white/10 backdrop-blur-xl rounded-xl lg:rounded-2xl shadow-2xl border border-white/20 p-4 sm:p-5 lg:p-6">

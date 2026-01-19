@@ -17,8 +17,6 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
     setActivePage(user_type === "student" ? "student-dashboard" : "instructor-dashboard");
   }, [user_type]);
 
-
-
   const showMail = (email) => {
     const first = email.slice(0, 3);
     const midStart = Math.floor(email.length / 2) - 1;
@@ -45,7 +43,7 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
   const instructorMenu = [
     { name: "Dashboard", icon: <LayoutDashboard size={20} />, key: 'instructor-dashboard' },
     { name: "Home", icon: <Home size={20} />, key: 'home' },
-    { name: "All Courses", icon: <BookOpen size={20} />, key: 'allCourses' },
+    // { name: "All Courses", icon: <BookOpen size={20} />, key: 'allCourses' },
     { name: "My Courses", icon: <BookMarked size={20} />, key: 'instructor-myCourses' },
     { name: "Add New Course", icon: <BookPlus size={20} />, key: 'instructor-add-myCourses' },
   ];

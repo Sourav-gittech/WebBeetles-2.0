@@ -11,7 +11,7 @@ export const instructorRequest = createAsyncThunk('instructorSlice/instructorReq
         // Upload document if present
         let docUrl = null, docId = null;
         const document = payload.document;
-        
+
         if (document) {
             const fileName = `doc_${id}_${Date.now()}.${document.name.split(".").pop()}`;
             const { data: uploadData, error: uploadError } = await supabase.storage.from("instructor/document").upload(fileName, document, { upsert: true });
@@ -40,6 +40,7 @@ export const instructorRequest = createAsyncThunk('instructorSlice/instructorReq
         }
         return res.data;
     });
+
 
 // request status action 
 export const instructorRequestStatus = createAsyncThunk('instructorSlice/instructorRequestStatus',
@@ -74,14 +75,59 @@ export const specificInstructor = createAsyncThunk('instructorSlice/specificInst
 
 // Update instructor action 
 export const updateInstructor = createAsyncThunk('updateInstructor/specificInstructor',
-    async (data) => {
-        // console.log('Received data in update instructor details slice', data);
+    async ({ data, id }, { rejectWithValue, dispatch }) => {
+        // console.log('update data', data, ' instructor Id', id);
 
-        const res = await axiosInstance.post(endPoint_editInstructorProfile, data);
-        // console.log('Response from Update instructor slice', res);
+        try {
+            // Fetch existing instructor profile
+            const { data: instructor, error: fetchErr } = await supabase.from("instructors").select("profile_image").eq("id", id).single();
+            // console.log('Fetched profile image', instructor);
 
-        return res.data;
-    });
+            if (fetchErr) throw fetchErr;
+
+            // Create new filename
+            let image_name, publicUrl;
+            if (data?.profileImage) {
+
+                const file = data.profileImage;
+                const newFileName = `${id}_${Date.now()}.${file.name.split(".").pop()}`;
+
+                // delete old image from bucket
+                const res1 = await supabase.storage.from("instructor").remove([`image/${instructor.profile_image}`]);
+
+                // Upload new file
+                const res = await supabase.storage.from("instructor/image").upload(newFileName, file, { upsert: true });
+
+                if (res.error) throw res.error;
+                // console.log('upload data', res.data);
+
+                image_name = res?.data?.path;
+
+                // Get public URL
+                const { data: publicUrlData } = supabase.storage.from("instructor/image").getPublicUrl(newFileName);
+
+                publicUrl = publicUrlData.publicUrl;
+            }
+
+            // Update DB with PUBLIC URL again
+            const res = await supabase.from("instructors").update({
+                profile_image_url: data?.profileImage ? publicUrl : data.profile_image_url,
+                profile_image: data?.profileImage ? image_name : data.profile_image,
+                bio: data?.bio,
+                expertise: data?.expertise,
+                social_links: data?.social_links
+            }).eq("id", id).select().single();
+            // console.log('Response after updating instructor data', res);
+
+            if (res?.error) throw res?.error;
+
+            return res?.data;
+        } catch (err) {
+            console.error("Error updating profile:", err);
+            return rejectWithValue(err.message);
+        }
+    }
+);
 
 
 const initialState = {

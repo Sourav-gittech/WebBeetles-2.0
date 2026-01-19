@@ -1,17 +1,20 @@
 import React, { useRef, useState } from 'react';
 import { Download, Loader2, Camera } from "lucide-react";
 import { updateStudentProfile } from '../../../../redux/slice/studentSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import toastifyAlert from '../../../../util/alert/toastify';
+import hotToast from '../../../../util/alert/hot-toast';
 
 const StudentDashboardHeader = ({ userDetails }) => {
 
     const userName = userDetails?.name || userDetails?.fullName || "Student";
     const [userPhoto, setUserPhoto] = useState(userDetails?.profile_image_url || userDetails?.profilePhoto);
-    const [updatingPhoto, setUpdatingPhoto] = useState(false);
     const fileInputRef = useRef(null),
         dispatch = useDispatch();
     const [photo, setPhoto] = useState(userDetails?.profile_image_url || userDetails?.profilePhoto);
     const imgType = ['jpeg', 'jpg', 'png'];
+
+    const { isStudentLoading, getStudentData, isStudentError } = useSelector(state => state?.student);
 
     // console.log('User data',userDetails);
 
@@ -33,7 +36,6 @@ const StudentDashboardHeader = ({ userDetails }) => {
             toastifyAlert.warn("Profile image type should be jpeg / jpg / png");
             return;
         }
-        setUpdatingPhoto(true);
 
         const previewUrl = URL.createObjectURL(file);
 
@@ -53,20 +55,20 @@ const StudentDashboardHeader = ({ userDetails }) => {
             id: userDetails.id,
         }))
             .then(res => {
-                console.log('Response from photo update', res);
-                if (res?.payload?.profile_image_url) {
-                    const freshUrl = res.payload.profile_image_url + `?t=${Date.now()}`;
-                    // console.log(freshUrl);
+                // console.log('Response from photo update', res);
 
+                if (res.meta.requestStatus === "fulfilled") {
+                    const freshUrl = res.payload.profile_image_url + `?t=${Date.now()}`;
                     setUserPhoto(freshUrl);
+                    hotToast('Profile image successfully', "success");
+                }
+                else {
+                    hotToast('Something went wrong!', "error");
                 }
             })
             .catch(err => {
                 console.error("Error occurred in uploading photo", err);
                 getSweetAlert("Oops...", "Something went wrong!", "error");
-            })
-            .finally(() => {
-                setUpdatingPhoto(false);
             });
     };
 
@@ -97,10 +99,10 @@ const StudentDashboardHeader = ({ userDetails }) => {
                             {/* UPLOAD BUTTON */}
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                disabled={updatingPhoto}
-                                className="absolute bottom-0 right-0 bg-white/20 backdrop-blur-md hover:bg-white/30 text-white p-2 rounded-full transition-all shadow-lg border border-white/30 disabled:opacity-50 hover:scale-110 active:scale-95"
+                                disabled={isStudentLoading}
+                                className="absolute bottom-0 right-0 bg-white/20 backdrop-blur-md hover:bg-white/30 text-white p-2 rounded-full transition-all shadow-lg border border-white/30 disabled:opacity-50 hover:scale-110 active:scale-95 cursor-pointer"
                             >
-                                {updatingPhoto ? (
+                                {isStudentLoading ? (
                                     <Loader2 size={16} className="animate-spin" />) : (<Camera size={16} />)}
                             </button>
 

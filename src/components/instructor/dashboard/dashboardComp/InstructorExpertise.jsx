@@ -3,32 +3,43 @@ import { Code, Edit3, Loader2, Plus, Tag, X } from 'lucide-react';
 import getSweetAlert from '../../../../util/alert/sweetAlert';
 import toastifyAlert from '../../../../util/alert/toastify';
 import { updateInstructor } from '../../../../redux/slice/instructorSlice';
+import hotToast from '../../../../util/alert/hot-toast';
+import { useDispatch } from 'react-redux';
 
 const InstructorExpertise = ({ instructorDetails }) => {
 
-    const expertise = instructorDetails?.expertise || [];
-
+    const [expertise, setExpertise] = useState(instructorDetails?.expertise || []);
     const [tempExpertise, setTempExpertise] = useState([]);
     const [newSkill, setNewSkill] = useState("");
     const [updatingExpertise, setUpdatingExpertise] = useState(false);
     const [editingExpertise, setEditingExpertise] = useState(false);
 
+    const dispatch = useDispatch();
+
     // handle expertise
     const handleExpertiseSave = async () => {
+
         setUpdatingExpertise(true);
-        instructor_obj = { ...instructor_obj, expertise: tempExpertise };
+        const updatedExpertise = tempExpertise?.map(exp => exp?.split(",")?.map(ex => ex?.split(" ")?.map(e => e?.charAt(0)?.toUpperCase() + e?.slice(1)?.toLowerCase())?.join(" "))?.join(","));
+
+        const instructor_obj = { ...instructorDetails, expertise: updatedExpertise };
 
         if (tempExpertise.length === 0) {
             toastifyAlert.warn("Experties cannot be empty!");
             return;
         }
         else {
-            dispatch(updateInstructor(instructor_obj))
+            dispatch(updateInstructor({ data: instructor_obj, id: instructorDetails?.id }))
                 .then(res => {
                     // console.log('Response from experties update', res);
+
                     if (res.meta.requestStatus === "fulfilled") {
                         setEditingExpertise(false);
-                        toastifyAlert.success(res.payload.message);
+                        setExpertise(res?.payload?.expertise);
+                        hotToast('Expertise updated successfully', "success");
+                    }
+                    else {
+                        hotToast('Something went wrong!', "error");
                     }
                 })
                 .catch(err => {

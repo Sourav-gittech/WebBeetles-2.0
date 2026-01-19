@@ -1,13 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  BookOpen, TrendingUp, Users, DollarSign, Star, Calendar, BarChart3, ArrowRight,
-  MessageSquare, Clock, Eye, Video, Loader2, Edit3, X, CheckCircle2, Plus, Target, Zap, ChevronRight, Shield,
-  Linkedin, Twitter, Github, Instagram, Facebook, Youtube, Mail, Dribbble, Twitch, Globe, Link as LinkIcon, Tag, Code, ExternalLink
-} from "lucide-react";
-import { FaPinterest, FaDiscord, FaSlack, FaReddit } from "react-icons/fa";
-import toastifyAlert from "../../../util/alert/toastify";
-import { updateInstructor } from "../../../redux/slice/instructorSlice";
-import getSweetAlert from "../../../util/alert/sweetAlert";
+import React, { useState } from "react";
+import { BookOpen, Users, BarChart3, Loader2, Plus } from "lucide-react";
 import InstructorDashboardHeader from "./dashboardComp/InstructorDashboardHeader";
 import InstructorDashboardStats from "./dashboardComp/InstructorDashboardStats";
 import InstructorExpertise from "./dashboardComp/InstructorExpertise";

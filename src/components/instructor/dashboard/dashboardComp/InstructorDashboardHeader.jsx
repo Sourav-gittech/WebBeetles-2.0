@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Calendar, Loader2, Camera, Edit3, X, CheckCircle2, Shield, BadgeCheck, UserCircle, Mail } from "lucide-react";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import getSweetAlert from '../../../../util/alert/sweetAlert';
 import { formatDate } from '../../../../util/dateFormat/dateFormat';
+import hotToast from '../../../../util/alert/hot-toast';
+import { updateInstructor } from '../../../../redux/slice/instructorSlice';
+import { checkLoggedInUser } from '../../../../redux/slice/authSlice/checkUserAuthSlice';
 
 const InstructorDashboardHeader = ({ instructorDetails }) => {
     const dispatch = useDispatch(),
@@ -15,13 +18,14 @@ const InstructorDashboardHeader = ({ instructorDetails }) => {
 
     const [updatingPhoto, setUpdatingPhoto] = useState(false);
     const [tempBio, setTempBio] = useState("");
-    const [updatingBio, setUpdatingBio] = useState(false);
     const [editingBio, setEditingBio] = useState(false);
     const fileInputRef = useRef(null);
     const [photo, setPhoto] = useState(instructorDetails?.profile_image_url || instructorDetails?.profile_image);
     const [bio, setBio] = useState(instructorDetails?.bio || "");
     const isVerified = instructorDetails?.isVerified == "fulfilled" ? true : false;
     const isApproved = instructorDetails?.isApproved || false;
+
+    const { isInstructorLoading, getInstructorData, isInstructorError } = useSelector(state => state?.instructor);
 
     useEffect(() => {
         if (instructorDetails?.profile_image_url) {
@@ -68,16 +72,26 @@ const InstructorDashboardHeader = ({ instructorDetails }) => {
             URL.revokeObjectURL(photo);
         }
         setPhoto(previewUrl);
-        console.log("Photo updated successfully!", previewUrl);
-        // console.log(previewUrl.split('/')[previewUrl.split('/').length-1]);
+        // console.log("Photo updated successfully!", previewUrl);
 
         const formData = new FormData();
         formData.append('profileImage', file);
+        instructorDetails = { ...instructorDetails, profileImage: file };
 
-        dispatch(updateStudentProfile(formData))
+
+        dispatch(updateInstructor({ data: instructorDetails, id: instructorDetails?.id }))
             .then(res => {
-                console.log('Response from photo update', res);
+                // console.log('Response from photo update', res);
 
+                if (res.meta.requestStatus === "fulfilled") {
+                    const freshUrl = res.payload.profile_image_url;
+                    setPhoto(freshUrl);
+                    dispatch(checkLoggedInUser());
+                    hotToast('Profile updated successfully', "success");
+                }
+                else {
+                    hotToast('Something went wrong!', "error");
+                }
             })
             .catch(err => {
                 console.error("Error occurred in uploading photo", err);
@@ -90,29 +104,31 @@ const InstructorDashboardHeader = ({ instructorDetails }) => {
 
     // handle bio 
     const handleBioSave = async () => {
-        setUpdatingBio(true);
-        instructor_obj = { ...instructor_obj, bio: tempBio };
+        instructorDetails = { ...instructorDetails, bio: tempBio };
 
         if (!tempBio.trim()) {
             toastifyAlert.warn("Bio cannot be empty!");
             return;
         }
         else {
-            dispatch(updateInstructor(instructor_obj))
+            dispatch(updateInstructor({ data: instructorDetails, id: instructorDetails?.id }))
                 .then(res => {
-                    console.log('Response from bio update', res);
+                    // console.log('Response from bio update', res);
+
                     if (res.meta.requestStatus === "fulfilled") {
+
+                        hotToast('Profile updated successfully', "success");
                         setBio(tempBio);
                         setEditingBio(false);
+                    }
+                    else {
+                        hotToast('Something went wrong!', "error");
                     }
                 })
                 .catch(err => {
                     console.error("Error occurred in updating bio", err);
                     getSweetAlert("Oops...", "Something went wrong!", "error");
                 })
-                .finally(() => {
-                    setUpdatingBio(false);
-                });
         }
     };
 
@@ -161,7 +177,7 @@ const InstructorDashboardHeader = ({ instructorDetails }) => {
                             <div className="flex-1 bg-white/10 px-3 sm:px-4 py-2.5 sm:py-3 lg:py-4 rounded-xl border border-white/20">
                                 <p className="text-purple-100 text-xs sm:text-sm lg:text-base">{bio || "No bio added yet."}</p>
                             </div>
-                            <button onClick={handleEditBio} className="inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-white bg-purple-600/50 hover:bg-purple-600/70 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-purple-400/40 transition-all hover:shadow-lg active:scale-95">
+                            <button onClick={handleEditBio} className="inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-white bg-purple-600/50 hover:bg-purple-600/70 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-purple-400/40 transition-all hover:shadow-lg active:scale-95 cursor-pointer">
                                 <Edit3 size={14} /> Edit Bio
                             </button>
                         </div>
@@ -172,10 +188,10 @@ const InstructorDashboardHeader = ({ instructorDetails }) => {
                                 <span className="absolute bottom-2 right-2 text-xs text-purple-300/70 bg-black/20 px-2 py-1 rounded-lg">{tempBio.length}/500</span>
                             </div>
                             <div className="flex gap-2">
-                                <button onClick={handleBioSave} disabled={updatingBio} className="inline-flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm bg-green-600 hover:bg-green-700 rounded-xl text-white font-semibold transition-all disabled:opacity-50 hover:shadow-lg active:scale-95 flex-1">
-                                    {updatingBio ? <><Loader2 size={14} className="animate-spin" />Saving...</> : <><CheckCircle2 size={14} />Save</>}
+                                <button onClick={handleBioSave} disabled={isInstructorLoading} className="inline-flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm bg-green-600 hover:bg-green-700 rounded-xl text-white font-semibold transition-all disabled:opacity-50 hover:shadow-lg active:scale-95 flex-1">
+                                    {isInstructorLoading ? <><Loader2 size={14} className="animate-spin" />Saving...</> : <><CheckCircle2 size={14} />Save</>}
                                 </button>
-                                <button onClick={() => setEditingBio(false)} disabled={updatingBio} className="inline-flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm bg-white/10 hover:bg-white/20 rounded-xl text-white font-semibold transition-all hover:shadow-lg active:scale-95 border border-white/20">
+                                <button onClick={() => setEditingBio(false)} disabled={isInstructorLoading} className="inline-flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm bg-white/10 hover:bg-white/20 rounded-xl text-white font-semibold transition-all hover:shadow-lg active:scale-95 border border-white/20">
                                     <X size={14} /> Cancel
                                 </button>
                             </div>
