@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Home, BookOpen, ChevronLeft, GraduationCap, LogOut, LayoutDashboard, BookPlus, BookMarked, BookText } from "lucide-react";
+import { Home, BookOpen, ChevronLeft, GraduationCap, LogOut, LayoutDashboard, BookPlus, BookMarked, BookText, SquareStack, ShieldUser, CircleUser } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import getSweetAlert from "../../util/alert/sweetAlert";
@@ -36,6 +36,7 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
   const studentMenu = [
     { name: "Dashboard", icon: <LayoutDashboard size={20} />, key: 'student-dashboard' },
     { name: "Home", icon: <Home size={20} />, key: 'home' },
+    { name: "Profile", icon: <CircleUser size={20} />, key: 'profile' },
     { name: "All Courses", icon: <BookOpen size={20} />, key: 'allCourses' },
     { name: "Enrolled Courses", icon: <BookText size={20} />, key: 'student-myCourses' }
   ];
@@ -43,7 +44,8 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
   const instructorMenu = [
     { name: "Dashboard", icon: <LayoutDashboard size={20} />, key: 'instructor-dashboard' },
     { name: "Home", icon: <Home size={20} />, key: 'home' },
-    // { name: "All Courses", icon: <BookOpen size={20} />, key: 'allCourses' },
+    { name: "Profile", icon: <ShieldUser size={20} />, key: 'profile' },
+    { name: "All Category", icon: <SquareStack size={20} />, key: 'allCategory' },
     { name: "My Courses", icon: <BookMarked size={20} />, key: 'instructor-myCourses' },
     { name: "Add New Course", icon: <BookPlus size={20} />, key: 'instructor-add-myCourses' },
   ];

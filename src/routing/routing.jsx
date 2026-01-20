@@ -88,7 +88,7 @@ const Routing = () => {
         <Route path="/course" element={<StudentLayout> <Course /></StudentLayout>} />
         <Route path="/course/course-details/:courseId" element={<StudentLayout> <CourseDetails /></StudentLayout>} />
         <Route path="/category" element={<StudentLayout> <Category /></StudentLayout>} />
-        <Route path="/category/category-details/:categoryName" element={<StudentLayout> <CategoryDetails /></StudentLayout>} />
+        <Route path="/category/category-details/:categoryId" element={<StudentLayout> <CategoryDetails /></StudentLayout>} />
         <Route path="/contact" element={<StudentLayout> <ContactUs /></StudentLayout>} />
         <Route path="/terms" element={<StudentLayout> <TermsOfService /></StudentLayout>} />
         <Route path="/privacy" element={<StudentLayout> <PrivacyPolicy /></StudentLayout>} />
@@ -105,8 +105,6 @@ const Routing = () => {
 
         {/* Pages with Layout */}
         <Route path="/instructor/" element={<InstructorLayout> <InstructorHome /></InstructorLayout>} />
-
-
 
         {/* Pages (no navbar/footer) */}
         <Route path="/instructor/signin" element={<InstructorSignin />} />

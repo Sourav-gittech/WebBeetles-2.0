@@ -9,16 +9,16 @@ const InstructorSocialLinks = ({ instructorDetails }) => {
 
     const dispatch = useDispatch();
 
-    const socialObjectToArray = (obj = {}) =>
-        Object.entries(obj).filter(([_, url]) => url)
-            .map(([platform, url]) => ({
-                _id: platform,
-                platform,
-                url
-            }));
+    const normalizeSocials = (socials = []) =>
+        Array.isArray(socials) ? socials.filter(s => s?.platform && s?.url)
+            .map(s => ({
+                _id: s.platform,
+                platform: s.platform,
+                url: s.url
+            })) : [];
 
-    const [socialLinks, setSocialLinks] = useState(socialObjectToArray(instructorDetails?.social_links));
-    const [tempSocials, setTempSocials] = useState(socialObjectToArray(instructorDetails?.social_links));
+    const [socialLinks, setSocialLinks] = useState(normalizeSocials(instructorDetails?.social_links));
+    const [tempSocials, setTempSocials] = useState(normalizeSocials(instructorDetails?.social_links));
     const [editingSocials, setEditingSocials] = useState(false);
     const [updatingSocials, setUpdatingSocials] = useState(false);
 
@@ -43,14 +43,21 @@ const InstructorSocialLinks = ({ instructorDetails }) => {
             ...instructorDetails,
             social_links: cleanedSocials
         };
+
         dispatch(updateInstructor({ data: instructor_obj, id: instructorDetails?.id }))
             .then(res => {
                 // console.log('Response from socials update', res);
 
                 if (res.meta.requestStatus === "fulfilled") {
+                    const normalized = res?.payload?.social_links.map(s => ({
+                        _id: s.platform,
+                        platform: s.platform,
+                        url: s.url
+                    }));
+
                     setEditingSocials(false);
-                    setTempSocials(res?.payload?.social_links);
-                    setSocialLinks(res?.payload?.social_links);
+                    setTempSocials(normalized);
+                    setSocialLinks(normalized);
                     hotToast('Social links updated successfully', "success");
                 }
                 else {
@@ -117,8 +124,8 @@ const InstructorSocialLinks = ({ instructorDetails }) => {
                         <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white/5 hover:bg-white/15 px-4 py-3 rounded-lg border border-white/10 hover:border-white/30 transition-all group">
                             <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center border border-white/20 text-blue-300 group-hover:scale-110 transition-transform">{getSocialIcon(link?.platform)}</div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-white font-semibold text-sm capitalize">{link?.platform}</p>
-                                <p className="text-purple-200 text-xs truncate">{link?.url}</p>
+                                <p className="text-white font-semibold text-sm capitalize">{link?.platform ?? 'N/A'}</p>
+                                <p className="text-purple-200 text-xs truncate">{link?.url ?? 'N/A'}</p>
                             </div>
                             <ExternalLink size={16} className="text-purple-300 group-hover:text-white" />
                         </a>
@@ -126,8 +133,8 @@ const InstructorSocialLinks = ({ instructorDetails }) => {
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {tempSocials?.map((link, _id) => (
-                        <div key={_id} className="flex gap-2">
+                    {tempSocials?.map(link => (
+                        <div key={link._id} className="flex gap-2">
                             <input type="text" value={link?.platform} onChange={(e) => updateSocialLink(link._id, 'platform', e.target.value)}
                                 placeholder="Platform" className="w-1/3 bg-white/10 text-purple-100 placeholder:text-purple-300/50 rounded-lg px-3 py-2 text-sm border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/50" />
                             <input type="url" value={link?.url} onChange={(e) => updateSocialLink(link._id, 'url', e.target.value)}

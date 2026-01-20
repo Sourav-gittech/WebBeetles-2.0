@@ -3,12 +3,15 @@ import DashboardSidebar from "../../../layout/common/Sidebar";
 import StudentDashboard from "../../../components/student/dashboard/StudentDashboard";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Loader2 } from "lucide-react";
 import InstructorDashboard from "../../../components/instructor/dashboard/InstructorDashboard";
 import AddCourseForm from "../../../components/instructor/dashboard/AddCourseForm";
 import MyCoursesPage from "../../../components/student/dashboard/MyCoursesPage";
 import InstructorCourse from "../../../components/instructor/dashboard/InstructorCourse";
 import { checkLoggedInUser } from "../../../redux/slice/authSlice/checkUserAuthSlice";
-import { Loader2 } from "lucide-react";
+import AvailableCategory from "../../../components/instructor/dashboard/AvailableCategory";
+import InstructorProfile from "../../../components/instructor/dashboard/InstructorProfile";
+import StudentProfile from "../../../components/student/dashboard/student-profile/StudentProfile";
 
 const DashboardLayout = ({ currentPage }) => {
 
@@ -78,11 +81,15 @@ const DashboardLayout = ({ currentPage }) => {
         return <StudentDashboard studentDetails={userAuthData} />;
       case 'home':
         return navigate(user_type == "student" ? '/' : '/instructor/');
+      case 'profile':
+        return (user_type == "student" ? <StudentProfile studentData={userAuthData} /> : <InstructorProfile instructorDetails={userAuthData} />);
       case 'allCourses':
         navigate('/course');
         return;
       case 'student-myCourses':
         return <MyCoursesPage studentData={userAuthData} />;
+      case 'allCategory':
+        return <AvailableCategory />;
       case 'instructor-dashboard':
         return <InstructorDashboard instructorDetails={userAuthData} />
       case 'instructor-myCourses':
@@ -90,7 +97,6 @@ const DashboardLayout = ({ currentPage }) => {
       case 'instructor-add-myCourses':
         return <AddCourseForm />;
       default:
-        // return <InstructorDashboard instructorDetails={userAuthData} />
         return user_type == "student" ? (
           <StudentDashboard studentDetails={userAuthData} />
         ) : (

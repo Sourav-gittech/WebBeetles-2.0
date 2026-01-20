@@ -10,6 +10,7 @@ import contactAuthSliceReducer from "../slice/contactSlice";
 import specificInstructorSliceReducer from "../slice/specificInstructorSlice";
 import instructorSliceReducer from "../slice/instructorSlice";
 import reviewSliceReducer from "../slice/reviewSlice";
+import videoSliceReducer from "../slice/videoSlice";
 
 const store = configureStore({
     reducer: {
@@ -23,7 +24,8 @@ const store = configureStore({
         query: contactAuthSliceReducer,
         review: reviewSliceReducer,
         instructor: instructorSliceReducer,
-        specificInstructor: specificInstructorSliceReducer
+        specificInstructor: specificInstructorSliceReducer,
+        video: videoSliceReducer
     }
 });
 

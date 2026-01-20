@@ -1,14 +1,24 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../../api/axiosInstance/axiosInstance";
-import { endPoint_allCategory } from "../../api/apiUrl/apiUrl";
+import supabase from "../../util/supabase/supabase";
 
 // all category action
 export const allCategory = createAsyncThunk('categorySlice/allCategory',
-    async () => {
-        const res = await axiosInstance.get(endPoint_allCategory);
+    async (status) => {
+        let query = supabase.from('categories').select('*');
+
+        if (status) {
+            query = query.eq('status', status);
+        }
+
+        const res = await query;
         // console.log('Response for fetching all category', res);
 
-        return res.data;
+        if (res?.error) {
+            console.error('Error fetching categories:', res?.error);
+            return [];
+        }
+
+        return res?.data;
     }
 )
 

@@ -101,7 +101,7 @@ const CategoryList = () => {
   };
 
   useEffect(() => {
-    dispatch(allCategory())
+    dispatch(allCategory('active'))
       .then(res => {
         // console.log('Category fetching response', res);
       })
@@ -165,7 +165,7 @@ const CategoryList = () => {
               viewport={{ once: true, amount: 0.1 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6"
             >
-              {getCategoryData.map((cat, index) => (
+              {getCategoryData?.map((cat, index) => (
                 <motion.div
                   key={cat._id}
                   variants={cardVariants}
@@ -180,20 +180,20 @@ const CategoryList = () => {
                     >
                       {/* <img src={`http://localhost:3005${cat.categoryImage}`} alt="#icon" />  */}
                       {/* {categoriesIcon[index % categoriesIcon.length]} */}
-                      {categoriesIcon[Math.floor(Math.random() * (categoriesIcon.length))]}
+                      {categoriesIcon[Math?.floor(Math?.random() * (categoriesIcon?.length))]}
                     </div>
 
                     {/* Content */}
                     <div className="pt-4">
                       <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 group-hover:text-white transition-colors duration-300">
-                        {cat.name}
+                        {cat?.name ?? 'N/A'}
                       </h3>
                       <p className="text-sm lg:text-base text-gray-400 group-hover:text-purple-100 transition-colors duration-300 leading-relaxed">
-                        {cat.description.length > 100 ? cat.description.slice(0, 100) + '...' : cat.description}
+                        {(cat?.description?.length > 100 ? cat?.description?.slice(0, 100) + '...' : cat?.description) ?? 'N/A'}
                       </p>
                     </div>
 
-                    <Link to={`category-details/${cat.slug}`}
+                    <Link to={`category-details/${cat?.id}`}
                       className="w-fit px-4 sm:px-6 py-2.5 rounded-full border border-gray-500 text-gray-300 
                     flex items-center gap-2 text-sm font-medium transition-all duration-300
                     hover:bg-white/20 hover:backdrop-blur-md hover:border-white/90 hover:text-white">

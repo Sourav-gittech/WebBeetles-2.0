@@ -1,46 +1,45 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
 import { MdArrowOutward, MdCheckCircle, MdAdd, MdDelete, MdUpload, MdClose, MdImage, MdVideoLibrary } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { allCategory } from "../../../redux/slice/categorySlice";
-import { Loader2 } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
 import { createCourse } from "../../../redux/slice/couseSlice";
 import getSweetAlert from "../../../util/alert/sweetAlert";
+import { useForm } from "react-hook-form";
 
 const AddCourseForm = () => {
-  const { register, handleSubmit, control, reset, setValue, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       title: "",
       description: "",
       price: "",
       category: "",
       thumbnail: null,
-      sectionTitle: "",
-      lectures: [{ lectureTitle: "", video: null, duration: "" }],
+      // sectionTitle: "",
+      lectureTitle: "",
+      lectureVideo: null,
+      // lectureDuration: "",
     },
   });
 
   const dispatch = useDispatch();
-  const { isCategoryLoading, getCategoryData } = useSelector(
-    (state) => state.category
-  );
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "lectures",
-  });
+  const { isCategoryLoading, getCategoryData } = useSelector((state) => state.category),
+    { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth);
 
   const [showToast, setShowToast] = useState(false);
   const [thumbnailProgress, setThumbnailProgress] = useState(0);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
-  const [videoProgress, setVideoProgress] = useState({});
-  const [videoFiles, setVideoFiles] = useState({});
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [videoError, setVideoError] = useState(false);
   const [showThumbnailMsg, setShowThumbnailMsg] = useState(false);
-  const [videoError, setVideoError] = useState([]);
 
   useEffect(() => {
-    dispatch(allCategory())
-      .then((res) => console.log("Category fetching response", res))
+    dispatch(allCategory('active'))
+      .then((res) => {
+        // console.log("Category fetching response", res);
+      })
       .catch((err) => {
         getSweetAlert("Oops...", "Something went wrong!", "error");
         console.error("Error occurred", err);
@@ -94,27 +93,41 @@ const AddCourseForm = () => {
     }
   };
 
-  const handleVideoChange = async (e, index) => {
+  const formatDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleVideoChange = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setVideoFiles((prev) => ({ ...prev, [index]: file }));
-      setVideoProgress((prev) => ({ ...prev, [index]: 0 }));
-      setVideoError((prev) => prev.filter((i) => i !== index));
+    if (!file) return;
 
-      setValue(`lectures.${index}.video`, e.target.files, {
-        shouldValidate: true,
-      });
+    // store video
+    setVideoFile(file);
+    setVideoProgress(0);
+    setVideoError(false);
 
-      await simulateUpload(
-        (progress) =>
-          setVideoProgress((prev) => ({ ...prev, [index]: progress })),
-        () =>
-          setTimeout(
-            () => setVideoProgress((prev) => ({ ...prev, [index]: -1 })),
-            1000
-          )
-      );
+    // register in react-hook-form
+    setValue("lectureVideo", file, { shouldValidate: true });
+
+    try {
+      const durationInSeconds = await getVideoDuration(file);
+
+      const durationInMinutes = Math.ceil(durationInSeconds / 60);
+
+      // auto-fill duration field
+      // setValue("lectureDuration", durationInMinutes, {
+      //   shouldValidate: true,
+      // });
+    } catch (err) {
+      console.error(err);
     }
+
+    await simulateUpload(
+      setVideoProgress,
+      () => setTimeout(() => setVideoProgress(-1), 1000)
+    );
   };
 
   const removeThumbnail = useCallback(() => {
@@ -125,32 +138,25 @@ const AddCourseForm = () => {
     setValue("thumbnail", null, { shouldValidate: true });
   }, [setValue]);
 
-  const removeVideo = useCallback(
-    (index) => {
-      setVideoFiles((prev) => {
-        const newFiles = { ...prev };
-        delete newFiles[index];
-        return newFiles;
-      });
-      setVideoProgress((prev) => {
-        const newProgress = { ...prev };
-        delete newProgress[index];
-        return newProgress;
-      });
-      setValue(`lectures.${index}.video`, null, { shouldValidate: true });
+  const removeVideo = () => {
+    setVideoFile(null);
+    setVideoProgress(0);
+    setVideoError(true);
+    setValue("lectureVideo", null, { shouldValidate: true });
 
-      const fileInput = document.getElementById(`video-${fields[index].id}`);
-      if (fileInput) fileInput.value = "";
-    },
-    [setValue, fields]
-  );
+    const input = document.getElementById("video");
+    if (input) input.value = "";
+  };
 
   const resetFormState = useCallback(() => {
     setThumbnailFile(null);
     setThumbnailProgress(0);
     setThumbnailPreview(null);
-    setVideoFiles({});
-    setVideoProgress({});
+
+    setVideoFile(null);
+    setVideoProgress(0);
+    setVideoError(false);
+
     reset(
       {
         title: "",
@@ -158,57 +164,73 @@ const AddCourseForm = () => {
         price: "",
         category: "",
         thumbnail: null,
-        sectionTitle: "",
-        lectures: [{ lectureTitle: "", video: null, duration: "" }],
+        // sectionTitle: "",
+        lectureTitle: "",
+        lectureVideo: null,
+        // lectureDuration: "",
       },
       { keepValues: false }
     );
+
+    const thumb = document.getElementById("thumbnail");
+    if (thumb) thumb.value = "";
+
+    const video = document.getElementById("video");
+    if (video) video.value = "";
   }, [reset]);
+
+  const getVideoDuration = (file) => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+
+      video.preload = "metadata";
+      video.src = URL.createObjectURL(file);
+
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        resolve(video.duration); // seconds (number)
+      };
+
+      video.onerror = () => {
+        reject("Failed to load video metadata");
+      };
+    });
+  };
 
   const onSubmit = async (data) => {
 
-    if (!thumbnailFile) {
-      setShowThumbnailMsg(true);
-      return;
+    if (!thumbnailFile) return setShowThumbnailMsg(true);
+    if (!videoFile) return setVideoError(true);
+
+    const durationInSeconds = await getVideoDuration(videoFile);
+    const durationInMinutes = Math.ceil(durationInSeconds / 60);
+
+    const courseObj = {
+      title: data?.title?.split(" ")?.map(t => t?.charAt(0)?.toUpperCase() + t?.slice(1)?.toLowerCase())?.join(" "),
+      description: data?.description,
+      price: data?.price,
+      category_id: data?.category,
+      instructor_id: userAuthData?.id,
+      status: 'pending',
+      thumbnail: data?.thumbnail
     }
 
-    const missingVideos = data.lectures
-      .map((_, i) => (!videoFiles[i] ? i : null))
-      .filter((i) => i !== null);
+    const sections = {
+      course_id:null,
+      category_id:data?.category,
+      video_title: data.lectureTitle,
+      duration: durationInSeconds?.toFixed(2),
+      status:'active',
+      isPreview: true,
+      video: videoFile
+    };
 
-    if (missingVideos.length > 0) {
-      setVideoError(missingVideos);
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("price", data.price);
-    formData.append("category", data.category);
-    formData.append("thumbnail", thumbnailFile);
-
-    const sections = [
-      {
-        sectionTitle: data.sectionTitle,
-        lectures: data.lectures.map((lec, index) => ({
-          title: lec.lectureTitle,
-          duration: lec.duration,
-          isPreview: index === 0,
-          videoUrl: videoFiles[index]?.name || "",
-        })),
-      },
-    ];
-
-    formData.append("sections", JSON.stringify(sections));
-
-    Object.values(videoFiles).forEach((file, i) => {
-      formData.append(`videos`, file);
-    });
-
-    dispatch(createCourse(formData))
+    dispatch(createCourse(courseObj))
       .then(res => {
-        if (res.meta.requestStatus !== "rejected") {
+        console.log('Response after adding new course', res);
+
+        if (res.meta.requestStatus === "fulfilled") {
+
           setShowToast(true);
           resetFormState();
         } else {
@@ -221,6 +243,7 @@ const AddCourseForm = () => {
       })
   };
 
+  // console.log('All available category',getCategoryData,userAuthData);
 
   const inputClass = useCallback(
     (err) =>
@@ -232,7 +255,7 @@ const AddCourseForm = () => {
   const ErrorMsg = ({ msg }) =>
     msg && (
       <p className="text-red-300 text-xs mt-1.5 flex items-center gap-1">
-        <span>⚠</span> {msg}
+        <span><TriangleAlert className="w-3 h-3" /></span> {msg}
       </p>
     );
 
@@ -249,7 +272,7 @@ const AddCourseForm = () => {
 
   return (
     <div className="min-h-screen py-4 sm:py-8 px-3 sm:px-4 bg-black">
-      {/* ✅ Toast */}
+      {/* Toast */}
       {showToast && (
         <div className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top duration-300 w-[calc(100%-1.5rem)] sm:w-auto">
           <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-2xl border border-white/20 flex items-center gap-3 backdrop-blur-sm">
@@ -296,8 +319,8 @@ const AddCourseForm = () => {
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-white/90 text-sm font-medium mb-2">Price ($) *</label>
-                  <input type="number" step="0.01" {...register("price", { required: "Price is required", min: { value: 0, message: "Price must be positive" } })} placeholder="49.99" className={inputClass(errors.price)} />
+                  <label className="block text-white/90 text-sm font-medium mb-2">Price (₹) *</label>
+                  <input type="number" step="0.01" {...register("price", { required: "Price is required", min: { value: 0, message: "Price must be positive" } })} placeholder="4999" className={inputClass(errors.price)} />
                   <ErrorMsg msg={errors.price?.message} />
                 </div>
 
@@ -305,13 +328,30 @@ const AddCourseForm = () => {
                   <label className="block text-white/90 text-sm font-medium mb-2">Category *</label>
                   <select {...register("category", { required: "Category is required" })} className={inputClass(errors.category)}>
                     <option value="">Choose category</option>
-                    {getCategoryData?.map((cat) => (
-                      <option key={cat._id} value={cat._id} className="bg-purple-900">{cat.name}</option>
+                    {getCategoryData?.map(cat => (
+                      <option key={cat?.id} value={cat?.id} className="bg-purple-900">{cat?.name}</option>
                     ))}
                   </select>
-                  <ErrorMsg msg={errors.category?.message} />
+                  <ErrorMsg msg={errors?.category?.message} />
                 </div>
               </div>
+
+            </div>
+
+            {/* Right Column */}
+            <div className="p-4 sm:p-8 space-y-4 sm:space-y-6">
+              <div className="pb-3 sm:pb-4 border-b border-white/10">
+                <h2 className="text-xl sm:text-2xl font-semibold text-white flex items-center gap-2">
+                  <span className="bg-purple-500/20 text-purple-300 rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium">02</span>
+                  Course Content
+                </h2>
+              </div>
+
+              {/* <div>
+                <label className="block text-white/90 text-sm font-medium mb-2">Section Title *</label>
+                <input type="text" {...register("sectionTitle", { required: "Section title is required" })} placeholder="e.g., Introduction to React" className={inputClass(errors.sectionTitle)} />
+                <ErrorMsg msg={errors.sectionTitle?.message} />
+              </div> */}
 
               <div>
                 <label className="block text-white/90 text-sm font-medium mb-2">Course Thumbnail *</label>
@@ -321,7 +361,7 @@ const AddCourseForm = () => {
                     <label htmlFor="thumbnail-upload" className={`group flex flex-col items-center justify-center w-full h-32 sm:h-40 rounded-xl bg-purple-500/10 border-2 border-dashed ${errors.thumbnail ? "border-red-400/60" : "border-purple-400/30"} hover:border-purple-400/60 hover:bg-purple-500/20 cursor-pointer transition-all duration-200`}>
                       <MdImage className="text-4xl sm:text-5xl text-purple-400/60 group-hover:text-purple-300 transition-colors mb-2 sm:mb-3" />
                       <p className="text-white/60 group-hover:text-white/80 font-medium text-sm sm:text-base">Click to upload thumbnail</p>
-                      <p className="text-white/40 text-xs mt-1">PNG, JPG up to 10MB</p>
+                      <p className="text-white/40 text-xs mt-1">PNG, JPG up to 500KB</p>
                     </label>
                   </>
                 ) : (
@@ -363,138 +403,176 @@ const AddCourseForm = () => {
                 )}
                 {showThumbnailMsg && <ErrorMsg msg='Thumbnail is required' />}
               </div>
-            </div>
 
-            {/* Right Column */}
-            <div className="p-4 sm:p-8 space-y-4 sm:space-y-6">
-              <div className="pb-3 sm:pb-4 border-b border-white/10">
-                <h2 className="text-xl sm:text-2xl font-semibold text-white flex items-center gap-2">
-                  <span className="bg-purple-500/20 text-purple-300 rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium">02</span>
-                  Course Content
-                </h2>
-              </div>
-
-              <div>
-                <label className="block text-white/90 text-sm font-medium mb-2">Section Title *</label>
-                <input type="text" {...register("sectionTitle", { required: "Section title is required" })} placeholder="e.g., Introduction to React" className={inputClass(errors.sectionTitle)} />
-                <ErrorMsg msg={errors.sectionTitle?.message} />
-              </div>
 
               <div className="space-y-4">
+                {/* Header */}
                 <div className="flex justify-between items-center">
-                  <h3 className="text-white/90 font-semibold text-base sm:text-lg">Lectures</h3>
-                  <button type="button" onClick={() => append({ lectureTitle: "", video: null, duration: "" })} className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-xs sm:text-sm flex items-center gap-1 sm:gap-2 transition-all duration-200 hover:scale-105">
-                    <MdAdd className="text-base sm:text-lg" /> Add Lecture
-                  </button>
+                  <h3 className="text-white/90 font-semibold text-base sm:text-lg">
+                    Lecture
+                  </h3>
                 </div>
 
-                <div
-                  className="max-h-[400px] sm:max-h-[600px] overflow-y-auto pr-2
-                    [scrollbar-width:thin]
-                    [scrollbar-color:rgba(168,85,247,0.5)_rgba(255,255,255,0.05)]
-                    [&::-webkit-scrollbar]:w-2.5
-                    [&::-webkit-scrollbar-track]:bg-white/5
-                    [&::-webkit-scrollbar-track]:backdrop-blur-md
-                    [&::-webkit-scrollbar-thumb]:bg-gradient-to-b
-                    [&::-webkit-scrollbar-thumb]:from-purple-500/70
-                    [&::-webkit-scrollbar-thumb]:to-purple-700/70
-                    [&::-webkit-scrollbar-thumb]:backdrop-blur-lg
-                    [&::-webkit-scrollbar-thumb]:border
-                    [&::-webkit-scrollbar-thumb]:border-white/10
-                    [&::-webkit-scrollbar-thumb]:rounded-full
-                    [&::-webkit-scrollbar-thumb]:shadow-[0_0_8px_rgba(168,85,247,0.6)]
-                    [&::-webkit-scrollbar-thumb]:hover:from-purple-400/80
-                    [&::-webkit-scrollbar-thumb]:hover:to-purple-600/80
-                    [&::-webkit-scrollbar-thumb]:hover:shadow-[0_0_10px_rgba(192,132,252,0.8)]
-                  "
-                >
-                  {fields.map((lecture, lIdx) => (
-                    <div key={lecture.id} className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-5 space-y-3 sm:space-y-4 hover:bg-white/[0.07] transition-colors  my-2">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-purple-300 font-medium text-xs sm:text-sm">Lecture {lIdx + 1}</span>
-                        {fields.length > 1 && (
-                          <button type="button" onClick={() => remove(lIdx)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 p-1.5 rounded-lg transition-colors" title="Remove lecture">
-                            <MdDelete className="text-base sm:text-lg" />
-                          </button>
-                        )}
-                      </div>
+                {/* Scroll container (kept as-is) */}
+                <div className="max-h-[400px] sm:max-h-[600px] overflow-y-auto pr-2
+                      [scrollbar-width:thin]
+                      [scrollbar-color:rgba(168,85,247,0.5)_rgba(255,255,255,0.05)]
+                      [&::-webkit-scrollbar]:w-2.5
+                      [&::-webkit-scrollbar-track]:bg-white/5
+                      [&::-webkit-scrollbar-track]:backdrop-blur-md
+                      [&::-webkit-scrollbar-thumb]:bg-gradient-to-b
+                      [&::-webkit-scrollbar-thumb]:from-purple-500/70
+                      [&::-webkit-scrollbar-thumb]:to-purple-700/70
+                      [&::-webkit-scrollbar-thumb]:backdrop-blur-lg
+                      [&::-webkit-scrollbar-thumb]:border
+                      [&::-webkit-scrollbar-thumb]:border-white/10
+                      [&::-webkit-scrollbar-thumb]:rounded-full
+                      [&::-webkit-scrollbar-thumb]:shadow-[0_0_8px_rgba(168,85,247,0.6)]
+                      [&::-webkit-scrollbar-thumb]:hover:from-purple-400/80
+                      [&::-webkit-scrollbar-thumb]:hover:to-purple-600/80
+                      [&::-webkit-scrollbar-thumb]:hover:shadow-[0_0_10px_rgba(192,132,252,0.8)]
+                    ">
 
-                      <div>
-                        <label className="block text-white/80 text-xs font-medium mb-1.5">Lecture Title *</label>
-                        <input type="text" {...register(`lectures.${lIdx}.lectureTitle`, { required: "Lecture title is required" })} placeholder="e.g., Setting up React environment" className={inputClass(errors.lectures?.[lIdx]?.lectureTitle)} />
-                        <ErrorMsg msg={errors.lectures?.[lIdx]?.lectureTitle?.message} />
-                      </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3 sm:p-5 space-y-3 sm:space-y-4 hover:bg-white/[0.07] transition-colors my-2">
 
-                      <div>
-                        <label className="block text-white/80 text-xs font-medium mb-1.5">Video *</label>
-                        {!videoFiles[lIdx] ? (
-                          <>
-                            <input
-                              type="file"
-                              accept="video/*"
-                              id={`video-${lecture.id}`}
-                              className="hidden"
-                              {...register(`lectures.${lIdx}.video`)}
-                              onChange={(e) => handleVideoChange(e, lIdx)}
-                            />
-                            <label htmlFor={`video-${lecture.id}`} className={`group flex items-center gap-2 sm:gap-3 w-full p-3 sm:p-4 rounded-xl bg-purple-500/10 border ${errors.lectures?.[lIdx]?.video ? "border-red-400/60" : "border-purple-400/30"} hover:border-purple-400/60 hover:bg-purple-500/20 cursor-pointer transition-all duration-200`}>
-                              <MdVideoLibrary className="text-purple-400/60 group-hover:text-purple-300 text-xl sm:text-2xl transition-colors" />
-                              <div className="flex-1 text-left">
-                                <p className="text-white/70 group-hover:text-white/90 text-xs sm:text-sm font-medium">Upload video file</p>
-                                <p className="text-white/40 text-xs">MP4, MOV up to 500MB</p>
-                              </div>
-                              <MdUpload className="text-purple-400/60 group-hover:text-purple-300 text-lg sm:text-xl transition-colors" />
-                            </label>
-                          </>
-                        ) : (
-                          <div className="bg-white/5 border border-white/20 rounded-xl p-3 sm:p-4">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                                <div className="bg-purple-500/20 p-1.5 sm:p-2 rounded-lg">
-                                  <MdVideoLibrary className="text-purple-300 text-lg sm:text-xl" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-white text-xs sm:text-sm font-medium truncate">{videoFiles[lIdx].name}</p>
-                                  <p className="text-white/50 text-xs">{(videoFiles[lIdx].size / 1024 / 1024).toFixed(2)} MB</p>
-                                </div>
-                              </div>
-                              <button type="button" onClick={() => removeVideo(lIdx)} className="text-gray-400 hover:text-gray-300 hover:bg-gray-500/10 p-1.5 rounded-lg transition-colors ml-2" title="Remove video">
-                                <MdClose className="text-base sm:text-lg" />
-                              </button>
-                            </div>
-                            <div className="space-y-1.5">
-                              {videoProgress[lIdx] >= 0 && videoProgress[lIdx] < 100 && (
-                                <>
-                                  <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-                                    <div className="bg-gradient-to-r from-purple-500 to-purple-400 h-full transition-all duration-300 ease-out" style={{ width: `${videoProgress[lIdx] || 0}%` }} />
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-white/60 text-xs">Uploading...</span>
-                                    <span className="text-white/70 text-xs font-medium">{Math.round(videoProgress[lIdx] || 0)}%</span>
-                                  </div>
-                                </>
-                              )}
-                              {videoProgress[lIdx] === -1 && (
-                                <div className="flex items-center gap-2 text-emerald-400 text-xs sm:text-sm">
-                                  <MdCheckCircle className="text-base sm:text-lg" />
-                                  <span>Uploaded</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        {videoError.includes(lIdx) && <ErrorMsg msg="Video is required" />}
-                      </div>
-
-                      <div>
-                        <label className="block text-white/80 text-xs font-medium mb-1.5">Duration (minutes) *</label>
-                        <input type="number" {...register(`lectures.${lIdx}.duration`, { required: "Duration is required", min: { value: 1, message: "Duration must be at least 1 minute" } })} placeholder="15" className={inputClass(errors.lectures?.[lIdx]?.duration)} />
-                        <ErrorMsg msg={errors.lectures?.[lIdx]?.duration?.message} />
-                      </div>
+                    {/* Title */}
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-purple-300 font-medium text-xs sm:text-sm">
+                        Demo Lecture
+                      </span>
                     </div>
-                  ))}
+
+                    {/* Lecture title */}
+                    <div>
+                      <label className="block text-white/80 text-xs font-medium mb-1.5">
+                        Lecture Title *
+                      </label>
+                      <input
+                        type="text"
+                        {...register("lectureTitle", {
+                          required: "Lecture title is required",
+                        })}
+                        placeholder="e.g., Setting up React environment"
+                        className={inputClass(errors.lectureTitle)}
+                      />
+                      <ErrorMsg msg={errors?.lectureTitle?.message} />
+                    </div>
+
+                    {/* Video */}
+                    <div>
+                      <label className="block text-white/80 text-xs font-medium mb-1.5">
+                        Video *
+                      </label>
+
+                      {!videoFile ? (
+                        <>
+                          <input type="file"
+                            accept="video/*"
+                            id="video"
+                            className="hidden"
+                            onChange={handleVideoChange}
+                          />
+
+                          <label
+                            htmlFor="video"
+                            className={`group flex items-center gap-2 sm:gap-3 w-full p-3 sm:p-4 rounded-xl bg-purple-500/10 border
+                                  ${videoError ? "border-red-400/60" : "border-purple-400/30"}
+                                  hover:border-purple-400/60 hover:bg-purple-500/20 cursor-pointer transition-all duration-200`}
+                          >
+                            <MdVideoLibrary className="text-purple-400/60 group-hover:text-purple-300 text-xl sm:text-2xl" />
+
+                            <div className="flex-1 text-left">
+                              <p className="text-white/70 group-hover:text-white/90 text-xs sm:text-sm font-medium">
+                                Upload video file
+                              </p>
+                              <p className="text-white/40 text-xs">
+                                MP4, MOV up to 500MB
+                              </p>
+                            </div>
+
+                            <MdUpload className="text-purple-400/60 group-hover:text-purple-300 text-lg sm:text-xl" />
+                          </label>
+                        </>
+                      ) : (
+                        <div className="bg-white/5 border border-white/20 rounded-xl p-3 sm:p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                              <div className="bg-purple-500/20 p-1.5 sm:p-2 rounded-lg">
+                                <MdVideoLibrary className="text-purple-300 text-lg sm:text-xl" />
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <p className="text-white text-xs sm:text-sm font-medium truncate">
+                                  {videoFile.name}
+                                </p>
+                                <p className="text-white/50 text-xs">
+                                  {(videoFile.size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={removeVideo}
+                              className="text-gray-400 hover:text-gray-300 hover:bg-gray-500/10 p-1.5 rounded-lg"
+                            >
+                              <MdClose className="text-base sm:text-lg" />
+                            </button>
+                          </div>
+
+                          {/* Progress */}
+                          <div className="space-y-1.5">
+                            {videoProgress >= 0 && videoProgress < 100 && (
+                              <>
+                                <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                                  <div
+                                    className="bg-gradient-to-r from-purple-500 to-purple-400 h-full transition-all duration-300"
+                                    style={{ width: `${videoProgress}%` }}
+                                  />
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-white/60 text-xs">Uploading...</span>
+                                  <span className="text-white/70 text-xs font-medium">
+                                    {Math.round(videoProgress)}%
+                                  </span>
+                                </div>
+                              </>
+                            )}
+
+                            {videoProgress === -1 && (
+                              <div className="flex items-center gap-2 text-emerald-400 text-xs sm:text-sm">
+                                <MdCheckCircle className="text-base sm:text-lg" />
+                                <span>Uploaded</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {videoError && <ErrorMsg msg="Video is required" />}
+                    </div>
+
+                    {/* Duration */}
+                    {/* <div>
+                      <label className="block text-white/80 text-xs font-medium mb-1.5">
+                        Duration (minutes) *
+                      </label>
+                      <input
+                        type="number"
+                        {...register("lectureDuration", {
+                          required: "Duration is required",
+                          min: { value: 1, message: "Duration must be at least 1 minute" },
+                        })}
+                        placeholder="15"
+                        className={inputClass(errors.lectureDuration)}
+                      />
+                      <ErrorMsg msg={errors?.lectureDuration?.message} />
+                    </div> */}
+
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
 

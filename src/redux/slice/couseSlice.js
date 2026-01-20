@@ -29,6 +29,21 @@ export const createCourse = createAsyncThunk('courseSlice/createCourse',
     async (data) => {
         // console.log('Receive data in add course slice', data);
 
+        let imageUrl = null, imageId = null;
+        const file = data.thumbnail;
+        if (file) {
+            const fileName = `${data?.title}_${Date.now()}.${file.name.split(".").pop()}`;
+            const { data: uploadData, error: uploadError } = await supabase.storage.from(userType == 'student' ? "student" : "instructor/image").upload(fileName, file, { upsert: true });
+            // console.log('Uploading image data', uploadData, ' error', uploadError);
+
+            if (uploadError) throw uploadError;
+
+            const { data: publicUrlData } = supabase.storage.from(userType == 'student' ? "student" : "instructor/image").getPublicUrl(fileName);
+
+            imageUrl = publicUrlData.publicUrl;
+            imageId = uploadData.path;
+        }
+
         const res = await axiosInstance.post(endPoint_addCourse, data);
         // console.log('Response for adding course', res);
 
@@ -152,4 +167,4 @@ export const courseSlice = createSlice({
 
 export default courseSlice.reducer;
 
-export const {resetCourseState} = courseSlice.actions;
+export const { resetCourseState } = courseSlice.actions;
