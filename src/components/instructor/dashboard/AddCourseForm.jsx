@@ -6,6 +6,8 @@ import { Loader2, TriangleAlert } from "lucide-react";
 import { createCourse } from "../../../redux/slice/couseSlice";
 import getSweetAlert from "../../../util/alert/sweetAlert";
 import { useForm } from "react-hook-form";
+import { addVideo } from "../../../redux/slice/videoSlice";
+import toastifyAlert from "../../../util/alert/toastify";
 
 const AddCourseForm = () => {
   const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
@@ -22,9 +24,14 @@ const AddCourseForm = () => {
     },
   });
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(),
+    imgType = ['jpeg', 'jpg', 'png'],
+    videoType = ['mp4', 'mov'];
+
   const { isCategoryLoading, getCategoryData } = useSelector((state) => state.category),
-    { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth);
+    { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth),
+    { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state.course),
+    { isVideoLoading, videoData, hasVideoError } = useSelector(state => state.lecture);
 
   const [showToast, setShowToast] = useState(false);
   const [thumbnailProgress, setThumbnailProgress] = useState(0);
@@ -91,12 +98,6 @@ const AddCourseForm = () => {
         setTimeout(() => setThumbnailProgress(-1), 1000)
       );
     }
-  };
-
-  const formatDuration = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleVideoChange = async (e) => {
@@ -216,31 +217,62 @@ const AddCourseForm = () => {
     }
 
     const sections = {
-      course_id:null,
-      category_id:data?.category,
+      course_id: null,
+      category_id: data?.category,
       video_title: data.lectureTitle,
       duration: durationInSeconds?.toFixed(2),
-      status:'active',
+      status: 'active',
       isPreview: true,
-      video: videoFile
+      video_url: videoFile
     };
 
-    dispatch(createCourse(courseObj))
-      .then(res => {
-        console.log('Response after adding new course', res);
 
-        if (res.meta.requestStatus === "fulfilled") {
+    if (data.lectureVideo && data.lectureVideo.size / (1024 * 1024) > 500) {
+      toastifyAlert.warn("Lecture video size should less than 500MB");
+    }
 
-          setShowToast(true);
-          resetFormState();
-        } else {
-          getSweetAlert("Oops...", "Failed to create course. Try again.", "error");
-        }
-      })
-      .catch(error => {
-        console.error("Error while submitting course:", error);
-        getSweetAlert("Error", "Something went wrong while uploading the course.", "error");
-      })
+    else if (data.lectureVideo && !videoType.includes(data.lectureVideo.type.split('/')[1])) {
+      toastifyAlert.warn("Lecture video type should be mp4 / mov");
+    }
+
+    else if (data.thumbnail?.[0] && data.thumbnail[0].size / 1024 > 500) {
+      toastifyAlert.warn("Profile image size should less than 500KB");
+    }
+
+    else if (data.thumbnail?.[0] && !imgType.includes(data.thumbnail[0].type.split('/')[1])) {
+      toastifyAlert.warn("Profile image type should be jpeg / jpg / png");
+    }
+    else {
+      dispatch(createCourse(courseObj))
+        .then(res => {
+          // console.log('Response after adding new course', res);
+
+          if (res.meta.requestStatus === "fulfilled") {
+
+            dispatch(addVideo({ ...sections, course_id: res.payload.course_id }))
+              .then(res => {
+                // console.log('Response after adding new lecture', res);
+
+                if (res.meta.requestStatus === "fulfilled") {
+                  setShowToast(true);
+                  resetFormState();
+                } else {
+                  getSweetAlert("Oops...", "Failed to create course. Try again.", "error");
+                }
+              })
+              .catch(error => {
+                console.error("Error while submitting course:", error);
+                getSweetAlert("Error", "Something went wrong while uploading the course.", "error");
+              })
+          } else {
+            getSweetAlert("Oops...", "Failed to create course. Try again.", "error");
+          }
+        })
+        .catch(error => {
+          console.error("Error while submitting course:", error);
+          getSweetAlert("Error", "Something went wrong while uploading the course.", "error");
+        })
+    }
   };
 
   // console.log('All available category',getCategoryData,userAuthData);
@@ -361,7 +393,7 @@ const AddCourseForm = () => {
                     <label htmlFor="thumbnail-upload" className={`group flex flex-col items-center justify-center w-full h-32 sm:h-40 rounded-xl bg-purple-500/10 border-2 border-dashed ${errors.thumbnail ? "border-red-400/60" : "border-purple-400/30"} hover:border-purple-400/60 hover:bg-purple-500/20 cursor-pointer transition-all duration-200`}>
                       <MdImage className="text-4xl sm:text-5xl text-purple-400/60 group-hover:text-purple-300 transition-colors mb-2 sm:mb-3" />
                       <p className="text-white/60 group-hover:text-white/80 font-medium text-sm sm:text-base">Click to upload thumbnail</p>
-                      <p className="text-white/40 text-xs mt-1">PNG, JPG up to 500KB</p>
+                      <p className="text-white/40 text-xs mt-1">PNG, JPG, JPEG up to 500KB</p>
                     </label>
                   </>
                 ) : (
@@ -578,8 +610,8 @@ const AddCourseForm = () => {
 
           {/* Submit Button */}
           <div className="p-4 sm:p-8 bg-white/5 border-t border-white/10">
-            <button type="submit" disabled={isSubmitting} className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:from-purple-800 disabled:to-indigo-800 disabled:cursor-not-allowed px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-white font-semibold  transition-all duration-200 hover:scale-[1.02]  flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg">
-              {isSubmitting ? (
+            <button type="submit" disabled={isCourseLoading || isVideoLoading} className={`w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:from-purple-800 disabled:to-indigo-800 disabled:cursor-not-allowed px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-white font-semibold  transition-all duration-200 hover:scale-[1.02]  flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg ${(isCourseLoading || isVideoLoading) ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+              {(isCourseLoading || isVideoLoading) ? (
                 <>
                   <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                   Uploading Course...

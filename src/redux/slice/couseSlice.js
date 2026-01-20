@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance/axiosInstance";
 import { endPoint_addCourse, endPoint_allCourse, endPoint_categoryWiseCourse, endPoint_sepeficCourse, endPoint_userEnrolledCourse } from "../../api/apiUrl/apiUrl";
+import supabase from "../../util/supabase/supabase";
 
 // all course action
 export const allCourse = createAsyncThunk('courseSlice/allCourse',
@@ -30,24 +31,31 @@ export const createCourse = createAsyncThunk('courseSlice/createCourse',
         // console.log('Receive data in add course slice', data);
 
         let imageUrl = null, imageId = null;
-        const file = data.thumbnail;
+        const file = data?.thumbnail?.[0];
         if (file) {
             const fileName = `${data?.title}_${Date.now()}.${file.name.split(".").pop()}`;
-            const { data: uploadData, error: uploadError } = await supabase.storage.from(userType == 'student' ? "student" : "instructor/image").upload(fileName, file, { upsert: true });
+            const { data: uploadData, error: uploadError } = await supabase.storage.from("course").upload(fileName, file, { upsert: true });
             // console.log('Uploading image data', uploadData, ' error', uploadError);
 
             if (uploadError) throw uploadError;
 
-            const { data: publicUrlData } = supabase.storage.from(userType == 'student' ? "student" : "instructor/image").getPublicUrl(fileName);
+            const { data: publicUrlData } = supabase.storage.from("course").getPublicUrl(fileName);
 
             imageUrl = publicUrlData.publicUrl;
             imageId = uploadData.path;
         }
 
-        const res = await axiosInstance.post(endPoint_addCourse, data);
+        const res = await supabase.from("courses").insert([{ ...data, thumbnail: imageUrl }]).select();
         // console.log('Response for adding course', res);
 
-        return res.data;
+        if (res.error) return res?.error;
+
+        const courseId = res?.data?.[0]?.id;
+
+        return {
+            course: res?.data?.[0],
+            course_id: courseId,
+        };
     }
 )
 

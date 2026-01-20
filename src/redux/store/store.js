@@ -25,7 +25,7 @@ const store = configureStore({
         review: reviewSliceReducer,
         instructor: instructorSliceReducer,
         specificInstructor: specificInstructorSliceReducer,
-        video: videoSliceReducer
+        lecture: videoSliceReducer
     }
 });
 
