@@ -2,62 +2,12 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Laptop, Smartphone, Palette, BarChart, Database, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { allCategory } from "../../../redux/slice/categorySlice";
 import getSweetAlert from "../../../util/alert/sweetAlert";
 import Lottie from "lottie-react";
 import loaderAnimation from '../../../assets/animations/loader.json';
 import CategoryCard from "../common/category/CategoryCard";
-
-// const categories = [
-//   {
-//     id: 1,
-//     title: "UI/UX Design",
-//     desc: "Master the principles of user-centered design and create stunning interfaces",
-//     icon: <Palette className="w-6 h-6" />,
-//   },
-//   {
-//     id: 2,
-//     title: "Web Development",
-//     desc: "Build responsive websites and modern web applications",
-//     icon: <Laptop className="w-6 h-6" />,
-//     highlight: true,
-//   },
-//   {
-//     id: 3,
-//     title: "Mobile Development",
-//     desc: "Learn how to create stunning mobile apps with awesome UI",
-//     icon: <Smartphone className="w-6 h-6" />,
-//   },
-//   {
-//     id: 4,
-//     title: "Digital Marketing",
-//     desc: "Grow businesses with effective marketing strategies",
-//     icon: <BarChart className="w-6 h-6" />,
-//   },
-//   {
-//     id: 5,
-//     title: "Data & Artificial Intelligencies",
-//     desc: "Understand data analytics, machine learning, and AI",
-//     icon: <Database className="w-6 h-6" />,
-//   },
-//   {
-//     id: 6,
-//     title: "Creative & Multimedia",
-//     desc: "Unleash your creativity with courses in graphic design",
-//     icon: <Sparkles className="w-6 h-6" />,
-//   },
-// ];
-
-const categoriesIcon = [
-  <Palette className="w-6 h-6" />,
-  <Laptop className="w-6 h-6" />,
-  <Smartphone className="w-6 h-6" />,
-  <BarChart className="w-6 h-6" />,
-  <Database className="w-6 h-6" />,
-  <Sparkles className="w-6 h-6" />,
-];
 
 const CategoryList = () => {
 

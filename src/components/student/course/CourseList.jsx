@@ -14,69 +14,6 @@ const CourseList = () => {
         dispatch = useDispatch(),
         { isCourseLoading, getCourseData = [], isCourseError } = useSelector(state => state.course);
 
-    // const courses = [
-    //     {
-    //         id: 1,
-    //         category: "UI/UX DESIGN",
-    //         title: "User Experience Design Fundamentals",
-    //         instructor: "Sarah Mitchell",
-    //         sessions: 16,
-    //         price: "₹1,599",
-    //         originalPrice: "₹2,199",
-    //         image: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=400&h=250&fit=crop&crop=center"
-    //     },
-    //     {
-    //         id: 2,
-    //         category: "GRAPHIC DESIGN",
-    //         title: "Introduction to Graphic Design",
-    //         instructor: "Liam Garcia",
-    //         sessions: 12,
-    //         price: "₹2,499",
-    //         originalPrice: "₹2,999",
-    //         image: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=400&h=250&fit=crop&crop=center"
-    //     },
-    //     {
-    //         id: 3,
-    //         category: "WEB DEVELOPMENT",
-    //         title: "Frontend Web Development",
-    //         instructor: "Emma Wilson",
-    //         sessions: 20,
-    //         price: "₹2,499",
-    //         originalPrice: "₹3,799",
-    //         image: "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?w=400&h=250&fit=crop&crop=center"
-    //     },
-    //     {
-    //         id: 4,
-    //         category: "DATA SCIENCE",
-    //         title: "Data Analysis with Python",
-    //         instructor: "Michael Chen",
-    //         sessions: 18,
-    //         price: "₹2,099",
-    //         originalPrice: "₹3,399",
-    //         image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop&crop=center"
-    //     },
-    //     {
-    //         id: 5,
-    //         category: "MOBILE DEVELOPMENT",
-    //         title: "React Native Mobile Apps",
-    //         instructor: "Jessica Park",
-    //         sessions: 14,
-    //         price: "₹2,299",
-    //         originalPrice: "₹3,199",
-    //         image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=250&fit=crop&crop=center"
-    //     },
-    //     {
-    //         id: 6,
-    //         category: "DIGITAL MARKETING",
-    //         title: "Social Media Marketing Strategy",
-    //         instructor: "David Rodriguez",
-    //         sessions: 10,
-    //         price: "₹1,899",
-    //         originalPrice: "₹2,699",
-    //         image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop&crop=center"
-    //     }
-    // ]
-
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => {
