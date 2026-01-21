@@ -5,10 +5,24 @@ import supabase from "../../util/supabase/supabase";
 
 // all course action
 export const allCourse = createAsyncThunk('courseSlice/allCourse',
-    async () => {
-        const res = await axiosInstance.get(endPoint_allCourse);
+    async ({ category_id, status }, { rejectWithValue }) => {
+        let query = supabase.from("courses").select(`id,title,description,price,status,thumbnail,created_at,
+                    category:categories (id,name,description,category_image,status),
+                    instructor:instructors (id,name,email,profile_image_url,bio,expertise,social_links,is_verified,application_status)
+                    `).order("created_at", { ascending: false });
+
+        if (category_id) {
+            query = query.eq('category_id', category_id);
+        }
+
+        if (status) {
+            query = query.eq('status', status);
+        }
+
+        const res = await query;
         // console.log('Response for fetching all course', res);
 
+        if (res?.error) return rejectWithValue(res?.error.message);
         return res.data;
     }
 )

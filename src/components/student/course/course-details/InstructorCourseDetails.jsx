@@ -7,21 +7,26 @@ import Lottie from "lottie-react";
 import loaderAnimation from '../../../../assets/animations/loader.json';
 import ReviewCourse from './ReviewCourse';
 import { useDispatch, useSelector } from 'react-redux';
-import { specificCourse } from "../../../../redux/slice/specificCourseSlice";
 import getSweetAlert from '../../../../util/alert/sweetAlert';
 import { useNavigate } from "react-router-dom";
 import { makePayment } from '../../../../redux/slice/paymentSlice';
+import { checkLoggedInUser } from '../../../../redux/slice/authSlice/checkUserAuthSlice';
 
-const InstructorCourseDetails = ({ courseId }) => {
+const InstructorCourseDetails = ({ courseData: getSpecificCourseData }) => {
     const dispatch = useDispatch(),
         navigate = useNavigate(),
-        { getSpecificCourseData } = useSelector(state => state.specificCourse),
-        { isAuth } = useSelector(state => state.checkAuth);
+        { userAuthData } = useSelector(state => state.checkAuth);
 
-    // Fetch specific course data
     useEffect(() => {
-        dispatch(specificCourse(courseId));
-    }, [dispatch, courseId]);
+        dispatch(checkLoggedInUser())
+            .then(res => {
+                // console.log('Response for logged in user details', res);
+            })
+            .catch(err => {
+                console.error("Error occured", err);
+                getSweetAlert("Error", "Something went wrong.", "error");
+            })
+    }, []);
 
     // Load Razorpay SDK dynamically
     const loadRazorpay = () => {
@@ -40,6 +45,9 @@ const InstructorCourseDetails = ({ courseId }) => {
 
     // Handle payment process
     const handlePayment = async () => {
+        
+        console.log('Payment done');
+
         if (!getSpecificCourseData?._id) return;
 
         const sdkLoaded = await loadRazorpay();
@@ -120,13 +128,13 @@ const InstructorCourseDetails = ({ courseId }) => {
                     <h3 className="text-lg font-semibold mb-4">Instructor</h3>
                     <div className="flex items-center gap-3 mb-6">
                         <img
-                            src={`http://localhost:3005${getSpecificCourseData.instructor.profileImage}`}
+                            src={getSpecificCourseData?.instructor?.profile_image_url}
                             alt="Instructor"
                             className="w-12 h-12 rounded-full"
                         />
                         <div>
-                            <p className="font-semibold">{getSpecificCourseData.instructor.name}</p>
-                            <p className="text-sm text-gray-400">{getSpecificCourseData.instructor.role}</p>
+                            <p className="font-semibold">{getSpecificCourseData?.instructor?.name ?? 'N/A'}</p>
+                            <p className="text-sm text-gray-400">{(getSpecificCourseData.instructor.role?.charAt(0)?.toUpperCase() + getSpecificCourseData.instructor.role?.slice(1)?.toLowerCase()) ?? 'Instructor'}</p>
                         </div>
                     </div>
 
@@ -153,22 +161,20 @@ const InstructorCourseDetails = ({ courseId }) => {
                     <div className="flex flex-col items-start mt-3">
                         <p className="text-purple-500 text-2xl font-bold mb-4 flex items-center">
                             <MdCurrencyRupee className="inline mr-1" />
-                            {getSpecificCourseData.price}
+                            {getSpecificCourseData?.price ?? 'N/A'}
                         </p>
 
                         <button
                             type="button"
                             onClick={() => {
-                                if (isAuth) handlePayment();
+                                if (userAuthData) handlePayment();
                                 else navigate('/signin');
                             }}
                             className="flex mb-5 mt-1 items-center justify-center gap-2 w-full 
-                bg-purple-600 text-white 
-                backdrop-blur-md border border-white/30 
-                px-5 py-3 rounded-full transition 
+                bg-purple-600 text-white backdrop-blur-md border border-white/30 px-5 py-3 rounded-full transition 
                 hover:bg-purple-800 hover:border-purple-600 hover:opacity-90 
                 disabled:bg-gray-500 disabled:border-gray-400 disabled:opacity-60 disabled:cursor-not-allowed 
-                disabled:hover:bg-gray-500 disabled:hover:border-gray-400"
+                disabled:hover:bg-gray-500 disabled:hover:border-gray-400 cursor-pointer"
                         >
                             Buy Now <HiArrowRight className="text-lg" />
                         </button>

@@ -23,11 +23,34 @@ export const addVideo = createAsyncThunk('videoSlice/addVideo',
         const res = await supabase.from("lectures").insert([{ ...data, video_url: videoUrl }]);
         // console.log('Response for adding video', res);
 
-        if (res.error) return rejectWithValue(res?.error);
+        if (res.error) return rejectWithValue(res?.error?.message);
 
         return res.data;
     }
 )
+
+export const fetchVideo = createAsyncThunk("videoSlice/fetchVideo",
+    async ({ course_id, status }, { rejectWithValue }) => {
+        try {
+            // console.log('Fetching video details', course_id, status);
+            let query = supabase.from("lectures").select("*").eq("course_id", course_id).order("created_at", { ascending: true });
+
+            if (status) {
+                query = query.eq("status", status);
+            }
+
+            const res = await query;
+            // console.log('Response for fetching lecture videos', res);
+
+            if (res?.error) throw res?.error;
+
+            return res?.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 
 const initialState = {
     isVideoLoading: false,

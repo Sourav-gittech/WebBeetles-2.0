@@ -1,51 +1,6 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { specificCategory } from "../../../redux/slice/specificCategorySlice";
-import getSweetAlert from "../../../util/alert/sweetAlert";
 
-const CategoryBio = ({ categoryName }) => {
-    const dispatch = useDispatch();
-    const {
-        isSpecificCategoryLoading,
-        getSpecificCategoryData,
-        isSpecificCategoryError
-    } = useSelector((state) => state.specificCategory);
-
-    useEffect(() => {
-        if (!categoryName) return;
-
-        dispatch(specificCategory(categoryName))
-            .unwrap()
-            .catch((err) => {
-                getSweetAlert("Oops...", "Something went wrong!", "error");
-                console.error("Error fetching category:", err);
-            });
-    }, [dispatch, categoryName]);
-
-    // Loading state
-    if (isSpecificCategoryLoading) {
-        return (
-            <div className="bg-black min-h-screen flex items-center justify-center">
-                <div className="text-purple-700 text-xl">Loading...</div>
-            </div>
-        );
-    }
-
-    // Error state
-    if (isSpecificCategoryError) {
-        return (
-            <div className="bg-black min-h-screen flex items-center justify-center">
-                <div className="text-red-500 text-xl">Failed to load category</div>
-            </div>
-        );
-    }
-
-    // No data state
-    if (!getSpecificCategoryData || !getSpecificCategoryData.name) {
-        return null;
-    }
-
-    const { name, description, categoryImage } = getSpecificCategoryData;
+const CategoryBio = ({ categoryDetails }) => {
 
     return (
         <>
@@ -76,14 +31,14 @@ const CategoryBio = ({ categoryName }) => {
                             id="category-title"
                             className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-purple-700 font-sans leading-tight px-2"
                         >
-                            {name}
+                            {categoryDetails?.name??'N/A'}
                         </h1>
 
                         {/* Description */}
-                        {description && (
+                        {categoryDetails?.description && (
                             <div className="w-full pt-2 sm:pt-3 md:pt-4">
                                 <p className="text-gray-400 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed font-sans max-w-4xl mx-auto px-2">
-                                    {description}
+                                    {categoryDetails?.description??'N/A'}
                                 </p>
                             </div>
                         )}
@@ -104,10 +59,10 @@ const CategoryBio = ({ categoryName }) => {
                             />
 
                             {/* Category Image Overlay */}
-                            {categoryImage && (
+                            {categoryDetails?.thumbnail && (
                                 <img
-                                    src={`http://localhost:3005${getSpecificCategoryData.categoryImage}`}
-                                    alt={`${name} category`}
+                                    src={categoryDetails?.thumbnail}
+                                    alt={`${categoryDetails?.title} category`}
                                     className="rotate-animation absolute
                                         bottom-0 right-0
                                         sm:bottom-2 sm:right-2

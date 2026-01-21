@@ -26,7 +26,7 @@ const AddCourseForm = () => {
 
   const dispatch = useDispatch(),
     imgType = ['jpeg', 'jpg', 'png'],
-    videoType = ['mp4', 'mov'];
+    videoType = ['mp4', 'mov','avi'];
 
   const { isCategoryLoading, getCategoryData } = useSelector((state) => state.category),
     { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth),
@@ -345,7 +345,7 @@ const AddCourseForm = () => {
 
               <div>
                 <label className="block text-white/90 text-sm font-medium mb-2">Course Description *</label>
-                <textarea {...register("description", { required: "Description is required" })} placeholder="Provide a detailed description of what students will learn..." rows={5} className={`${inputClass(errors.description)} resize-none`} />
+                <textarea {...register("description", { required: "Description is required", minLength: { value: 400, message: "Minimum 400 characters required" }, maxLength: { value: 600, message: "Maximum 600 characters required" } })} placeholder="Provide a detailed description of what students will learn..." rows={5} className={`${inputClass(errors.description)} resize-none`} />
                 <ErrorMsg msg={errors.description?.message} />
               </div>
 
@@ -518,7 +518,7 @@ const AddCourseForm = () => {
                                 Upload video file
                               </p>
                               <p className="text-white/40 text-xs">
-                                MP4, MOV up to 500MB
+                                MP4, MOV, AVI up to 500MB
                               </p>
                             </div>
 
