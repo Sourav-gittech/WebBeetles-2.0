@@ -1,26 +1,24 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../../api/axiosInstance/axiosInstance";
-import { endPoint_contact } from "../../api/apiUrl/apiUrl";
+import supabase from "../../util/supabase/supabase";
 
-// save query action
-export const addQuery = createAsyncThunk('contactAuthSlice/addQuery',
+// save contact query
+export const addQuery = createAsyncThunk("contactAuthSlice/addQuery",
     async (data, { rejectWithValue }) => {
+        // console.log('Received data for contact', data);
+        
         try {
-            console.log('Data received for save query', data);
+            const res = await supabase.from("contacts").insert([data]).select().single();
+            // console.log('Response for adding contact message', res);
 
-            const res = await axiosInstance.post(endPoint_contact, data);
-            console.log('Response for save query', res);
+            if (res?.error) throw res?.error;
 
-            return res.data;
-        } catch (err) {
-            if (err.response && err.response.data) {
-                return rejectWithValue(err.response.data);
-            } else {
-                return rejectWithValue({ message: err.message });
-            }
+            return res?.result;
+        } catch (error) {
+            return rejectWithValue(error.message);
         }
     }
-)
+);
+
 
 const initialState = {
     isContactLoading: false,

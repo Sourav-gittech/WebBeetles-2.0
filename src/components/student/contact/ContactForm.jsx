@@ -1,45 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Loader2 } from 'lucide-react';
 import { MdArrowOutward, MdCheckCircle } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { addQuery } from "../../../redux/slice/contactSlice";
 import getSweetAlert from "../../../util/alert/sweetAlert";
-import { checkLoggedInUser, fetchStudentDetails } from "../../../redux/slice/authSlice/checkUserAuthSlice";
+import hotToast from "../../../util/alert/hot-toast";
+import { checkLoggedInUser } from "../../../redux/slice/authSlice/checkUserAuthSlice";
 
 const ContactForm = () => {
+
   const [showToast, setShowToast] = useState(false),
     dispatch = useDispatch(),
-    navigate = useNavigate(),
-    { isAuth } = useSelector(state => state.checkAuth),
-    // { isUserLoading, getUserData, isUserError } = useSelector(state => state.user),
+    { isUserAuth, userAuthData } = useSelector(state => state.checkAuth),
     { isContactLoading, getContactData, isContactError } = useSelector(state => state.query),
     form = useForm(),
     { register, handleSubmit, reset, formState } = form,
     { errors, isSubmitting } = formState;
 
- useEffect(() => {
-     dispatch(checkLoggedInUser())
-       .then(res => {
-         console.log('Response for fetching user profile', res);
-       })
-       .catch((err) => {
-         getSweetAlert('Oops...', 'Something went wrong!', 'error');
-         console.log("Error occurred", err);
-       });
-   }, [dispatch]);
+  useEffect(() => {
+    dispatch(checkLoggedInUser())
+      .then(res => {
+        //  console.log('Response for fetching user profile', res);
+      })
+      .catch((err) => {
+        getSweetAlert('Oops...', 'Something went wrong!', 'error');
+        console.log("Error occurred", err);
+      });
+  }, [dispatch]);
 
-  // console.log('Logged user data', getUserData);
+  // console.log('Logged user data', userAuthData);
 
   const onSubmit = async (data) => {
-    if (!isAuth) {
-      navigate("/signin");
-      return;
-    }
 
     const query_obj = {
-      subject: data.subject,
+      name: (isUserAuth && userAuthData?.name) ? userAuthData?.name : data?.name?.split(" ")?.map(name => name?.charAt(0)?.toUpperCase() + name?.slice(1)?.toLowerCase())?.join(" "),
+      email: (isUserAuth && userAuthData?.email) ? userAuthData?.email : data?.email?.toLowerCase(),
+      subject: data.subject?.charAt(0)?.toUpperCase() + data.subject?.slice(1)?.toLowerCase(),
       message: data.message,
+      document_url: null,
+      role: "student"
     };
 
     try {
@@ -47,12 +47,15 @@ const ContactForm = () => {
         .then(res => {
           // console.log("Response for adding query in contact", res);
 
-          if (res.meta.requestStatus !== "rejected") {
+          if (res.meta.requestStatus === "fulfilled") {
             new Promise((r) => setTimeout(r, 1500));
             setShowToast(true);
             reset();
 
             setTimeout(() => setShowToast(false), 5000);
+          }
+          else {
+            hotToast("Something went wrong!", "error");
           }
         })
     }
@@ -92,14 +95,14 @@ const ContactForm = () => {
               <input
                 type="text"
                 placeholder="Your Name"
-                disabled={isAuth}
-                // defaultValue={isAuth && getUserData?.user ? getUserData.user.name : ""}
+                disabled={isUserAuth}
+                defaultValue={(isUserAuth && userAuthData?.name) ? userAuthData?.name : ""}
                 autoComplete="name"
                 {...register("name", {
-                  required: !isAuth ? "Name is required" : false,
+                  required: !isUserAuth ? "Name is required" : false,
                 })}
                 className={`w-full p-3 md:p-4 rounded-lg md:rounded-xl bg-white/10 backdrop-blur-md border ${errors.name ? "border-red-500" : "border-white/20"
-                  } focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all duration-300 placeholder:text-white/60 text-white text-sm md:text-base`}
+                  } focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all duration-300 placeholder:text-white/60 text-white text-sm md:text-base ${isUserAuth ? 'cursor-not-allowed' : ''}`}
               />
 
               {errors.name && (
@@ -111,18 +114,18 @@ const ContactForm = () => {
               <input
                 type="email"
                 placeholder="Your Email"
-                disabled={isAuth}
-                // defaultValue={isAuth && getUserData?.user ? getUserData.user.email : ""}
+                disabled={isUserAuth}
+                defaultValue={(isUserAuth && userAuthData?.email) ? userAuthData?.email : ""}
                 autoComplete="email"
                 {...register("email", {
-                  required: !isAuth ? "Email is required" : false,
+                  required: !isUserAuth ? "Email is required" : false,
                   pattern: {
                     value: /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-zA-Z.]{2,}$/,
                     message: "Enter a valid email",
                   },
                 })}
                 className={`w-full p-3 md:p-4 rounded-lg md:rounded-xl bg-white/10 backdrop-blur-md border ${errors.email ? "border-red-500" : "border-white/20"
-                  } focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all duration-300 placeholder:text-white/60 text-white text-sm md:text-base`}
+                  } focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all duration-300 placeholder:text-white/60 text-white text-sm md:text-base ${isUserAuth ? 'cursor-not-allowed' : ''}`}
               />
 
               {errors.email && (
@@ -171,14 +174,14 @@ const ContactForm = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="bg-white/10 backdrop-blur-md border border-white/30 
+            disabled={isContactLoading}
+            className={`bg-white/10 backdrop-blur-md border border-white/30 
               hover:bg-purple-700 hover:border-purple-600 px-6 md:px-8 py-3 md:py-4 
               rounded-full text-white font-semibold text-sm md:text-base shadow-lg 
-              hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed 
-              transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-2"
+              hover:shadow-xl disabled:opacity-50 ${isContactLoading ? 'cursor-not-allowed' : 'cursor-pointer'}
+              transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-2`}
           >
-            <MdArrowOutward className="text-lg" />
+            {isContactLoading? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> :<MdArrowOutward className="text-lg" />}
             {isContactLoading ? "Sending..." : "Send Message"}
           </button>
         </form>
