@@ -5,14 +5,22 @@ import supabase from "../../util/supabase/supabase";
 
 // all course action
 export const allCourse = createAsyncThunk('courseSlice/allCourse',
-    async ({ category_id, status }, { rejectWithValue }) => {
-        let query = supabase.from("courses").select(`id,title,description,price,status,thumbnail,created_at,
-                    category:categories (id,name,description,category_image,status),
+    async ({ category_id, instructor_id, is_active, status }, { rejectWithValue }) => {
+        let query = supabase.from("courses").select(`id,title,description,price,status,thumbnail,created_at,is_active,is_completed,
+                    is_exam_scheduled,category:categories (id,name,description,category_image,status),
                     instructor:instructors (id,name,email,profile_image_url,bio,expertise,social_links,is_verified,application_status)
                     `).order("created_at", { ascending: false });
 
         if (category_id) {
             query = query.eq('category_id', category_id);
+        }
+
+        if (instructor_id) {
+            query = query.eq('instructor_id', instructor_id);
+        }
+
+        if (is_active) {
+            query = query.eq('is_active', is_active);
         }
 
         if (status) {
@@ -23,18 +31,6 @@ export const allCourse = createAsyncThunk('courseSlice/allCourse',
         // console.log('Response for fetching all course', res);
 
         if (res?.error) return rejectWithValue(res?.error.message);
-        return res.data;
-    }
-)
-
-// category wise course action
-export const categoryWiseCourse = createAsyncThunk('courseSlice/categoryWiseCourse',
-    async (cat_slag) => {
-        // console.log('Receive data in category wise course slice', cat_slag);
-
-        const res = await axiosInstance.get(`${endPoint_categoryWiseCourse}/${cat_slag}`);
-        // console.log('Response for fetching category wise course', res);
-
         return res.data;
     }
 )
@@ -119,21 +115,6 @@ export const courseSlice = createSlice({
             state.isCourseError = null;
         })
         builder.addCase(allCourse.rejected, (state, action) => {
-            state.isCourseLoading = false;
-            state.getCourseData = [];
-            state.isCourseError = action.error?.message;
-        })
-
-        // category wise course reducer
-        builder.addCase(categoryWiseCourse.pending, (state, action) => {
-            state.isCourseLoading = true;
-        })
-        builder.addCase(categoryWiseCourse.fulfilled, (state, action) => {
-            state.isCourseLoading = false;
-            state.getCourseData = action.payload;
-            state.isCourseError = null;
-        })
-        builder.addCase(categoryWiseCourse.rejected, (state, action) => {
             state.isCourseLoading = false;
             state.getCourseData = [];
             state.isCourseError = action.error?.message;

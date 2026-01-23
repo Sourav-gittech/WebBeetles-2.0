@@ -36,10 +36,8 @@ const RelatedCourse = ({ categoryDetails }) => {
         },
     };
 
-    const approvedCourses =
-        categoryDetails?.courses?.filter(
-            (course) => course?.status === "approved"
-        ) || [];
+    const approvedCourses = categoryDetails?.courses?.filter(course => course?.status === "approved") || [];
+    const availableCourses = approvedCourses?.filter(course => course?.is_active == true) || [];
 
     return (
         <section ref={sectionRef} className="bg-black text-white py-16 px-6 lg:px-20">
@@ -67,8 +65,8 @@ const RelatedCourse = ({ categoryDetails }) => {
                     animate={isVisible ? "visible" : "hidden"}
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-8"
                 >
-                    {approvedCourses.length > 0 ? (
-                        approvedCourses.map((course) => (
+                    {availableCourses.length > 0 ? (
+                        availableCourses.map(course => (
                             <motion.div key={course.id} variants={cardVariants}>
                                 <CourseCard course={course} />
                             </motion.div>

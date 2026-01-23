@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CourseCard from './instructorCourseComp/CourseCard';
 import StatsCard from './instructorCourseComp/StatsCard';
 import InstructorCourseListHeader from './instructorCourseComp/InstructorCourseListHeader';
 import DeleteCourseModal from './instructorCourseComp/modal/DeleteCourseModal';
 import UpdateCourseModal from './instructorCourseComp/modal/UpdateCourseModal';
 import InstructorSpecificCourseDetails from './instructorCourseComp/specific-course-details/InstructorSpecificCourseDetails';
+import { useDispatch, useSelector } from 'react-redux';
+import { allCourse } from '../../../redux/slice/couseSlice';
+import getSweetAlert from '../../../util/alert/sweetAlert';
+import { Loader2 } from 'lucide-react';
 
 const InstructorCourse = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -41,6 +45,28 @@ const InstructorCourse = () => {
       ]
     }
   });
+
+
+
+  const dispatch = useDispatch(),
+    { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth),
+    { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state.course);
+
+  useEffect(() => {
+    dispatch(allCourse({ instructor_id: userAuthData?.id }))
+      .then(res => {
+        // console.log('Response for fetching instructorwise course', res);
+      })
+      .catch(err => {
+        console.log('Error occured', err);
+        getSweetAlert("Error", "Something went wrong.", "error");
+      })
+  }, [dispatch]);
+
+  // console.log('Get course details', getCourseData);
+
+
+
 
   // API placeholder functions
   const apiCalls = {
@@ -91,12 +117,11 @@ const InstructorCourse = () => {
 
 
   if (selectedCourse) {
-    const content = courseContent[selectedCourse.id];
 
     return (
 
       <InstructorSpecificCourseDetails selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal}
-        content={content} expandedSections={expandedSections} apiCalls={apiCalls} setCourseContent={setCourseContent} />
+      editForm={editForm} expandedSections={expandedSections} apiCalls={apiCalls} setCourseContent={setCourseContent} />
     );
   }
 
@@ -108,12 +133,16 @@ const InstructorCourse = () => {
         </div>
 
         <div className="grid grid-cols-4 gap-6 mb-8">
-          <StatsCard courses={courses} />
+          <StatsCard courses={courses} getCourseData={getCourseData} />
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          {courses.map((course) => <CourseCard key={course.id} course={course} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal} />)}
-        </div>
+        {isCourseLoading ? (
+          <Loader2 className='w-15 h-15 animate-spin mx-auto' />
+        ) :
+          (<div className="grid grid-cols-3 gap-6">
+            {getCourseData.map((course) => <CourseCard key={course.id} course={course} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal} />)}
+          </div>
+          )}
       </div>
 
       {/* Delete Course Modal */}

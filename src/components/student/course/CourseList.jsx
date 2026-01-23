@@ -33,7 +33,7 @@ const CourseList = () => {
 
     useEffect(() => {
         if (!isCourseLoading) {
-            dispatch(allCourse({ status: 'approved' }))
+            dispatch(allCourse({ status: 'approved', is_active: true }))
                 .then((res) => {
                     // console.log("Course fetching response", res);
                 })
@@ -56,8 +56,8 @@ const CourseList = () => {
     }
 
     const filteredCourses = getCourseData?.filter(course =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.category.name.toLowerCase().includes(searchTerm.toLowerCase())
+        course?.title?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+        course?.category?.name?.toLowerCase()?.includes(searchTerm?.toLowerCase())
     );
 
     const containerVariants = {
@@ -129,7 +129,7 @@ const CourseList = () => {
                         >
                             {filteredCourses?.length > 0 ? (
                                 filteredCourses.map(course => (
-                                    <CourseCard key={course?.id} course={course}/>
+                                    <CourseCard key={course?.id} course={course} />
                                 ))
                             ) : (
                                 <motion.div

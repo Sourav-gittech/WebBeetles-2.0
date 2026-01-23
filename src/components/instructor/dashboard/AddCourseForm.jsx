@@ -8,9 +8,10 @@ import getSweetAlert from "../../../util/alert/sweetAlert";
 import { useForm } from "react-hook-form";
 import { addVideo } from "../../../redux/slice/videoSlice";
 import toastifyAlert from "../../../util/alert/toastify";
+import { useFieldArray } from "react-hook-form";
 
 const AddCourseForm = () => {
-  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, setValue, control, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       title: "",
       description: "",
@@ -20,13 +21,16 @@ const AddCourseForm = () => {
       // sectionTitle: "",
       lectureTitle: "",
       lectureVideo: null,
+      features: [{ value: "" }],
       // lectureDuration: "",
     },
   });
 
+  const { fields: featureFields, append: addFeature, remove: removeFeature } = useFieldArray({ control, name: "features" });
+
   const dispatch = useDispatch(),
     imgType = ['jpeg', 'jpg', 'png'],
-    videoType = ['mp4', 'mov','avi'];
+    videoType = ['mp4', 'mov', 'avi'];
 
   const { isCategoryLoading, getCategoryData } = useSelector((state) => state.category),
     { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth),
@@ -168,6 +172,7 @@ const AddCourseForm = () => {
         // sectionTitle: "",
         lectureTitle: "",
         lectureVideo: null,
+        features: [{ value: "" }],
         // lectureDuration: "",
       },
       { keepValues: false }
@@ -206,6 +211,8 @@ const AddCourseForm = () => {
     const durationInSeconds = await getVideoDuration(videoFile);
     const durationInMinutes = Math.ceil(durationInSeconds / 60);
 
+    const featureList = data.features.map(f => f.value);
+
     const courseObj = {
       title: data?.title?.split(" ")?.map(t => t?.charAt(0)?.toUpperCase() + t?.slice(1)?.toLowerCase())?.join(" "),
       description: data?.description,
@@ -213,7 +220,11 @@ const AddCourseForm = () => {
       category_id: data?.category,
       instructor_id: userAuthData?.id,
       status: 'pending',
-      thumbnail: data?.thumbnail
+      is_active: true,
+      is_completed: false,
+      is_exam_scheduled: false,
+      thumbnail: data?.thumbnail,
+      feature: featureList
     }
 
     const sections = {
@@ -223,6 +234,8 @@ const AddCourseForm = () => {
       duration: durationInSeconds?.toFixed(2),
       status: 'active',
       isPreview: true,
+      type: 'video',
+      views: 0,
       video_url: videoFile
     };
 
@@ -345,7 +358,7 @@ const AddCourseForm = () => {
 
               <div>
                 <label className="block text-white/90 text-sm font-medium mb-2">Course Description *</label>
-                <textarea {...register("description", { required: "Description is required", minLength: { value: 400, message: "Minimum 400 characters required" }, maxLength: { value: 600, message: "Maximum 600 characters required" } })} placeholder="Provide a detailed description of what students will learn..." rows={5} className={`${inputClass(errors.description)} resize-none`} />
+                <textarea {...register("description", { required: "Description is required", minLength: { value: 400, message: "Minimum 400 characters required" }, maxLength: { value: 600, message: "Maximum 600 characters required" } })} placeholder="Provide a detailed description of what students will learn..." rows={7} className={`${inputClass(errors.description)} resize-none`} />
                 <ErrorMsg msg={errors.description?.message} />
               </div>
 
@@ -367,23 +380,6 @@ const AddCourseForm = () => {
                   <ErrorMsg msg={errors?.category?.message} />
                 </div>
               </div>
-
-            </div>
-
-            {/* Right Column */}
-            <div className="p-4 sm:p-8 space-y-4 sm:space-y-6">
-              <div className="pb-3 sm:pb-4 border-b border-white/10">
-                <h2 className="text-xl sm:text-2xl font-semibold text-white flex items-center gap-2">
-                  <span className="bg-purple-500/20 text-purple-300 rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium">02</span>
-                  Course Content
-                </h2>
-              </div>
-
-              {/* <div>
-                <label className="block text-white/90 text-sm font-medium mb-2">Section Title *</label>
-                <input type="text" {...register("sectionTitle", { required: "Section title is required" })} placeholder="e.g., Introduction to React" className={inputClass(errors.sectionTitle)} />
-                <ErrorMsg msg={errors.sectionTitle?.message} />
-              </div> */}
 
               <div>
                 <label className="block text-white/90 text-sm font-medium mb-2">Course Thumbnail *</label>
@@ -435,6 +431,70 @@ const AddCourseForm = () => {
                 )}
                 {showThumbnailMsg && <ErrorMsg msg='Thumbnail is required' />}
               </div>
+
+            </div>
+
+            {/* Right Column */}
+            <div className="p-4 sm:p-8 space-y-4 sm:space-y-6">
+              <div className="pb-3 sm:pb-4 border-b border-white/10">
+                <h2 className="text-xl sm:text-2xl font-semibold text-white flex items-center gap-2">
+                  <span className="bg-purple-500/20 text-purple-300 rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium">02</span>
+                  Course Content
+                </h2>
+              </div>
+
+              {/* <div>
+                <label className="block text-white/90 text-sm font-medium mb-2">Section Title *</label>
+                <input type="text" {...register("sectionTitle", { required: "Section title is required" })} placeholder="e.g., Introduction to React" className={inputClass(errors.sectionTitle)} />
+                <ErrorMsg msg={errors.sectionTitle?.message} />
+              </div> */}
+
+              <div className="space-y-3">
+                <label className="block text-white/90 text-sm font-medium">
+                  Course Features *
+                </label>
+
+                {featureFields.map((field, index) => (
+                  <div key={field.id} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder={`Feature ${index + 1}`}
+                      {...register(`features.${index}.value`, {
+                        required: "Feature is required",
+                      })}
+                      className={inputClass(errors?.features?.[index]?.value)}
+                    />
+
+                    {index !== 0 && (
+                      <button
+                        type="button"
+                        onClick={() => removeFeature(index)}
+                        className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 cursor-pointer"
+                        title="Remove feature"
+                      >
+                        <MdDelete />
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                {featureFields.length < 6 && (
+                  <button
+                    type="button"
+                    onClick={() => addFeature({ value: "" })}
+                    className="flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm font-medium cursor-pointer"
+                  >
+                    <MdAdd />
+                    Add Feature
+                  </button>
+                )}
+
+                {/* Error */}
+                {errors?.features && (
+                  <ErrorMsg msg="Feature fields are required" />
+                )}
+              </div>
+
 
 
               <div className="space-y-4">

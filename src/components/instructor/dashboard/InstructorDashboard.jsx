@@ -1,19 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BookOpen, Users, BarChart3, Loader2, Plus } from "lucide-react";
 import InstructorDashboardHeader from "./dashboardComp/InstructorDashboardHeader";
 import InstructorDashboardStats from "./dashboardComp/InstructorDashboardStats";
 import InstructorExpertise from "./dashboardComp/InstructorExpertise";
 import InstructorSocialLinks from "./dashboardComp/InstructorSocialLinks";
-import InstructorMyCourse from "./dashboardComp/InstructorMyCourse";
+import InstructorMyCourse from "./dashboardComp/course/InstructorMyCourse";
 import InstructorRecentActivity from "./dashboardComp/InstructorRecentActivity";
 import InstructorUpcommingTasks from "./dashboardComp/InstructorUpcommingTasks";
 import InstructorQuickLinks from "./dashboardComp/InstructorQuickLinks";
 import InstructorThisMonthsStats from "./dashboardComp/InstructorThisMonthsStats";
 import InstructorAccountStatus from "./dashboardComp/InstructorAccountStatus";
+import { useDispatch, useSelector } from "react-redux";
+import { allCourse } from '../../../redux/slice/couseSlice';
+import getSweetAlert from "../../../util/alert/sweetAlert";
 
 const InstructorDashboard = ({ instructorDetails }) => {
 
   // console.log('Instructor data', instructorDetails);
+
+  const dispatch = useDispatch(),
+    { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state.course);
+
+  useEffect(() => {
+    dispatch(allCourse({ instructor_id: instructorDetails?.id }))
+      .then(res => {
+        // console.log('Response for fetching instructorwise course', res);
+      })
+      .catch(err => {
+        console.log('Error occured', err);
+        getSweetAlert("Error", "Something went wrong.", "error");
+      })
+  }, [dispatch]);
+
+  // console.log('Get course details', getCourseData);
+
+
+
 
   const [data, setData] = useState({
     stats: { totalCourses: 0, totalStudents: 0 }, courses:
@@ -39,8 +61,8 @@ const InstructorDashboard = ({ instructorDetails }) => {
   });
 
   const stats = [
-    { icon: BookOpen, value: data.stats.totalCourses, label: "Total Courses", color: "purple", trend: "+2" },
-    { icon: Users, value: data.stats.totalStudents.toLocaleString(), label: "Total Students", color: "blue", trend: "+234" }
+    { icon: BookOpen, value: getCourseData?.length ?? 0, label: "Total Courses", color: "purple" },
+    { icon: Users, value: data.stats.totalStudents.toLocaleString(), label: "Total Students", color: "blue" }
   ];
 
   const quickActions = [
@@ -49,7 +71,7 @@ const InstructorDashboard = ({ instructorDetails }) => {
     { label: "Course Analytics", icon: BarChart3, gradient: "from-pink-500/30 to-pink-600/30", func: () => console.log('Course Analytics Clicked!') }
   ];
 
-  if (!instructorDetails || Object.keys(instructorDetails).length === 0) {
+  if (isCourseLoading || !instructorDetails || Object.keys(instructorDetails).length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="flex flex-col items-center gap-4">
@@ -92,7 +114,7 @@ const InstructorDashboard = ({ instructorDetails }) => {
           <div className="lg:col-span-2 space-y-4 sm:space-y-5 lg:space-y-6">
 
             {/* COURSES */}
-            <InstructorMyCourse courses={data.courses} />
+            <InstructorMyCourse courses={getCourseData} />
 
             {/* ACTIVITY */}
             <InstructorRecentActivity activity={data?.activity} />

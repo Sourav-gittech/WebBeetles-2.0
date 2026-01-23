@@ -14,7 +14,7 @@ const InstructorDashboardStats = ({ s }) => {
                         <p className="text-purple-100 text-xs sm:text-sm font-medium">{s.label}</p>
                     </div>
                 </div>
-                <span className="text-green-400 text-xs font-bold flex items-center gap-1 bg-green-500/20 px-2 sm:px-2.5 py-1.5 rounded-lg border border-green-400/30"><TrendingUp size={12} />{s.trend}</span>
+                {/* <span className="text-green-400 text-xs font-bold flex items-center gap-1 bg-green-500/20 px-2 sm:px-2.5 py-1.5 rounded-lg border border-green-400/30"><TrendingUp size={12} />{s.trend}</span> */}
             </div>
         </div>
     )
