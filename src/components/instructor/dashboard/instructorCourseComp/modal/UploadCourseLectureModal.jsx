@@ -2,30 +2,33 @@ import React, { useState } from "react";
 import { Loader2, Upload, X } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { addVideo } from "../../../../../redux/slice/videoSlice";
+import { addVideo, editLecture } from "../../../../../redux/slice/videoSlice";
 import getSweetAlert from "../../../../../util/alert/sweetAlert";
 import hotToast from "../../../../../util/alert/hot-toast";
-import { allCourse } from "../../../../../redux/slice/couseSlice";
 import { useQueryClient } from "@tanstack/react-query";
 
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
 const MAX_PDF_SIZE = 200 * 1024 * 1024;
 const videoType = ['mp4', 'mov', 'avi'];
 
-const UploadCourseVideoModal = ({ setShowUploadModal, uploadForm }) => {
+const UploadCourseLectureModal = ({ setShowUploadModal, uploadForm, updateData, setUpdateData }) => {
 
     const [videoDuration, setVideoDuration] = useState(0);
+    const isEdit = Boolean(updateData);
 
-    const { control, register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+    const { control, register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+        defaultValues: {
+            title: updateData?.video_title || "",
+            file: null
+        }
+    });
 
     const selectedFile = watch("file");
-    const isVideo = uploadForm?.sectionType === "video";
+    const isVideo = !isEdit ? uploadForm?.sectionType === "video" : updateData?.type;
     const queryClient = useQueryClient();
 
     const dispatch = useDispatch();
-    const { isVideoLoading, videoData, hasVideoError } = useSelector(state => state?.lecture),
-        { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth);
-
+    const { isVideoLoading, videoData, hasVideoError } = useSelector(state => state?.lecture);
 
     const getVideoDuration = (file) =>
         new Promise((resolve, reject) => {
@@ -50,11 +53,13 @@ const UploadCourseVideoModal = ({ setShowUploadModal, uploadForm }) => {
             const duration = await getVideoDuration(files[0]);
             setVideoDuration(Number(duration.toFixed(2)));
         } catch (err) {
-            console.error("Video duration error:", err);
+            console.error(err);
         }
     };
 
     const validateFile = (files) => {
+        if (isEdit && (!files || !files.length)) return true;
+
         if (!files || !files.length) return "File is required";
 
         const file = files[0];
@@ -62,13 +67,16 @@ const UploadCourseVideoModal = ({ setShowUploadModal, uploadForm }) => {
         if (isVideo) {
             if (!file.type.startsWith("video/"))
                 return "Only video files are allowed";
+
+            if (!videoType.includes(file.type.split("/")[1]))
+                return "Lecture video type should be mp4 / mov / avi";
+
             if (file.size > MAX_VIDEO_SIZE)
                 return "Video size must be under 500MB";
-            if (!videoType.includes(file.type.split('/')[1]))
-                return "Lecture video type should be mp4 / mov / avi";
         } else {
             if (file.type !== "application/pdf")
                 return "Only PDF files are allowed";
+
             if (file.size > MAX_PDF_SIZE)
                 return "PDF size must be under 200MB";
         }
@@ -78,34 +86,37 @@ const UploadCourseVideoModal = ({ setShowUploadModal, uploadForm }) => {
 
     const onSubmit = async (data) => {
 
-        const sections = {
-            course_id: uploadForm?.course_id,
-            category_id: uploadForm?.category_id,
+        const hasNewFile = data.file?.length;
+
+        const payload = {
+            id: updateData?.id,
+            course_id: !isEdit ? uploadForm.course_id : updateData?.course_id,
+            category_id: !isEdit ? uploadForm.category_id : updateData?.category_id,
             video_title: data.title,
-            duration: videoDuration,
-            status: 'active',
-            isPreview: false,
-            type: uploadForm.sectionType,
-            views: 0,
-            lecture_name: null,
-            video_url: data.file[0]
+            duration: hasNewFile ? videoDuration : updateData?.duration,
+            status: !isEdit ? "active" : updateData?.status,
+            isPreview: !isEdit ? false : updateData?.isPreview,
+            type: !isEdit ? uploadForm.sectionType : updateData?.type,
+            views: updateData?.views || 0,
+            video_url: hasNewFile ? data.file[0] : updateData?.video_url,
+            old_path: updateData?.lecture_name
         };
 
-        dispatch(addVideo({ data: sections, doc_type: sections?.type }))
+        dispatch(isEdit ? editLecture({ data: payload, doc_type: payload.type }) : addVideo({ data: payload, doc_type: payload.type }))
             .then(res => {
-                // console.log('Response after adding new lecture', res);
+                // console.log(`Response after ${!isEdit ? 'adding new' : 'updating'} lecture`, res);
 
                 if (res.meta.requestStatus === "fulfilled") {
 
-                    // dispatch(allCourse({ instructor_id: userAuthData?.id }));
                     queryClient.invalidateQueries({
-                        queryKey: ['course-videos', sections?.course_id],
+                        queryKey: ['course-videos', payload?.course_id],
                     });
 
                     setShowUploadModal(null);
-                    hotToast("Lecture uploaded successfully!", "success");
+                    setUpdateData(null);
+                    hotToast(`Lecture ${isEdit ? "updated" : "uploaded"} successfully!`, "success");
                 } else {
-                    hotToast("Failed to upload lecture. Try again.", "error");
+                    hotToast(`Failed to ${!isEdit ? 'upload' : 'update'} lecture. Try again.`, "error");
                 }
             })
             .catch(error => {
@@ -118,6 +129,8 @@ const UploadCourseVideoModal = ({ setShowUploadModal, uploadForm }) => {
         e.preventDefault();
         setValue("file", e.dataTransfer.files, { shouldValidate: true });
     };
+
+    const contentType = !isEdit ? uploadForm.sectionType : updateData?.type;
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
@@ -137,13 +150,10 @@ const UploadCourseVideoModal = ({ setShowUploadModal, uploadForm }) => {
                         <label className="block text-sm font-medium mb-2">
                             Content Type
                         </label>
-                        <select value={uploadForm.sectionType} disabled
+                        <select value={contentType} disabled
                             className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
-                            <option value={uploadForm.sectionType}>
-                                {uploadForm.sectionType
-                                    ?.charAt(0)
-                                    ?.toUpperCase() +
-                                    uploadForm.sectionType?.slice(1)}
+                            <option value={contentType}>
+                                {contentType?.charAt(0)?.toUpperCase() + contentType?.slice(1)}
                             </option>
                         </select>
                     </div>
@@ -200,7 +210,7 @@ const UploadCourseVideoModal = ({ setShowUploadModal, uploadForm }) => {
                     <div className="flex gap-3 pt-4">
                         <button type="submit" disabled={isVideoLoading}
                             className={`flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors ${isVideoLoading ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                            {isVideoLoading ? <Loader2 className="w-4 h-4 animate-spin inline" /> : ''} Upload
+                            {isVideoLoading ? <Loader2 className="w-4 h-4 animate-spin inline" /> : ''} {isEdit ? 'Update' : 'Upload'}
                         </button>
                         <button type="button" onClick={() => setShowUploadModal(null)} disabled={isVideoLoading}
                             className={`flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors ${isVideoLoading ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
@@ -213,4 +223,4 @@ const UploadCourseVideoModal = ({ setShowUploadModal, uploadForm }) => {
     );
 };
 
-export default UploadCourseVideoModal;
+export default UploadCourseLectureModal;

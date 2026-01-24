@@ -3,7 +3,7 @@ import InstructorLessonItem from './InstructorLessonItem';
 import { ChevronDown, ChevronRight, FileBadge, LockKeyhole, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, expandedSections, setExpandedSections, section, handleDeleteVideo, setShowVideoModal, uploadForm, setUploadForm, setShowUploadModal }) => {
+const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, setUpdateData, expandedSections, setExpandedSections, section, setDeletedData, setShowVideoModal, setShowDeleteLectureModal, setUploadForm, setShowUploadModal }) => {
 
     let lecture = [];
 
@@ -60,11 +60,11 @@ const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, expande
             </div>
             {expandedSections[section.id] && (
                 <div>
-                    {lecture?.map((lesson) => <InstructorLessonItem key={lesson?.id} lesson={lesson} sectionId={section.id} handleDeleteVideo={handleDeleteVideo} setShowVideoModal={setShowVideoModal} />)}
+                    {lecture?.map(lesson => <InstructorLessonItem key={lesson?.id} lesson={lesson} setUpdateData={setUpdateData} setShowDeleteLectureModal={setShowDeleteLectureModal} setDeletedData={setDeletedData} setShowVideoModal={setShowVideoModal} setShowUploadModal={setShowUploadModal} />)}
 
                     {section?.type != 'demo' && section?.type != 'exam' && (
                         <div className="p-4 border-t border-gray-800">
-                            <button onClick={!selectedCourse?.is_completed ? () => { setUploadForm({ course_id: selectedCourse?.id, category_id: selectedCourse?.category?.id, sectionType: section?.type }); setShowUploadModal(true); } : undefined} className={`w-full py-3 bg-purple-600/20 border border-purple-600/50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 text-purple-400 ${selectedCourse?.is_completed ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-purple-600/30'}`}>
+                            <button onClick={!selectedCourse?.is_completed ? () => { setUploadForm({ course_id: selectedCourse?.id, category_id: selectedCourse?.category?.id, sectionType: section?.type }); setShowUploadModal(true); setUpdateData(null); } : undefined} className={`w-full py-3 bg-purple-600/20 border border-purple-600/50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 text-purple-400 ${selectedCourse?.is_completed ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-purple-600/30'}`}>
                                 <Upload className="w-5 h-5" />
                                 {section?.type == 'video' ? 'Upload / Add Video' : section?.type == 'document' ? 'Upload / Add Document' : 'Upload / Add Content'}
                             </button>

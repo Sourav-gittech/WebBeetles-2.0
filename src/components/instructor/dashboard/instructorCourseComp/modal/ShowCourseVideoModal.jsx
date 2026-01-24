@@ -3,6 +3,7 @@ import { Clock, Eye, X } from 'lucide-react'
 import { formatDateDDMMYY } from '../../../../../util/dateFormat/dateFormat'
 
 const ShowCourseVideoModal = ({ setShowVideoModal, showVideoModal }) => {
+
     return (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
             <div className="bg-gray-900 rounded-xl max-w-5xl w-full border border-gray-800">
@@ -22,10 +23,12 @@ const ShowCourseVideoModal = ({ setShowVideoModal, showVideoModal }) => {
                         />
                     </div>
                     <div className="mt-4 flex items-center gap-6 text-sm text-gray-400">
-                        <span className="flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            {showVideoModal?.duration ?? 'N/A'}
-                        </span>
+                        {showVideoModal?.type == 'video' &&
+                            <span className="flex items-center gap-2">
+                                <Clock className="w-4 h-4" />
+                                {showVideoModal?.duration ?? 'N/A'}
+                            </span>
+                        }
                         <span className="flex items-center gap-2">
                             <Eye className="w-4 h-4" />
                             {showVideoModal?.views ?? 0} views

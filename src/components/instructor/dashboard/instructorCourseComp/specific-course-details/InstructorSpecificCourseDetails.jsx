@@ -1,33 +1,22 @@
 import React, { useState } from 'react';
-import UploadCourseVideoModal from '../modal/UploadCourseVideoModal';
+import UploadCourseLectureModal from '../modal/UploadCourseLectureModal';
 import ShowCourseVideoModal from '../modal/ShowCourseVideoModal';
 import InstructorSpecificCourseDetailsHeader from './details-comp/InstructorSpecificCourseDetailsHeader';
 import InstructorSpecificCourseItemsRow from './details-comp/InstructorSpecificCourseItemsRow';
 import { useCourseVideos } from '../../../../../tanstack/query/fetchLectureVideo';
+import DeleteCourseLectureModal from '../modal/DeleteCourseLectureModal';
 
 const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, setExpandedSections, editForm, setEditForm, setShowEditModal, setShowDeleteModal,
     expandedSections, apiCalls, setCourseContent }) => {
+
     const { isLoading, data: lectureData, error } = useCourseVideos({ courseId: selectedCourse?.id });
 
     const [showVideoModal, setShowVideoModal] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(null);
     const [uploadForm, setUploadForm] = useState({ course_id: null, category_id: null, sectionType: null });
-
-    const handleDeleteVideo = (sectionId, videoId) => {
-        apiCalls.deleteVideo(selectedCourse.id, videoId);
-
-        setCourseContent(prev => ({
-            ...prev,
-            [selectedCourse.id]: {
-                ...prev[selectedCourse.id],
-                sections: prev[selectedCourse.id].sections.map(section =>
-                    section.id === sectionId
-                        ? { ...section, lessons: section.lessons.filter(l => l.id !== videoId) }
-                        : section
-                )
-            }
-        }));
-    };
+    const [updateData, setUpdateData] = useState(null);
+    const [showDeleteLectureModal, setShowDeleteLectureModal] = useState(false);
+    const [deletedData, setDeletedData] = useState({ lectureId: null, lectureName: null, doc_type: null, courseId: null, video_title: null });
 
     const courseSection = [{
         id: 1,
@@ -54,8 +43,8 @@ const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, se
 
                 <div className="space-y-4">
                     {courseSection?.map(section => (
-                        <InstructorSpecificCourseItemsRow key={section?.id} lectureData={lectureData} selectedCourse={selectedCourse} expandedSections={expandedSections} setExpandedSections={setExpandedSections} section={section} handleDeleteVideo={handleDeleteVideo} setShowVideoModal={setShowVideoModal}
-                            uploadForm={uploadForm} setUploadForm={setUploadForm} setShowUploadModal={setShowUploadModal} />
+                        <InstructorSpecificCourseItemsRow key={section?.id} lectureData={lectureData} selectedCourse={selectedCourse} setUpdateData={setUpdateData} expandedSections={expandedSections} setExpandedSections={setExpandedSections} section={section} setDeletedData={setDeletedData} setShowVideoModal={setShowVideoModal}
+                            setShowDeleteLectureModal={setShowDeleteLectureModal} uploadForm={uploadForm} setUploadForm={setUploadForm} setShowUploadModal={setShowUploadModal} />
                     ))}
                 </div>
             </div>
@@ -67,7 +56,12 @@ const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, se
 
             {/* Upload Video Modal */}
             {showUploadModal && (
-                <UploadCourseVideoModal setShowUploadModal={setShowUploadModal} uploadForm={uploadForm} />
+                <UploadCourseLectureModal setShowUploadModal={setShowUploadModal} uploadForm={uploadForm} updateData={updateData} setUpdateData={setUpdateData} />
+            )}
+
+            {/* Delete Video Modal */}
+            {showDeleteLectureModal && (
+                <DeleteCourseLectureModal setShowDeleteLectureModal={setShowDeleteLectureModal} deletedData={deletedData} />
             )}
         </div>
     )

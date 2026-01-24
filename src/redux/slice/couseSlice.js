@@ -29,7 +29,7 @@ export const allCourse = createAsyncThunk('courseSlice/allCourse',
         }
 
         const res = await query;
-        console.log('Response for fetching all course', res);
+        // console.log('Response for fetching all course', res);
 
         if (res?.error) return rejectWithValue(res?.error.message);
         return res.data;

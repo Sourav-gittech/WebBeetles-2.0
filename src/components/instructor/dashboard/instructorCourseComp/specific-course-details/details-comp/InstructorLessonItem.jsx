@@ -1,8 +1,8 @@
 import React from 'react'
-import { Edit2, Eye, FileText, Play, PlayCircle, Trash2 } from 'lucide-react';
+import { Edit2, Eye, EyeIcon, FileText, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { formatDateDDMMYY } from '../../../../../../util/dateFormat/dateFormat';
 
-const InstructorLessonItem = ({ lesson, sectionId, handleDeleteVideo, setShowVideoModal }) => {
+const InstructorLessonItem = ({ lesson, setUpdateData, setDeletedData, setShowDeleteLectureModal, setShowVideoModal, setShowUploadModal }) => {
     const iconMap = { video: PlayCircle, quiz: FileText };
     const Icon = iconMap[lesson.type] || PlayCircle;
 
@@ -16,12 +16,16 @@ const InstructorLessonItem = ({ lesson, sectionId, handleDeleteVideo, setShowVid
                     <h4 className="font-medium">{lesson?.video_title ?? 'N/A'}</h4>
                     <div className="flex items-center gap-3 text-sm text-gray-400">
                         <span className="capitalize">{lesson.type ?? 'N/A'}</span>
-                        <span>•</span>
-                        <span>{lesson?.duration ?? 'N/A'}</span>
+                        {lesson.type == 'video' && (
+                            <>
+                                <span>•</span>
+                                <span>{lesson?.duration ?? 'N/A'}</span>
+                            </>
+                        )}
                         <span>•</span>
                         <div className="flex items-center gap-1">
                             <Eye className="w-3 h-3" />
-                            <span>{lesson?.views ?? 0} views</span>
+                            <span>{lesson?.views ?? 0} view{lesson?.views?.length > 1 ? 's' : ''}</span>
                         </div>
                         {lesson?.created_at && (
                             <>
@@ -33,16 +37,15 @@ const InstructorLessonItem = ({ lesson, sectionId, handleDeleteVideo, setShowVid
                 </div>
             </div>
             <div className="flex gap-2">
-                {lesson?.type === 'video' && (
-                    <button onClick={() => setShowVideoModal(lesson)} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer">
-                        <Play className="w-4 h-4" />
-                        Play
-                    </button>
-                )}
-                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium transition-colors cursor-pointer">
+                <button onClick={() => setShowVideoModal(lesson)} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer">
+                    {lesson?.type === 'video' ? (
+                        <> <Play className="w-4 h-4" /> Play </>) : (<><EyeIcon className="w-4 h-4" /> View</>
+                    )}
+                </button>
+                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium transition-colors cursor-pointer" onClick={() => { setUpdateData(lesson); setShowUploadModal(true); }}>
                     <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDeleteVideo(sectionId, lesson.id)} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors cursor-pointer">
+                <button onClick={() => { setDeletedData({ lectureId: lesson?.id, lectureName: lesson?.lecture_name, doc_type: lesson?.type, courseId: lesson?.course_id, video_title: lesson?.video_title }); setShowDeleteLectureModal(true); }} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors cursor-pointer">
                     <Trash2 className="w-4 h-4" />
                 </button>
             </div>

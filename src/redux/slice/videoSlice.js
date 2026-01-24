@@ -8,10 +8,11 @@ export const addVideo = createAsyncThunk('videoSlice/addVideo',
 
         let videoUrl = null, imageId = null, fileName = null, docName = null;
         const file = data.video_url;
+        const { old_path, id, ...newPayload } = data;
 
         if (file) {
 
-            docName = `${data?.course_id}_${Date.now()}.${file.name.split(".").pop()}`;
+            docName = `${newPayload?.course_id}_${Date.now()}.${file.name.split(".").pop()}`;
             fileName = `${doc_type == 'video' ? 'video' : 'document'}/${docName}`;
 
             const { data: uploadData, error: uploadError } = await supabase.storage.from("lecture").upload(fileName, file, { upsert: true });
@@ -25,7 +26,7 @@ export const addVideo = createAsyncThunk('videoSlice/addVideo',
             imageId = uploadData.path;
         }
 
-        const res = await supabase.from("lectures").insert([{ ...data, lecture_name: docName, video_url: videoUrl }]);
+        const res = await supabase.from("lectures").insert([{ ...newPayload, lecture_name: docName, video_url: videoUrl }]);
         // console.log('Response for adding video', res);
 
         if (res.error) return rejectWithValue(res?.error?.message);
@@ -59,59 +60,54 @@ export const fetchVideo = createAsyncThunk("videoSlice/fetchVideo",
 
 // edit video slice 
 export const editLecture = createAsyncThunk("videoSlice/editLecture",
-    async ({ lectureId, oldLectureName, newFile, updateData, doc_type }, { rejectWithValue }) => {
-        console.log('Received edited data in slice', lectureId, oldLectureName, newFile, updateData, doc_type);
+    async ({ data, doc_type }, { rejectWithValue }) => {
+        // console.log('Received edited data in slice', data, doc_type);
 
-        try {
-            let newFileUrl = updateData.video_url;
-            let newLectureName = oldLectureName;
+        let videoUrl = data.video_url;
+        let docName = data.lecture_name;
 
-            if (newFile) {
-                if (oldLectureName) {
-                    await supabase.storage.from("lecture").remove([`${doc_type}/${oldLectureName}`]);
-                }
-
-                const fileExt = newFile.name.split(".").pop();
-                newLectureName = `${updateData.course_id}_${Date.now()}.${fileExt}`;
-                const filePath = `${doc_type}/${newLectureName}`;
-
-                const { error: uploadError } = await supabase.storage.from("lecture").upload(filePath, newFile, { upsert: true });
-
-                if (uploadError) throw uploadError;
-
-                const { data: publicUrlData } = supabase.storage.from("lecture").getPublicUrl(filePath);
-
-                newFileUrl = publicUrlData.publicUrl;
+        if (data.video_url instanceof File) {
+            if (data.old_path) {
+                const deletedLectureName = `${doc_type}/${data.old_path}`;
+                await supabase.storage.from("lecture").remove([deletedLectureName]);
             }
 
-            const res = await supabase.from("lectures").update({
-                ...updateData,
-                video_url: newFileUrl,
-                lecture_name: newLectureName,
-            }).eq("id", lectureId).select().single();
+            const file = data.video_url;
+            docName = `${data.course_id}_${Date.now()}.${file.name.split(".").pop()}`;
+            const path = `${doc_type}/${docName}`;
 
-            console.log('Response for editing lecture video in slice', res);
-            if (res?.error) throw res?.error;
+            const { error } = await supabase.storage.from("lecture").upload(path, file, { upsert: true });
+            if (error) throw error;
 
-            return res?.data;
-        } catch (err) {
-            return rejectWithValue(err.message);
+            const { data: urlData } = supabase.storage.from("lecture").getPublicUrl(path);
+            videoUrl = urlData.publicUrl;
         }
+
+        const res = await supabase.from("lectures").update({
+            video_title: data.video_title,
+            video_url: videoUrl,
+            lecture_name: docName,
+            duration: data.duration
+        }).eq("id", data.id);
+        // console.log('Response for editing lecture video in slice', res);
+
+        if (res.error) return rejectWithValue(res.error.message);
+        return res.data;
     }
 );
 
 // delete video slice 
 export const deleteLecture = createAsyncThunk("videoSlice/deleteLecture",
     async ({ lectureId, lectureName, doc_type }, { rejectWithValue }) => {
-        console.log('Received data for deleting video', lectureId, lectureName, doc_type);
+        // console.log('Received data for deleting video', lectureId, lectureName, doc_type);
 
         try {
             if (lectureName) {
-                await supabase.storage.from("lecture").remove([`${doc_type}/${lectureName}`]);
+               await supabase.storage.from("lecture").remove([`${doc_type}/${lectureName}`]);
             }
 
             const res = await supabase.from("lectures").delete().eq("id", lectureId);
-            console.log('Response for deleting video in slice', res);
+            // console.log('Response for deleting video in slice', res);
 
             if (res?.error) throw res?.error;
 
@@ -142,7 +138,7 @@ export const videoSlice = createSlice({
             })
             .addCase(addVideo.fulfilled, (state, action) => {
                 state.isVideoLoading = false;
-                state.videoData.push(action.payload[0]);
+                state.videoData = action.payload;
             })
             .addCase(addVideo.rejected, (state, action) => {
                 state.isVideoLoading = false;
@@ -155,7 +151,7 @@ export const videoSlice = createSlice({
             })
             .addCase(fetchVideo.fulfilled, (state, action) => {
                 state.isVideoLoading = false;
-                state.videoData.push(action.payload[0]);
+                state.videoData = action.payload;
             })
             .addCase(fetchVideo.rejected, (state, action) => {
                 state.isVideoLoading = false;
@@ -168,9 +164,7 @@ export const videoSlice = createSlice({
             })
             .addCase(editLecture.fulfilled, (state, action) => {
                 state.isVideoLoading = false;
-                state.videoData = state.videoData.map(v =>
-                    v.id === action.payload.id ? action.payload : v
-                );
+                state.videoData = action.payload;
             })
             .addCase(editLecture.rejected, (state, action) => {
                 state.isVideoLoading = false;
@@ -183,9 +177,7 @@ export const videoSlice = createSlice({
             })
             .addCase(deleteLecture.fulfilled, (state, action) => {
                 state.isVideoLoading = false;
-                state.videoData = state.videoData.filter(
-                    v => v.id !== action.payload
-                );
+                state.videoData =  action.payload;
             })
             .addCase(deleteLecture.rejected, (state, action) => {
                 state.isVideoLoading = false;
