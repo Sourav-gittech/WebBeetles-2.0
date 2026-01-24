@@ -68,7 +68,7 @@ const InstructorDashboard = ({ instructorDetails }) => {
   const quickActions = [
     { label: "Create New Course", icon: Plus, gradient: "from-purple-500/30 to-purple-600/30", func: () => window.dispatchEvent(new CustomEvent("open-add-course")) },
     { label: "View All Students", icon: Users, gradient: "from-blue-500/30 to-blue-600/30", func: () => console.log('All Students Clicked!') },
-    { label: "Course Analytics", icon: BarChart3, gradient: "from-pink-500/30 to-pink-600/30", func: () => console.log('Course Analytics Clicked!') }
+    { label: "Course Analytics", icon: BarChart3, gradient: "from-pink-500/30 to-pink-600/30", func: () => window.dispatchEvent(new CustomEvent("open-instructor-analytics")) }
   ];
 
   if (isCourseLoading || !instructorDetails || Object.keys(instructorDetails).length === 0) {

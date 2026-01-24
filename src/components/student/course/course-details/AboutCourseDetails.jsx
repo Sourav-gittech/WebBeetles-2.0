@@ -25,11 +25,7 @@ const AboutCourseDetails = ({ courseData: getSpecificCourseData }) => {
             ) : (
                 <div className="lg:col-span-2 relative">
                     <div className="relative mb-6">
-                        <img
-                            src="/course-details/course-details.png"
-                            alt="Course Laptop"
-                            className="w-full object-cover"
-                        />
+                        <img src="/course-details/course-details.png" alt="Course Laptop" className="w-full object-cover" />
 
                         <motion.img
                             initial={{ scale: 0, opacity: 0 }}
@@ -65,18 +61,20 @@ const AboutCourseDetails = ({ courseData: getSpecificCourseData }) => {
                     {/* Key Points */}
                     <h3 className="text-xl font-semibold mb-3">Key Points</h3>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                        {[
-                            "Core principles of human-centered design",
-                            "Case studies & practical examples",
-                            "Wireframing & prototyping basics",
-                            "Usability testing & feedback collection",
-                            "Designing across devices",
-                            "Applying design critiques & revisions",
-                        ].map((point, i) => (
-                            <li key={i} className="flex items-center gap-2">
-                                <FaCheckCircle className="text-purple-500" /> {point}
-                            </li>
-                        ))}
+                        {
+                            // [
+                            //     "Core principles of human-centered design",
+                            //     "Case studies & practical examples",
+                            //     "Wireframing & prototyping basics",
+                            //     "Usability testing & feedback collection",
+                            //     "Designing across devices",
+                            //     "Applying design critiques & revisions",
+                            // ]
+                            getSpecificCourseData?.feature?.map((point, i) => (
+                                <li key={i} className="flex items-center gap-2">
+                                    <FaCheckCircle className="text-purple-500" /> {point}
+                                </li>
+                            ))}
                     </ul>
 
                     {/* Lessons Accordion */}

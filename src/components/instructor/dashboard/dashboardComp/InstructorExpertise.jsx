@@ -71,7 +71,7 @@ const InstructorExpertise = ({ instructorDetails }) => {
                     <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg bg-purple-500/30 flex items-center justify-center border border-purple-400/30"><Code size={18} className="text-purple-300" /></div>
                     Expertise
                 </h2>
-                {!editingExpertise && <button onClick={() => { setTempExpertise([...expertise]); setEditingExpertise(true); }} className="text-xs sm:text-sm text-purple-200 hover:text-white font-semibold bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all border border-white/20"><Edit3 size={14} className="inline mr-1" /> Edit</button>}
+                {!editingExpertise && <button onClick={() => { setTempExpertise([...expertise]); setEditingExpertise(true); }} className="text-xs sm:text-sm text-purple-200 hover:text-white font-semibold bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all border border-white/20 cursor-pointer"><Edit3 size={14} className="inline mr-1" /> Edit</button>}
             </div>
 
             {!editingExpertise ? (

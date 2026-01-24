@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Home, BookOpen, ChevronLeft, GraduationCap, LogOut, LayoutDashboard, BookPlus, BookMarked, BookText, SquareStack, ShieldUser, CircleUser } from "lucide-react";
+import { Home, BookOpen, ChevronLeft, GraduationCap, LogOut, LayoutDashboard, BookPlus, BookMarked, BookText, SquareStack, ShieldUser, CircleUser, BarChart3 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import getSweetAlert from "../../util/alert/sweetAlert";
@@ -48,6 +48,7 @@ const DashboardSidebar = ({ setActivePage, activePage, user_type, userData }) =>
     { name: "All Category", icon: <SquareStack size={20} />, key: 'allCategory' },
     { name: "My Courses", icon: <BookMarked size={20} />, key: 'instructor-myCourses' },
     { name: "Add New Course", icon: <BookPlus size={20} />, key: 'instructor-add-myCourses' },
+    { name: "Analytics", icon: <BarChart3 size={20} />, key: 'instructor-analytics' },
   ];
 
   const sidebarMenu = user_type === "student" ? studentMenu : instructorMenu;

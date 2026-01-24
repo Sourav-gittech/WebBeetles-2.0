@@ -21,7 +21,7 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
 
             <div className="flex items-start justify-between mb-8">
                 <div>
-                    <h1 className="text-4xl font-bold mb-3">{selectedCourse?.title ?? 'N/A'}</h1>
+                    <h1 className="text-4xl font-bold mb-3">{selectedCourse?.title?.toUpperCase() ?? 'N/A'}</h1>
                     <div className="flex items-center gap-6 text-sm text-gray-400">
                         <span className="flex items-center gap-2"><Users className="w-4 h-4" />{selectedCourse.students} students</span>
                         <span className="flex items-center gap-2"><Star className="w-4 h-4" />{selectedCourse.rating} rating</span>
@@ -45,7 +45,7 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
                 <button
                     disabled={!canMarkComplete}
                     className={`px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 ${canMarkComplete
-                            ? 'bg-green-600 cursor-pointer hover:bg-green-700' : 'bg-gray-600 cursor-not-allowed opacity-60 text-green-200'}`}>
+                        ? 'bg-green-600 cursor-pointer hover:bg-green-700' : 'bg-gray-600 cursor-not-allowed opacity-60 text-green-200'}`}>
                     {selectedCourse?.is_completed ? (
                         'Completed') : (
                         <>

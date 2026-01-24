@@ -6,6 +6,7 @@ import supabase from "../../util/supabase/supabase";
 // all course action
 export const allCourse = createAsyncThunk('courseSlice/allCourse',
     async ({ category_id, instructor_id, is_active, status }, { rejectWithValue }) => {
+
         let query = supabase.from("courses").select(`id,title,description,price,status,thumbnail,created_at,is_active,is_completed,
                     is_exam_scheduled,category:categories (id,name,description,category_image,status),
                     instructor:instructors (id,name,email,profile_image_url,bio,expertise,social_links,is_verified,application_status)
@@ -28,7 +29,7 @@ export const allCourse = createAsyncThunk('courseSlice/allCourse',
         }
 
         const res = await query;
-        // console.log('Response for fetching all course', res);
+        console.log('Response for fetching all course', res);
 
         if (res?.error) return rejectWithValue(res?.error.message);
         return res.data;

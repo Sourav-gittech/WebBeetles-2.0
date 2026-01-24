@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import AboutCourseDetails from './AboutCourseDetails';
 import InstructorCourseDetails from './InstructorCourseDetails';
 
-const CourseDetailsDesc = ({courseData}) => {
+const CourseDetailsDesc = ({ courseData }) => {
 
     return (
         <div className='bg-black'>

@@ -12,6 +12,7 @@ import { checkLoggedInUser } from "../../../redux/slice/authSlice/checkUserAuthS
 import AvailableCategory from "../../../components/instructor/dashboard/AvailableCategory";
 import InstructorProfile from "../../../components/instructor/dashboard/InstructorProfile";
 import StudentProfile from "../../../components/student/dashboard/student-profile/StudentProfile";
+import InstructorAnalytics from "../../../components/instructor/dashboard/InstructorAnalytics";
 
 const DashboardLayout = ({ currentPage }) => {
 
@@ -38,38 +39,47 @@ const DashboardLayout = ({ currentPage }) => {
 
 
   useEffect(() => {
-    const handleOpenAddCourse = () => setActivePage("student-myCourses");
-    window.addEventListener("open-user-course", handleOpenAddCourse);
+    const handleOpenTab = () => setActivePage("student-myCourses");
+    window.addEventListener("open-user-course", handleOpenTab);
 
     return () => {
-      window.removeEventListener("open-user-course", handleOpenAddCourse);
+      window.removeEventListener("open-user-course", handleOpenTab);
     };
   }, []);
 
   useEffect(() => {
-    const handleOpenAddCourse = () => setActivePage("instructor-add-myCourses");
-    window.addEventListener("open-add-course", handleOpenAddCourse);
+    const handleOpenTab = () => setActivePage("instructor-add-myCourses");
+    window.addEventListener("open-add-course", handleOpenTab);
 
     return () => {
-      window.removeEventListener("open-add-course", handleOpenAddCourse);
+      window.removeEventListener("open-add-course", handleOpenTab);
     };
   }, []);
 
   useEffect(() => {
-    const handleOpenAddCourse = () => setActivePage("instructor-myCourses");
-    window.addEventListener("open-instructor-course", handleOpenAddCourse);
+    const handleOpenTab = () => setActivePage("instructor-myCourses");
+    window.addEventListener("open-instructor-course", handleOpenTab);
 
     return () => {
-      window.removeEventListener("open-instructor-course", handleOpenAddCourse);
+      window.removeEventListener("open-instructor-course", handleOpenTab);
+    };
+  }, []);
+  
+  useEffect(() => {
+    const handleOpenTab = () => setActivePage("instructor-analytics");
+    window.addEventListener("open-instructor-analytics", handleOpenTab);
+
+    return () => {
+      window.removeEventListener("open-instructor-analytics", handleOpenTab);
     };
   }, []);
 
   useEffect(() => {
-    const handleOpenAddCourse = () => setActivePage("requestInstructor");
-    window.addEventListener("open-request-instructor", handleOpenAddCourse);
+    const handleOpenTab = () => setActivePage("requestInstructor");
+    window.addEventListener("open-request-instructor", handleOpenTab);
 
     return () => {
-      window.removeEventListener("open-request-instructor", handleOpenAddCourse);
+      window.removeEventListener("open-request-instructor", handleOpenTab);
     };
   }, []);
 
@@ -96,6 +106,8 @@ const DashboardLayout = ({ currentPage }) => {
         return <InstructorCourse instructorDetails={userAuthData} />;
       case 'instructor-add-myCourses':
         return <AddCourseForm />;
+      case 'instructor-analytics':
+        return <InstructorAnalytics />;
       default:
         return user_type == "student" ? (
           <StudentDashboard studentDetails={userAuthData} />

@@ -236,6 +236,7 @@ const AddCourseForm = () => {
       isPreview: true,
       type: 'video',
       views: 0,
+      lecture_name: null,
       video_url: videoFile
     };
 
@@ -245,7 +246,7 @@ const AddCourseForm = () => {
     }
 
     else if (data.lectureVideo && !videoType.includes(data.lectureVideo.type.split('/')[1])) {
-      toastifyAlert.warn("Lecture video type should be mp4 / mov");
+      toastifyAlert.warn("Lecture video type should be mp4 / mov / avi");
     }
 
     else if (data.thumbnail?.[0] && data.thumbnail[0].size / 1024 > 500) {
@@ -262,7 +263,7 @@ const AddCourseForm = () => {
 
           if (res.meta.requestStatus === "fulfilled") {
 
-            dispatch(addVideo({ ...sections, course_id: res.payload.course_id }))
+            dispatch(addVideo({ data: { ...sections, course_id: res.payload.course_id }, doc_type: 'video' }))
               .then(res => {
                 // console.log('Response after adding new lecture', res);
 
@@ -495,8 +496,6 @@ const AddCourseForm = () => {
                 )}
               </div>
 
-
-
               <div className="space-y-4">
                 {/* Header */}
                 <div className="flex justify-between items-center">
@@ -539,8 +538,7 @@ const AddCourseForm = () => {
                       <label className="block text-white/80 text-xs font-medium mb-1.5">
                         Lecture Title *
                       </label>
-                      <input
-                        type="text"
+                      <input type="text"
                         {...register("lectureTitle", {
                           required: "Lecture title is required",
                         })}
@@ -558,12 +556,7 @@ const AddCourseForm = () => {
 
                       {!videoFile ? (
                         <>
-                          <input type="file"
-                            accept="video/*"
-                            id="video"
-                            className="hidden"
-                            onChange={handleVideoChange}
-                          />
+                          <input type="file" accept="video/*" id="video" className="hidden" onChange={handleVideoChange} />
 
                           <label
                             htmlFor="video"

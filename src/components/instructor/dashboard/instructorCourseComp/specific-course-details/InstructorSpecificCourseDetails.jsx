@@ -6,12 +6,12 @@ import InstructorSpecificCourseItemsRow from './details-comp/InstructorSpecificC
 import { useCourseVideos } from '../../../../../tanstack/query/fetchLectureVideo';
 
 const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, setExpandedSections, editForm, setEditForm, setShowEditModal, setShowDeleteModal,
-     expandedSections, apiCalls, setCourseContent }) => {
+    expandedSections, apiCalls, setCourseContent }) => {
     const { isLoading, data: lectureData, error } = useCourseVideos({ courseId: selectedCourse?.id });
 
     const [showVideoModal, setShowVideoModal] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(null);
-    const [uploadForm, setUploadForm] = useState({ title: '', duration: '', type: 'video', sectionId: null });
+    const [uploadForm, setUploadForm] = useState({ course_id: null, category_id: null, sectionType: null });
 
     const handleDeleteVideo = (sectionId, videoId) => {
         apiCalls.deleteVideo(selectedCourse.id, videoId);
@@ -27,35 +27,6 @@ const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, se
                 )
             }
         }));
-    };
-
-    const handleUploadVideo = () => {
-        const newLesson = {
-            id: Date.now(),
-            title: uploadForm.title,
-            type: uploadForm.type,
-            duration: uploadForm.duration,
-            views: 0,
-            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            uploadedAt: new Date().toISOString().split('T')[0]
-        };
-
-        apiCalls.uploadVideo(selectedCourse.id, uploadForm.sectionId, uploadForm);
-
-        setCourseContent(prev => ({
-            ...prev,
-            [selectedCourse.id]: {
-                ...prev[selectedCourse.id],
-                sections: prev[selectedCourse.id].sections.map(section =>
-                    section.id === uploadForm.sectionId
-                        ? { ...section, lessons: [...section.lessons, newLesson] }
-                        : section
-                )
-            }
-        }));
-
-        setShowUploadModal(null);
-        setUploadForm({ title: '', duration: '', type: 'video', sectionId: null });
     };
 
     const courseSection = [{
@@ -96,7 +67,7 @@ const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, se
 
             {/* Upload Video Modal */}
             {showUploadModal && (
-                <UploadCourseVideoModal handleUploadVideo={handleUploadVideo} setShowUploadModal={setShowUploadModal} setUploadForm={setUploadForm} uploadForm={uploadForm} />
+                <UploadCourseVideoModal setShowUploadModal={setShowUploadModal} uploadForm={uploadForm} />
             )}
         </div>
     )

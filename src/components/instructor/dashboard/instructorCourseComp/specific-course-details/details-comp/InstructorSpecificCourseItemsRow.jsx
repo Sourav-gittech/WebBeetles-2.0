@@ -1,6 +1,6 @@
 import React from 'react'
 import InstructorLessonItem from './InstructorLessonItem';
-import { ChevronDown, ChevronRight, FileBadge, LockKeyhole, Trash2, Upload } from 'lucide-react';
+import { ChevronDown, ChevronRight, FileBadge, LockKeyhole, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, expandedSections, setExpandedSections, section, handleDeleteVideo, setShowVideoModal, uploadForm, setUploadForm, setShowUploadModal }) => {
@@ -14,8 +14,9 @@ const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, expande
         lecture = lectureData?.filter(lecture => lecture?.isPreview != true && lecture?.type == 'video');
     }
     else if (section?.type == 'document') {
-        lecture = lectureData?.filter(lecture => lecture?.isPreview != true && lecture?.type == 'video');
+        lecture = lectureData?.filter(lecture => lecture?.isPreview != true && lecture?.type == 'document');
     }
+
     const totalLectureTiming = lecture?.reduce((acc, value) => acc + Number(value?.duration || 0), 0).toFixed(2);
 
     const canExpand = section?.type === "demo" || (section?.type !== "exam" && selectedCourse?.status === "approved") || (section?.type === "exam" && selectedCourse?.is_completed);
@@ -37,7 +38,7 @@ const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, expande
                     )}
 
                     <div className="text-left">
-                        <h3 className="font-semibold text-lg">{section?.title ?? 'N/A'}</h3>
+                        <h3 className="font-semibold text-lg">{section?.title?.split(" ")?.map(s => s?.charAt(0)?.toUpperCase() + s?.slice(1)?.toLowerCase())?.join(" ") ?? 'N/A'}</h3>
                         {section?.type !== "exam" ?
                             <p className="text-sm text-gray-400">
                                 {lecture?.length} lesson{lecture?.length > 1 ? "s" : ""}
@@ -63,15 +64,15 @@ const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, expande
 
                     {section?.type != 'demo' && section?.type != 'exam' && (
                         <div className="p-4 border-t border-gray-800">
-                            <button onClick={!selectedCourse?.is_completed ? () => { setUploadForm({ ...uploadForm, sectionId: section.id }); setShowUploadModal(true); } : undefined} className={`w-full py-3 bg-purple-600/20 border border-purple-600/50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 text-purple-400 ${selectedCourse?.is_completed ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-purple-600/30'}`}>
+                            <button onClick={!selectedCourse?.is_completed ? () => { setUploadForm({ course_id: selectedCourse?.id, category_id: selectedCourse?.category?.id, sectionType: section?.type }); setShowUploadModal(true); } : undefined} className={`w-full py-3 bg-purple-600/20 border border-purple-600/50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 text-purple-400 ${selectedCourse?.is_completed ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-purple-600/30'}`}>
                                 <Upload className="w-5 h-5" />
-                                Upload Video / Add Content
+                                {section?.type == 'video' ? 'Upload / Add Video' : section?.type == 'document' ? 'Upload / Add Document' : 'Upload / Add Content'}
                             </button>
                         </div>
                     )}
                     {section?.type == 'exam' && (
                         <div className="p-4 border-t border-gray-800">
-                            <Link to={!selectedCourse?.is_exam_scheduled ?'/question-set':''} className={`w-full py-3 bg-green-600/20 border border-green-600/50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 text-green-400 ${selectedCourse?.is_exam_scheduled ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-green-600/30'}`}>
+                            <Link to={!selectedCourse?.is_exam_scheduled ? '/question-set' : ''} className={`w-full py-3 bg-green-600/20 border border-green-600/50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 text-green-400 ${selectedCourse?.is_exam_scheduled ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-green-600/30'}`}>
                                 <FileBadge className="w-5 h-5" />
                                 Set Question Paper
                             </Link>
