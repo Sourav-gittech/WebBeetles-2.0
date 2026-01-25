@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
-import { CheckCheck, ChevronRight, Clock, Edit2, Star, Trash2, Users } from 'lucide-react';
 import UpdateCourseModal from '../../modal/UpdateCourseModal';
 import DeleteCourseAndLectureModal from '../../modal/DeleteCourseAndLectureModal';
+import { Award, CheckCheck, ChevronRight, Clock, Edit2, Star, Trash2, Users } from 'lucide-react';
+import ConfirmCompleteBlockUnblockModal from '../../modal/ConfirmCompleteBlockUnblockModal';
 
 const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, setSelectedCourse, editForm, setEditForm }) => {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [deletedData, setDeletedData] = useState(null);
-    const deleteType = 'course';
+    const [openMarkModal, setOpenMarkModal] = useState(false);
+    const [markCourse, setMarkCourse] = useState(null);
+    const deleteType = 'course', markType = 'complete';
 
     const totalLectureTiming = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0).toFixed(2);
 
@@ -32,11 +35,14 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
                 </div>
 
                 <div className="flex gap-3">
-                    <button onClick={() => { setEditForm(selectedCourse); setShowEditModal(true); }} className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors flex items-center gap-2 cursor-pointer">
+                    <button onClick={() => { setEditForm(selectedCourse); setShowEditModal(true); }} disabled={selectedCourse?.status != 'approved'} className={`px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2
+                        ${selectedCourse?.status != 'approved' ? 'cursor-not-allowed bg-purple-500' : 'cursor-pointer bg-purple-600 hover:bg-purple-700'}`}>
                         <Edit2 className="w-4 h-4" />
                         Edit Course
                     </button>
-                    <button onClick={() => { setShowDeleteModal(true); setDeletedData(selectedCourse); }} className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition-colors flex items-center gap-2 cursor-pointer">
+                    <button onClick={() => { setShowDeleteModal(true); setDeletedData({ lectureId: selectedCourse?.id, lectureName: selectedCourse?.title, doc_type: selectedCourse?.type, courseId: null, video_title: null }); }}
+                    disabled={selectedCourse?.status != 'approved'} className={`px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 
+                    ${selectedCourse?.status != 'approved' ? 'cursor-not-allowed bg-red-400' : 'cursor-pointer bg-red-600 hover:bg-red-700'}`}>
                         <Trash2 className="w-4 h-4" />
                         Delete
                     </button>
@@ -45,11 +51,11 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
 
             <div className="mb-6">
                 <button
-                    disabled={!canMarkComplete}
+                    disabled={!canMarkComplete} onClick={() => { if (!selectedCourse?.is_completed) { setMarkCourse(selectedCourse); setOpenMarkModal(true); } }}
                     className={`px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 ${canMarkComplete
                         ? 'bg-green-600 cursor-pointer hover:bg-green-700' : 'bg-gray-600 cursor-not-allowed opacity-60 text-green-200'}`}>
                     {selectedCourse?.is_completed ? (
-                        'Completed') : (
+                        <><Award /> Completed</>) : (
                         <>
                             <CheckCheck className="w-5 h-5" />
                             Mark Complete
@@ -60,12 +66,17 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
 
             {/* Delete Course Modal */}
             {showDeleteModal && (
-                <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteModal} deletedData={deletedData} deleteType={deleteType} />
+                <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteModal} deletedData={deletedData} deleteType={deleteType} onDeleted={() => setSelectedCourse(null)} />
             )}
 
             {/* Edit Course Modal */}
             {showEditModal && (
                 <UpdateCourseModal setShowEditModal={setShowEditModal} editForm={editForm} setEditForm={setEditForm} />
+            )}
+
+            {/* mark complete Course Modal */}
+            {openMarkModal && (
+                <ConfirmCompleteBlockUnblockModal markType={markType} setOpenMarkModal={setOpenMarkModal} setSelectedCourse={setSelectedCourse} markCourse={markCourse} setMarkCourse={setMarkCourse} />
             )}
         </>
     )

@@ -26,7 +26,7 @@ const UpdateCourseModal = ({ setShowEditModal, editForm, setEditForm }) => {
 
         reset({
             title: editForm.title || '',
-            revenue: editForm.price || '',
+            revenue: Number(editForm.price) || 0,
             status: editForm.is_active ? 'published' : 'draft',
             features: editForm.feature?.length ? editForm.feature.map(f => ({ value: f })) : [{ value: '' }]
         });

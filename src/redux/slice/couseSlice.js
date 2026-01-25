@@ -74,7 +74,7 @@ export const createCourse = createAsyncThunk('courseSlice/createCourse',
     }
 )
 
-// update courseexport 
+// update course
 export const updateCourse = createAsyncThunk('courseSlice/updateCourse',
     async ({ id, data }, { rejectWithValue }) => {
         // console.log('Update course slice data', id, data);
@@ -103,16 +103,14 @@ export const updateCourse = createAsyncThunk('courseSlice/updateCourse',
 // mark as complete course 
 export const updateCourseCompletion = createAsyncThunk('courseSlice/updateCourseCompletion',
     async ({ id, is_completed }, { rejectWithValue }) => {
+        // console.log('Received data for completing course', id, is_completed);
+
         try {
-            const res = await supabase
-                .from('courses')
-                .update({
-                    is_completed,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', id)
-                .select()
-                .single();
+            const res = await supabase.from('courses').update({
+                is_completed,
+                updated_at: new Date().toISOString()
+            }).eq('id', id).select().single();
+            // console.log('Response after mark as read in slice', res);
 
             if (res.error) throw res.error;
 
@@ -123,10 +121,32 @@ export const updateCourseCompletion = createAsyncThunk('courseSlice/updateCourse
     }
 );
 
+// block/unblock course 
+export const updateCourseBlockUnblock = createAsyncThunk('courseSlice/updateCourseBlockUnblock',
+    async ({ id, status }, { rejectWithValue }) => {
+        // console.log('Received data for block-unblock course', id, is_completed);
+
+        try {
+            const res = await supabase.from('courses').update({
+                is_active: status,
+                updated_at: new Date().toISOString()
+            }).eq('id', id).select().single();
+            // console.log('Response after block-unblock course in slice', res);
+
+            if (res.error) throw res.error;
+
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
 
 // delete course 
 export const deleteCourse = createAsyncThunk('courseSlice/deleteCourse',
     async ({ id, thumbnail }, { rejectWithValue }) => {
+        // console.log('Received data for delete course', id, thumbnail);
+
         try {
             if (thumbnail) {
                 const filePath = getFilePathFromPublicUrl(thumbnail, 'course');
@@ -137,6 +157,7 @@ export const deleteCourse = createAsyncThunk('courseSlice/deleteCourse',
 
             // delete course
             const res = await supabase.from('courses').delete().eq('id', id);
+            // console.log('Response after deleting course in slice', res);
 
             if (res.error) throw res.error;
 
@@ -183,7 +204,7 @@ export const courseSlice = createSlice({
             })
             .addCase(createCourse.fulfilled, (state, action) => {
                 state.isCourseLoading = false;
-                state.getCourseData = action.payload;
+                state.getCourseData?.push(action.payload);
                 state.isCourseError = null;
             })
             .addCase(createCourse.rejected, (state, action) => {
@@ -234,6 +255,26 @@ export const courseSlice = createSlice({
                 state.isCourseError = action.payload;
             })
 
+            // block/unblock
+            .addCase(updateCourseBlockUnblock.pending, (state) => {
+                state.isCourseLoading = true;
+            })
+            .addCase(updateCourseBlockUnblock.fulfilled, (state, action) => {
+                state.isCourseLoading = false;
+
+                const updatedCourse = action.payload;
+
+                state.getCourseData = state.getCourseData.map(course =>
+                    course.id === updatedCourse.id ? { ...course, is_completed: updatedCourse.is_completed } : course
+                );
+
+                state.isCourseError = null;
+            })
+            .addCase(updateCourseBlockUnblock.rejected, (state, action) => {
+                state.isCourseLoading = false;
+                state.isCourseError = action.payload;
+            })
+
             // delete course
             .addCase(deleteCourse.pending, (state) => {
                 state.isCourseLoading = true;
@@ -252,5 +293,3 @@ export const courseSlice = createSlice({
 });
 
 export default courseSlice.reducer;
-
-export const { resetCourseState } = courseSlice.actions;

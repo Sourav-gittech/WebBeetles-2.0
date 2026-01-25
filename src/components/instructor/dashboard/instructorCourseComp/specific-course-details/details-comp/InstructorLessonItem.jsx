@@ -2,7 +2,7 @@ import React from 'react'
 import { Edit2, Eye, EyeIcon, FileText, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { formatDateDDMMYY } from '../../../../../../util/dateFormat/dateFormat';
 
-const InstructorLessonItem = ({ lesson, setUpdateData, setDeletedData, setShowDeleteLectureModal, setShowVideoModal, setShowUploadModal }) => {
+const InstructorLessonItem = ({ section,lesson, setUpdateData, setDeletedData, setShowDeleteLectureModal, setShowVideoModal, setShowUploadModal, selectedCourse }) => {
     const iconMap = { video: PlayCircle, quiz: FileText };
     const Icon = iconMap[lesson.type] || PlayCircle;
 
@@ -42,12 +42,15 @@ const InstructorLessonItem = ({ lesson, setUpdateData, setDeletedData, setShowDe
                         <> <Play className="w-4 h-4" /> Play </>) : (<><EyeIcon className="w-4 h-4" /> View</>
                     )}
                 </button>
-                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium transition-colors cursor-pointer" onClick={() => { setUpdateData(lesson); setShowUploadModal(true); }}>
+                <button className={`px-4 py-2 ${!selectedCourse?.is_completed ? 'bg-purple-600 hover:bg-purple-700 cursor-pointer' : 'bg-purple-400 cursor-not-allowed'} rounded-lg text-sm font-medium transition-colors`}
+                    onClick={() => { if (!selectedCourse?.is_completed) { setUpdateData(lesson); setShowUploadModal(true); } }} disabled={selectedCourse?.is_completed}>
                     <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => { setDeletedData({ lectureId: lesson?.id, lectureName: lesson?.lecture_name, doc_type: lesson?.type, courseId: lesson?.course_id, video_title: lesson?.video_title }); setShowDeleteLectureModal(true); }} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors cursor-pointer">
-                    <Trash2 className="w-4 h-4" />
-                </button>
+                {section.type !== 'demo' &&
+                    <button onClick={() => { if (!selectedCourse?.is_completed) { setDeletedData({ lectureId: lesson?.id, lectureName: lesson?.lecture_name, doc_type: lesson?.type, courseId: lesson?.course_id, video_title: lesson?.video_title }); setShowDeleteLectureModal(true); } }} disabled={selectedCourse?.is_completed}
+                        className={`px-4 py-2 ${!selectedCourse?.is_completed ? 'bg-red-600 hover:bg-red-700 cursor-pointer' : 'bg-red-400 cursor-not-allowed'} rounded-lg text-sm font-medium transition-colors`}>
+                        <Trash2 className="w-4 h-4" />
+                    </button>}
             </div>
         </div>
     );

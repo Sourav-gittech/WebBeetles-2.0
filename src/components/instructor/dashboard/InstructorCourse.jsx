@@ -26,29 +26,6 @@ const InstructorCourse = () => {
     { id: 4, title: "Python for Data Science", thumbnail: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=225&fit=crop", students: 543, revenue: 6516, rating: 4.7, totalLessons: 42, duration: "15h 10m", status: "draft" }
   ]);
 
-  const [courseContent, setCourseContent] = useState({
-    1: {
-      sections: [
-        {
-          id: 1, title: "Getting Started with React", duration: "2h 15m", lessons: [
-            { id: 1, title: "Introduction to React", type: "video", duration: "12:30", views: 1205, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", uploadedAt: "2024-08-15" },
-            { id: 2, title: "Setting Up Development Environment", type: "video", duration: "18:45", views: 1150, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", uploadedAt: "2024-08-16" },
-            { id: 3, title: "Your First React Component", type: "video", duration: "25:20", views: 1098, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", uploadedAt: "2024-08-17" },
-            { id: 4, title: "Quiz: React Basics", type: "quiz", duration: "10:00", views: 987, uploadedAt: "2024-08-18" }
-          ]
-        },
-        {
-          id: 2, title: "State Management Patterns", duration: "3h 45m", lessons: [
-            { id: 5, title: "Understanding State in React", type: "video", duration: "22:15", views: 945, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", uploadedAt: "2024-08-20" },
-            { id: 6, title: "Props vs State", type: "video", duration: "16:30", views: 892, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", uploadedAt: "2024-08-21" },
-            { id: 7, title: "Context API Deep Dive", type: "video", duration: "32:45", views: 856, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", uploadedAt: "2024-08-22" },
-            { id: 8, title: "Introduction to Redux", type: "video", duration: "28:20", views: 812, videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", uploadedAt: "2024-08-23" }
-          ]
-        }
-      ]
-    }
-  });
-
 
 
   const dispatch = useDispatch(),
@@ -91,14 +68,14 @@ const InstructorCourse = () => {
           <Loader2 className='w-15 h-15 animate-spin mx-auto' />
         ) :
           (<div className="grid grid-cols-3 gap-6">
-            {getCourseData.map((course) => <CourseCard key={course.id} course={course} setDeletedData={setDeletedData} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal} />)}
+            {getCourseData?.map(course => <CourseCard key={course.id} course={course} setDeletedData={setDeletedData} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal} />)}
           </div>
           )}
       </div>
 
       {/* Delete Course Modal */}
       {showDeleteModal && (
-        <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteModal} deletedData={deletedData} deleteType={deleteType} />
+        <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteModal} deletedData={deletedData} deleteType={deleteType} onDeleted={() => setSelectedCourse(null)}/>
       )}
 
       {/* Edit Course Modal */}

@@ -1,7 +1,8 @@
 import React from 'react'
 import InstructorLessonItem from './InstructorLessonItem';
 import { ChevronDown, ChevronRight, FileBadge, LockKeyhole, Upload } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import hotToast from '../../../../../../util/alert/hot-toast';
 
 const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, setUpdateData, expandedSections, setExpandedSections, section, setDeletedData, setShowVideoModal, setShowDeleteLectureModal, setUploadForm, setShowUploadModal }) => {
 
@@ -20,6 +21,7 @@ const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, setUpda
     const totalLectureTiming = lecture?.reduce((acc, value) => acc + Number(value?.duration || 0), 0).toFixed(2);
 
     const canExpand = section?.type === "demo" || (section?.type !== "exam" && selectedCourse?.status === "approved") || (section?.type === "exam" && selectedCourse?.is_completed);
+    const navigate = useNavigate();
 
     return (
         <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
@@ -60,7 +62,7 @@ const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, setUpda
             </div>
             {expandedSections[section.id] && (
                 <div>
-                    {lecture?.map(lesson => <InstructorLessonItem key={lesson?.id} lesson={lesson} setUpdateData={setUpdateData} setShowDeleteLectureModal={setShowDeleteLectureModal} setDeletedData={setDeletedData} setShowVideoModal={setShowVideoModal} setShowUploadModal={setShowUploadModal} />)}
+                    {lecture?.map(lesson => <InstructorLessonItem key={lesson?.id} section={section} lesson={lesson} setUpdateData={setUpdateData} setShowDeleteLectureModal={setShowDeleteLectureModal} setDeletedData={setDeletedData} setShowVideoModal={setShowVideoModal} setShowUploadModal={setShowUploadModal} selectedCourse={selectedCourse} />)}
 
                     {section?.type != 'demo' && section?.type != 'exam' && (
                         <div className="p-4 border-t border-gray-800">
@@ -72,10 +74,10 @@ const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, setUpda
                     )}
                     {section?.type == 'exam' && (
                         <div className="p-4 border-t border-gray-800">
-                            <Link to={!selectedCourse?.is_exam_scheduled ? '/question-set' : ''} className={`w-full py-3 bg-green-600/20 border border-green-600/50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 text-green-400 ${selectedCourse?.is_exam_scheduled ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-green-600/30'}`}>
+                            <button onClick={!selectedCourse?.is_exam_scheduled ? () => navigate('/instructor/dashboard/question-set') : hotToast(`Question paper already set!`, "warning")} className={`w-full py-3 bg-green-600/20 border border-green-600/50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 text-green-400 ${selectedCourse?.is_exam_scheduled ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-green-600/30'}`}>
                                 <FileBadge className="w-5 h-5" />
                                 Set Question Paper
-                            </Link>
+                            </button>
                         </div>
                     )}
 

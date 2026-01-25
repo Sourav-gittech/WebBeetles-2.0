@@ -124,7 +124,7 @@ const CoursesSection = () => {
   // Filter courses based on search term
   const filteredCourses = getCourseData?.filter(course =>
     course?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    course?.category?.name?.toLowerCase()?.includes(searchTerm.toLowerCase())
   );
 
   const containerVariants = {
