@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addReviewRequest } from '../../../../../redux/slice/reviewSlice';
 import { Star } from 'lucide-react';
 import getSweetAlert from '../../../../../util/alert/sweetAlert';
-import { specificCourse } from '../../../../../redux/slice/specificCourseSlice';
+// import { specificCourse } from '../../../../../redux/slice/specificCourseSlice';
 
 const ReviewForm = ({ getSpecificCourseData, setShowReviewForm}) => {
 
@@ -26,14 +26,14 @@ const ReviewForm = ({ getSpecificCourseData, setShowReviewForm}) => {
     );
 
     const getSpecificCourse = (id) => {
-        dispatch(specificCourse(id))
-            .then(res => {
-                // console.log('Response for specific course details fetching', res);
-            })
-            .catch(err => {
-                getSweetAlert('Oops...', 'Something went wrong!', 'error');
-                console.log("Error occurred", err);
-            });
+        // dispatch(specificCourse(id))
+        //     .then(res => {
+        //         // console.log('Response for specific course details fetching', res);
+        //     })
+        //     .catch(err => {
+        //         getSweetAlert('Oops...', 'Something went wrong!', 'error');
+        //         console.log("Error occurred", err);
+        //     });
     }
 
     const handleSubmitReview = async (data) => {

@@ -220,6 +220,7 @@ const AddCourseForm = () => {
       category_id: data?.category,
       instructor_id: userAuthData?.id,
       status: 'pending',
+      is_admin_block:false,
       is_active: true,
       is_completed: false,
       is_exam_scheduled: false,

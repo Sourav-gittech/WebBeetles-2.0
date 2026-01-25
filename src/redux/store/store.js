@@ -4,7 +4,6 @@ import categorySliceReducer from "../slice/categorySlice";
 import checkUserAuthSliceReducer from "../slice/authSlice/checkUserAuthSlice";
 import courseSliceReducer from "../slice/couseSlice";
 import studentProfileSliceReducer from "../slice/studentSlice";
-import specificCourseSliceReducer from "../slice/specificCourseSlice";
 import specificCategorySliceReducer from "../slice/specificCategorySlice";
 import contactAuthSliceReducer from "../slice/contactSlice";
 import specificInstructorSliceReducer from "../slice/specificInstructorSlice";
@@ -19,7 +18,6 @@ const store = configureStore({
         student: studentProfileSliceReducer,
         category: categorySliceReducer,
         course: courseSliceReducer,
-        specificCourse: specificCourseSliceReducer,
         specificCategory: specificCategorySliceReducer,
         query: contactAuthSliceReducer,
         review: reviewSliceReducer,

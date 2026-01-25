@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Play, Clock, ChevronRight, Star, Edit2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { userWiseCourse } from '../../../redux/slice/couseSlice';
-import { specificCourse } from '../../../redux/slice/specificCourseSlice';
+// import { userWiseCourse } from '../../../redux/slice/couseSlice';
+// import { specificCourse } from '../../../redux/slice/specificCourseSlice';
 import CourseRating from './student-myCourse/rating-review/CourseRating';
 import getSweetAlert from '../../../util/alert/sweetAlert';
 import ReviewCard from './student-myCourse/rating-review/ReviewCard';
@@ -20,29 +20,29 @@ const MyCoursesPage = ({ userData }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [userReview, setUserReview] = useState(null);
 
-  const dispatch = useDispatch(),
-    { isSpecificCourseLoading, getSpecificCourseData, isSpecificCourseError } = useSelector(state => state.specificCourse);
+  const dispatch = useDispatch();
+    // { isSpecificCourseLoading, getSpecificCourseData, isSpecificCourseError } = useSelector(state => state.specificCourse);
 
-  useEffect(() => {
-    dispatch(userWiseCourse())
-      .then(res => {
-        // console.log('Response for user wise course fetching', res);
-      })
-      .catch((err) => {
-        getSweetAlert('Oops...', 'Something went wrong!', 'error');
-        console.log("Error occurred", err);
-      });
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(userWiseCourse())
+  //     .then(res => {
+  //       // console.log('Response for user wise course fetching', res);
+  //     })
+  //     .catch((err) => {
+  //       getSweetAlert('Oops...', 'Something went wrong!', 'error');
+  //       console.log("Error occurred", err);
+  //     });
+  // }, [dispatch]);
 
   const courseDetails = (id) => {
-    dispatch(specificCourse(id))
-      .then(res => {
-        // console.log('Response for user wise course details fetching', res);
-      })
-      .catch((err) => {
-        getSweetAlert('Oops...', 'Something went wrong!', 'error');
-        console.log("Error occurred", err);
-      });
+    // dispatch(specificCourse(id))
+    //   .then(res => {
+    //     // console.log('Response for user wise course details fetching', res);
+    //   })
+    //   .catch((err) => {
+    //     getSweetAlert('Oops...', 'Something went wrong!', 'error');
+    //     console.log("Error occurred", err);
+    //   });
   }
 
   // const getSpecificCourse = (id) => {

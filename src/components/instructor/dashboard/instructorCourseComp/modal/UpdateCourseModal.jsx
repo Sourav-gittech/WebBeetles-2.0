@@ -1,36 +1,67 @@
-import React from 'react'
-import { X } from 'lucide-react'
+import React, { useEffect } from 'react';
+import { Loader2, X } from 'lucide-react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateCourse } from '../../../../../redux/slice/couseSlice';
+import hotToast from '../../../../../util/alert/hot-toast';
+import getSweetAlert from '../../../../../util/alert/sweetAlert';
 
-const UpdateCourseModal = ({ setShowEditModal, editForm, setEditForm, apiCalls, setCourses, setSelectedCourse, selectedCourse }) => {
+const UpdateCourseModal = ({ setShowEditModal, editForm, setEditForm }) => {
 
-    const features = editForm.features && editForm.features.length ? editForm.features : [""];
-
-    const handleFeatureChange = (index, value) => {
-        const updated = [...(editForm.features || [""])];
-        updated[index] = value;
-        setEditForm({ ...editForm, features: updated });
-    };
-
-    const addFeature = () => {
-        if ((editForm.features || []).length >= 6) return;
-        setEditForm({
-            ...editForm,
-            features: [...(editForm.features || [""]), ""],
+    const dispatch = useDispatch(),
+        { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state.course),
+        { register, control, handleSubmit, reset, formState: { errors } } = useForm({
+            defaultValues: {
+                title: '',
+                revenue: '',
+                status: 'draft',
+                features: [{ value: '' }]
+            }
         });
-    };
 
-    const removeFeature = (index) => {
-        if (index === 0) return; // first always stays
-        const updated = [...editForm.features];
-        updated.splice(index, 1);
-        setEditForm({ ...editForm, features: updated });
-    };
+    const { fields: featureFields, append, remove } = useFieldArray({ control, name: 'features' });
 
-    const handleEditCourse = () => {
-        apiCalls.updateCourse(editForm.id, editForm);
-        setCourses(courses.map(c => c.id === editForm.id ? { ...c, ...editForm } : c));
-        if (selectedCourse?.id === editForm.id) setSelectedCourse({ ...selectedCourse, ...editForm });
-        setShowEditModal(null);
+    useEffect(() => {
+        if (!editForm) return;
+
+        reset({
+            title: editForm.title || '',
+            revenue: editForm.price || '',
+            status: editForm.is_active ? 'published' : 'draft',
+            features: editForm.feature?.length ? editForm.feature.map(f => ({ value: f })) : [{ value: '' }]
+        });
+    }, [editForm, reset]);
+
+    const onSubmit = (data) => {
+        const updatedPayload = {
+            ...editForm,
+            title: data.title,
+            price: data.revenue,
+            is_active: data.status == 'published' ? true : false,
+            feature: data.features.map(f => f.value)
+        };
+        console.log(updatedPayload);
+
+        const { id, ...updatedData } = updatedPayload;
+
+        dispatch(updateCourse({ id, data: updatedData }))
+            .then(res => {
+                // console.log('Response for updating course', res);
+
+                if (res.meta.requestStatus === "fulfilled") {
+                    setEditForm(null);
+                    setShowEditModal(null);
+                    hotToast('Course updated successfully!', "success");
+                }
+                else {
+                    hotToast('Failed to update course. Try again.', "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error while submitting course:", error);
+                getSweetAlert("Error", 'Something went wrong while updating the course.', "error");
+            })
+
     };
 
     return (
@@ -38,73 +69,125 @@ const UpdateCourseModal = ({ setShowEditModal, editForm, setEditForm, apiCalls, 
             <div className="bg-gray-900 rounded-xl p-8 max-w-2xl w-full border border-gray-800 my-8">
                 <div className="flex items-center justify-between mb-2">
                     <h2 className="text-2xl font-bold">Edit Course</h2>
-                    <button onClick={() => setShowEditModal(null)} className="p-2 hover:bg-gray-800 rounded-lg transition-colors cursor-pointer">
+                    <button
+                        onClick={() => setShowEditModal(null)}
+                        className="p-2 hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+                    >
                         <X className="w-5 h-5" />
                     </button>
                 </div>
-                <div className="space-y-4">
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+                    {/* TITLE */}
                     <div>
                         <label className="block text-sm font-medium mb-2">Course Title</label>
-                        <input type="text" value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-colors" />
+                        <input
+                            {...register('title', { required: 'Title is required' })}
+                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-colors"
+                        />
+                        {errors.title && (
+                            <p className="text-red-400 text-sm mt-1">{errors.title.message}</p>
+                        )}
                     </div>
+
+                    {/* PRICE + STATUS */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-2">Price</label>
-                            <input type="number" value={editForm.revenue} onChange={(e) => setEditForm({ ...editForm, revenue: e.target.value })} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-colors" />
+                            <input
+                                type="number"
+                                {...register('revenue', {
+                                    required: 'Price is required',
+                                    min: { value: 0, message: 'Price must be positive' }
+                                })}
+                                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-colors"
+                            />
+                            {errors.revenue && (
+                                <p className="text-red-400 text-sm mt-1">{errors.revenue.message}</p>
+                            )}
                         </div>
+
                         <div>
                             <label className="block text-sm font-medium mb-2">Status</label>
-                            <select value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-colors">
+                            <select
+                                {...register('status', { required: true })}
+                                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-colors"
+                            >
                                 <option value="draft">Draft</option>
                                 <option value="published">Published</option>
                             </select>
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">
-                                Course Features
-                            </label>
 
-                            <div className="space-y-3">
-                                {features.map((feature, index) => (
-                                    <div key={index} className="flex items-center gap-2">
-                                        <input type="text" value={feature} placeholder={`Feature ${index + 1}`}
-                                            onChange={(e) => handleFeatureChange(index, e.target.value)}
-                                            className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-colors"
-                                        />
+                    {/* FEATURES */}
+                    <div>
+                        <label className="block text-sm font-medium mb-2">
+                            Course Features
+                        </label>
 
-                                        {index !== 0 && (
-                                            <button type="button" onClick={() => removeFeature(index)}
-                                                className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
+                        <div className="space-y-3">
+                            {featureFields.map((field, index) => (
+                                <div key={field.id} className="flex items-center gap-2">
+                                    <input
+                                        {...register(`features.${index}.value`, {
+                                            required: 'Feature is required'
+                                        })}
+                                        placeholder={`Feature ${index + 1}`}
+                                        className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 transition-colors"
+                                    />
 
-                                {features.length < 6 && (
-                                    <button type="button" onClick={addFeature}
-                                        className="text-sm text-purple-400 hover:text-purple-300 cursor-pointer">
-                                        + Add Feature
-                                    </button>
-                                )}
-                            </div>
+                                    {index !== 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => remove(index)}
+                                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+
+                            {featureFields.length < 6 && (
+                                <button
+                                    type="button"
+                                    onClick={() => append({ value: '' })}
+                                    className="text-sm text-purple-400 hover:text-purple-300 cursor-pointer"
+                                >
+                                    + Add Feature
+                                </button>
+                            )}
+
+                            {errors.features && (
+                                <p className="text-red-400 text-sm mt-1">
+                                    Feature fields are required
+                                </p>
+                            )}
                         </div>
                     </div>
+
+                    {/* ACTIONS */}
                     <div className="flex gap-3 pt-4">
-                        <button onClick={handleEditCourse} className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors">
-                            Save Changes
+                        <button
+                            type="submit"
+                            className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors"
+                        >
+                            {isCourseLoading ? <Loader2 className="w-4 h-4 animate-spin inline" /> : ''} Save Changes
                         </button>
-                        <button onClick={() => setShowEditModal(null)} className="flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors">
+                        <button
+                            type="button"
+                            onClick={() => setShowEditModal(null)}
+                            className="flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors"
+                        >
                             Cancel
                         </button>
                     </div>
-                </div>
+
+                </form>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default UpdateCourseModal
+export default UpdateCourseModal;

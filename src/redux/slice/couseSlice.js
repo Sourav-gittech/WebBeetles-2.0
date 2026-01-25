@@ -5,9 +5,9 @@ import supabase from "../../util/supabase/supabase";
 
 // all course action
 export const allCourse = createAsyncThunk('courseSlice/allCourse',
-    async ({ category_id, instructor_id, is_active, status }, { rejectWithValue }) => {
+    async ({ category_id, instructor_id, is_active, status, is_admin_block }, { rejectWithValue }) => {
 
-        let query = supabase.from("courses").select(`id,title,description,price,status,thumbnail,created_at,is_active,is_completed,
+        let query = supabase.from("courses").select(`id,title,description,price,status,feature,thumbnail,created_at,is_active,is_completed,is_admin_block,
                     is_exam_scheduled,category:categories (id,name,description,category_image,status),
                     instructor:instructors (id,name,email,profile_image_url,bio,expertise,social_links,is_verified,application_status)
                     `).order("created_at", { ascending: false });
@@ -22,6 +22,10 @@ export const allCourse = createAsyncThunk('courseSlice/allCourse',
 
         if (is_active) {
             query = query.eq('is_active', is_active);
+        }
+
+        if (is_admin_block) {
+            query = query.eq('is_admin_block', false);
         }
 
         if (status) {
@@ -70,27 +74,79 @@ export const createCourse = createAsyncThunk('courseSlice/createCourse',
     }
 )
 
-// user wise course action
-export const userWiseCourse = createAsyncThunk('userWiseCourse/createCourse',
-    async () => {
-        const res = await axiosInstance.get(endPoint_userEnrolledCourse);
-        // console.log('Response for user wise course', res);
+// update courseexport 
+export const updateCourse = createAsyncThunk('courseSlice/updateCourse',
+    async ({ id, data }, { rejectWithValue }) => {
+        // console.log('Update course slice data', id, data);
 
-        return res.data;
+        try {
+            const updatePayload = {
+                title: data.title,
+                price: data.price,
+                is_active: data.is_active,
+                feature: data.feature,
+                updated_at: new Date().toISOString()
+            };
+
+            const res = await supabase.from('courses').update(updatePayload).eq('id', id).select().single();
+            // console.log('Response for updating course', res);
+
+            if (res.error) throw res.error;
+
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
     }
-)
+);
 
-// // specific course action
-// export const specificCourse = createAsyncThunk('courseSlice/specificCourse',
-//     async (id) => {
-//         console.log('Receive data for specific course',id);
+// mark as complete course 
+export const updateCourseCompletion = createAsyncThunk('courseSlice/updateCourseCompletion',
+    async ({ id, is_completed }, { rejectWithValue }) => {
+        try {
+            const res = await supabase
+                .from('courses')
+                .update({
+                    is_completed,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', id)
+                .select()
+                .single();
 
-//         const res = await axiosInstance.get(`${endPoint_sepeficCourse}/${id}`);
-//         console.log('Response for fetching specific course', res);
+            if (res.error) throw res.error;
 
-//         return res.data;
-//     }
-// )
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+
+// delete course 
+export const deleteCourse = createAsyncThunk('courseSlice/deleteCourse',
+    async ({ id, thumbnail }, { rejectWithValue }) => {
+        try {
+            if (thumbnail) {
+                const filePath = getFilePathFromPublicUrl(thumbnail, 'course');
+                if (filePath) {
+                    await supabase.storage.from('course').remove([filePath]);
+                }
+            }
+
+            // delete course
+            const res = await supabase.from('courses').delete().eq('id', id);
+
+            if (res.error) throw res.error;
+
+            return id;
+        } catch (err) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 
 const initialState = {
     isCourseLoading: false,
@@ -105,67 +161,93 @@ export const courseSlice = createSlice({
         resetCourseState: () => initialState
     },
     extraReducers: (builder) => {
+        builder
+            // all course reducer
+            .addCase(allCourse.pending, (state, action) => {
+                state.isCourseLoading = true;
+            })
+            .addCase(allCourse.fulfilled, (state, action) => {
+                state.isCourseLoading = false;
+                state.getCourseData = action.payload;
+                state.isCourseError = null;
+            })
+            .addCase(allCourse.rejected, (state, action) => {
+                state.isCourseLoading = false;
+                state.getCourseData = [];
+                state.isCourseError = action.error?.message;
+            })
 
-        // all course reducer
-        builder.addCase(allCourse.pending, (state, action) => {
-            state.isCourseLoading = true;
-        })
-        builder.addCase(allCourse.fulfilled, (state, action) => {
-            state.isCourseLoading = false;
-            state.getCourseData = action.payload;
-            state.isCourseError = null;
-        })
-        builder.addCase(allCourse.rejected, (state, action) => {
-            state.isCourseLoading = false;
-            state.getCourseData = [];
-            state.isCourseError = action.error?.message;
-        })
+            // add course reducer
+            .addCase(createCourse.pending, (state, action) => {
+                state.isCourseLoading = true;
+            })
+            .addCase(createCourse.fulfilled, (state, action) => {
+                state.isCourseLoading = false;
+                state.getCourseData = action.payload;
+                state.isCourseError = null;
+            })
+            .addCase(createCourse.rejected, (state, action) => {
+                state.isCourseLoading = false;
+                state.getCourseData = [];
+                state.isCourseError = action.error?.message;
+            })
 
-        // add course reducer
-        builder.addCase(createCourse.pending, (state, action) => {
-            state.isCourseLoading = true;
-        })
-        builder.addCase(createCourse.fulfilled, (state, action) => {
-            state.isCourseLoading = false;
-            state.getCourseData = action.payload;
-            state.isCourseError = null;
-        })
-        builder.addCase(createCourse.rejected, (state, action) => {
-            state.isCourseLoading = false;
-            state.getCourseData = [];
-            state.isCourseError = action.error?.message;
-        })
+            // update course
+            .addCase(updateCourse.pending, (state) => {
+                state.isCourseLoading = true;
+            })
+            .addCase(updateCourse.fulfilled, (state, action) => {
+                state.isCourseLoading = false;
 
-        // user wise course reducer
-        builder.addCase(userWiseCourse.pending, (state, action) => {
-            state.isCourseLoading = true;
-        })
-        builder.addCase(userWiseCourse.fulfilled, (state, action) => {
-            state.isCourseLoading = false;
-            state.getCourseData = action.payload;
-            state.isCourseError = null;
-        })
-        builder.addCase(userWiseCourse.rejected, (state, action) => {
-            state.isCourseLoading = false;
-            state.getCourseData = [];
-            state.isCourseError = action.error?.message;
-        })
+                const updatedCourse = action.payload;
 
-        // // specific course reducer
-        // builder.addCase(specificCourse.pending, (state, action) => {
-        //     state.isCourseLoading = true;
-        // })
-        // builder.addCase(specificCourse.fulfilled, (state, action) => {
-        //     state.isCourseLoading = false;
-        //     state.getCourseData = action.payload;
-        //     state.isCourseError = null;
-        // })
-        // builder.addCase(specificCourse.rejected, (state, action) => {
-        //     state.isCourseLoading = false;
-        //     state.getCourseData = [];
-        //     state.isCourseError = action.error?.message;
-        // })
+                state.getCourseData = state.getCourseData.map(course =>
+                    course.id === updatedCourse.id ? updatedCourse : course
+                );
 
+                state.isCourseError = null;
+            })
+            .addCase(updateCourse.rejected, (state, action) => {
+                state.isCourseLoading = false;
+                state.isCourseError = action.payload;
+            })
+
+            // mark as complete 
+            .addCase(updateCourseCompletion.pending, (state) => {
+                state.isCourseLoading = true;
+            })
+            .addCase(updateCourseCompletion.fulfilled, (state, action) => {
+                state.isCourseLoading = false;
+
+                const updatedCourse = action.payload;
+
+                state.getCourseData = state.getCourseData.map(course =>
+                    course.id === updatedCourse.id
+                        ? { ...course, is_completed: updatedCourse.is_completed }
+                        : course
+                );
+
+                state.isCourseError = null;
+            })
+            .addCase(updateCourseCompletion.rejected, (state, action) => {
+                state.isCourseLoading = false;
+                state.isCourseError = action.payload;
+            })
+
+            // delete course
+            .addCase(deleteCourse.pending, (state) => {
+                state.isCourseLoading = true;
+            })
+            .addCase(deleteCourse.fulfilled, (state, action) => {
+                state.isCourseLoading = false;
+                state.getCourseData = state.getCourseData.filter(
+                    course => course.id !== action.payload
+                );
+            })
+            .addCase(deleteCourse.rejected, (state, action) => {
+                state.isCourseLoading = false;
+                state.isCourseError = action.payload;
+            });
     }
 });
 

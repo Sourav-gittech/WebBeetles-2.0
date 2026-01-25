@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { CheckCheck, ChevronRight, Clock, Edit2, Star, Trash2, Users } from 'lucide-react';
-import DeleteCourseModal from '../../modal/DeleteCourseModal';
 import UpdateCourseModal from '../../modal/UpdateCourseModal';
+import DeleteCourseAndLectureModal from '../../modal/DeleteCourseAndLectureModal';
 
-const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, setSelectedCourse, editForm, setEditForm, apiCalls }) => {
+const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, setSelectedCourse, editForm, setEditForm }) => {
 
-    const [showDeleteModal, setShowDeleteModal] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [deletedData, setDeletedData] = useState(null);
+    const deleteType = 'course';
 
     const totalLectureTiming = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0).toFixed(2);
 
@@ -30,11 +32,11 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
                 </div>
 
                 <div className="flex gap-3">
-                    <button onClick={() => { setEditForm(selectedCourse); setShowEditModal(selectedCourse); }} className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors flex items-center gap-2 cursor-pointer">
+                    <button onClick={() => { setEditForm(selectedCourse); setShowEditModal(true); }} className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors flex items-center gap-2 cursor-pointer">
                         <Edit2 className="w-4 h-4" />
                         Edit Course
                     </button>
-                    <button onClick={() => setShowDeleteModal(selectedCourse)} className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition-colors flex items-center gap-2 cursor-pointer">
+                    <button onClick={() => { setShowDeleteModal(true); setDeletedData(selectedCourse); }} className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition-colors flex items-center gap-2 cursor-pointer">
                         <Trash2 className="w-4 h-4" />
                         Delete
                     </button>
@@ -58,12 +60,12 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
 
             {/* Delete Course Modal */}
             {showDeleteModal && (
-                <DeleteCourseModal setSelectedCourse={setSelectedCourse} setCourses={setCourses} selectedCourse={selectedCourse} showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} />
+                <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteModal} deletedData={deletedData} deleteType={deleteType} />
             )}
 
             {/* Edit Course Modal */}
             {showEditModal && (
-                <UpdateCourseModal setShowEditModal={setShowEditModal} editForm={editForm} setEditForm={setEditForm} apiCalls={apiCalls} setCourses={setCourses} setSelectedCourse={setSelectedCourse} selectedCourse={selectedCourse} />
+                <UpdateCourseModal setShowEditModal={setShowEditModal} editForm={editForm} setEditForm={setEditForm} />
             )}
         </>
     )

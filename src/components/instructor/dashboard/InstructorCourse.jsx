@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import CourseCard from './instructorCourseComp/CourseCard';
 import StatsCard from './instructorCourseComp/StatsCard';
 import InstructorCourseListHeader from './instructorCourseComp/InstructorCourseListHeader';
-import DeleteCourseModal from './instructorCourseComp/modal/DeleteCourseModal';
+import DeleteCourseAndLectureModal from './instructorCourseComp/modal/DeleteCourseAndLectureModal';
 import UpdateCourseModal from './instructorCourseComp/modal/UpdateCourseModal';
 import InstructorSpecificCourseDetails from './instructorCourseComp/specific-course-details/InstructorSpecificCourseDetails';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,9 +13,12 @@ import { Loader2 } from 'lucide-react';
 const InstructorCourse = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [expandedSections, setExpandedSections] = useState({});
-  const [showDeleteModal, setShowDeleteModal] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(null);
-  const [editForm, setEditForm] = useState({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [deletedData, setDeletedData] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const deleteType = 'course';
+
   const [courses, setCourses] = useState([
     { id: 1, title: "Advanced React & Redux Masterclass", thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=225&fit=crop", students: 1234, revenue: 15420, rating: 4.8, totalLessons: 35, duration: "12h 30m", status: "published" },
     { id: 2, title: "Full Stack Web Development Bootcamp", thumbnail: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=225&fit=crop", students: 856, revenue: 10272, rating: 4.5, totalLessons: 36, duration: "18h 45m", status: "published" },
@@ -65,63 +68,11 @@ const InstructorCourse = () => {
 
   // console.log('Get course details', getCourseData);
 
-
-
-
-  // API placeholder functions
-  const apiCalls = {
-    fetchCourses: async () => {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/instructor/courses');
-      // const data = await response.json();
-      // setCourses(data);
-      console.log('API: Fetching courses...');
-    },
-    fetchCourseContent: async (courseId) => {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`/api/instructor/courses/${courseId}/content`);
-      // const data = await response.json();
-      // setCourseContent(prev => ({ ...prev, [courseId]: data }));
-      console.log(`API: Fetching content for course ${courseId}...`);
-    },
-    updateCourse: async (courseId, data) => {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`/api/instructor/courses/${courseId}`, {
-      //   method: 'PUT',
-      //   body: JSON.stringify(data)
-      // });
-      console.log(`API: Updating course ${courseId}...`, data);
-    },
-    deleteCourse: async (courseId) => {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/instructor/courses/${courseId}`, { method: 'DELETE' });
-      console.log(`API: Deleting course ${courseId}...`);
-    },
-    uploadVideo: async (courseId, sectionId, videoData) => {
-      // TODO: Replace with actual API call
-      // const formData = new FormData();
-      // formData.append('video', videoData.file);
-      // formData.append('title', videoData.title);
-      // const response = await fetch(`/api/instructor/courses/${courseId}/sections/${sectionId}/videos`, {
-      //   method: 'POST',
-      //   body: formData
-      // });
-      console.log(`API: Uploading video to course ${courseId}, section ${sectionId}...`, videoData);
-    },
-    deleteVideo: async (courseId, videoId) => {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/instructor/courses/${courseId}/videos/${videoId}`, { method: 'DELETE' });
-      console.log(`API: Deleting video ${videoId}...`);
-    }
-  };
-
-
   if (selectedCourse) {
 
     return (
-
-      <InstructorSpecificCourseDetails selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal}
-      editForm={editForm} expandedSections={expandedSections} apiCalls={apiCalls} setCourseContent={setCourseContent} />
+      <InstructorSpecificCourseDetails selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowDeleteModal={setShowDeleteModal}
+        editForm={editForm} expandedSections={expandedSections} />
     );
   }
 
@@ -140,19 +91,19 @@ const InstructorCourse = () => {
           <Loader2 className='w-15 h-15 animate-spin mx-auto' />
         ) :
           (<div className="grid grid-cols-3 gap-6">
-            {getCourseData.map((course) => <CourseCard key={course.id} course={course} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal} />)}
+            {getCourseData.map((course) => <CourseCard key={course.id} course={course} setDeletedData={setDeletedData} setSelectedCourse={setSelectedCourse} setExpandedSections={setExpandedSections} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal} />)}
           </div>
           )}
       </div>
 
       {/* Delete Course Modal */}
       {showDeleteModal && (
-        <DeleteCourseModal setSelectedCourse={setSelectedCourse} setCourses={setCourses} selectedCourse={selectedCourse} showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} />
+        <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteModal} deletedData={deletedData} deleteType={deleteType} />
       )}
 
       {/* Edit Course Modal */}
       {showEditModal && (
-        <UpdateCourseModal setShowEditModal={setShowEditModal} editForm={editForm} setEditForm={setEditForm} apiCalls={apiCalls} setCourses={setCourses} setSelectedCourse={setSelectedCourse} selectedCourse={selectedCourse} />
+        <UpdateCourseModal setShowEditModal={setShowEditModal} editForm={editForm} setEditForm={setEditForm} />
       )}
     </div>
   );

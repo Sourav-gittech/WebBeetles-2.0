@@ -33,7 +33,7 @@ const CourseList = () => {
 
     useEffect(() => {
         if (!isCourseLoading) {
-            dispatch(allCourse({ status: 'approved', is_active: true }))
+            dispatch(allCourse({ status: 'approved', is_active: true, is_admin_block: false }))
                 .then((res) => {
                     // console.log("Course fetching response", res);
                 })

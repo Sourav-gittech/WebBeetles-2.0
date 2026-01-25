@@ -107,7 +107,7 @@ const CoursesSection = () => {
 
   useEffect(() => {
     // if (!getCourseData.length || getCourseData.length === 0) {
-    dispatch(allCourse({ status: 'approved',is_active: true }))
+    dispatch(allCourse({ status: 'approved', is_active: true, is_admin_block: false }))
       .then(res => {
         // console.error("response from course section", res);
       })

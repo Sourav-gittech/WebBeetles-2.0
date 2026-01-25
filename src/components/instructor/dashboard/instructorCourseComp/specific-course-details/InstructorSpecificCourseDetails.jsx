@@ -4,10 +4,10 @@ import ShowCourseVideoModal from '../modal/ShowCourseVideoModal';
 import InstructorSpecificCourseDetailsHeader from './details-comp/InstructorSpecificCourseDetailsHeader';
 import InstructorSpecificCourseItemsRow from './details-comp/InstructorSpecificCourseItemsRow';
 import { useCourseVideos } from '../../../../../tanstack/query/fetchLectureVideo';
-import DeleteCourseLectureModal from '../modal/DeleteCourseLectureModal';
+import DeleteCourseAndLectureModal from '../modal/DeleteCourseAndLectureModal';
 
-const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, setExpandedSections, editForm, setEditForm, setShowEditModal, setShowDeleteModal,
-    expandedSections, apiCalls, setCourseContent }) => {
+const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, setExpandedSections, editForm, setEditForm, setShowDeleteModal,
+    expandedSections }) => {
 
     const { isLoading, data: lectureData, error } = useCourseVideos({ courseId: selectedCourse?.id });
 
@@ -17,6 +17,7 @@ const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, se
     const [updateData, setUpdateData] = useState(null);
     const [showDeleteLectureModal, setShowDeleteLectureModal] = useState(false);
     const [deletedData, setDeletedData] = useState({ lectureId: null, lectureName: null, doc_type: null, courseId: null, video_title: null });
+    const deleteType = 'lecture';
 
     const courseSection = [{
         id: 1,
@@ -39,7 +40,7 @@ const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, se
     return (
         <div className="min-h-screen bg-black text-white p-8">
             <div className="max-w-7xl mx-auto">
-                <InstructorSpecificCourseDetailsHeader lectureData={lectureData} selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} editForm={editForm} setEditForm={setEditForm} setShowEditModal={setShowEditModal} setShowDeleteModal={setShowDeleteModal} apiCalls={apiCalls} />
+                <InstructorSpecificCourseDetailsHeader lectureData={lectureData} selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} editForm={editForm} setEditForm={setEditForm} setShowDeleteModal={setShowDeleteModal} />
 
                 <div className="space-y-4">
                     {courseSection?.map(section => (
@@ -61,7 +62,7 @@ const InstructorSpecificCourseDetails = ({ selectedCourse, setSelectedCourse, se
 
             {/* Delete Video Modal */}
             {showDeleteLectureModal && (
-                <DeleteCourseLectureModal setShowDeleteLectureModal={setShowDeleteLectureModal} deletedData={deletedData} />
+                <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteLectureModal} deletedData={deletedData} deleteType={deleteType} />
             )}
         </div>
     )
