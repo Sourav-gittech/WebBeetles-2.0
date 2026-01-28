@@ -41,7 +41,7 @@ const Signin = () => {
 
     dispatch(loginSlice({ data: login_obj, role: 'student' }))
       .then(res => {
-        console.log("Response after user login:", res);
+        // console.log("Response after user login:", res);
 
         if (res?.payload?.userData?.role !== user_type) {
           getSweetAlert('Oops...', "Invalid login credentials", 'error');

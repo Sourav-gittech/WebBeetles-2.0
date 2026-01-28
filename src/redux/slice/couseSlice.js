@@ -1,16 +1,14 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../../api/axiosInstance/axiosInstance";
-import { endPoint_addCourse, endPoint_allCourse, endPoint_categoryWiseCourse, endPoint_sepeficCourse, endPoint_userEnrolledCourse } from "../../api/apiUrl/apiUrl";
 import supabase from "../../util/supabase/supabase";
 
 // all course action
 export const allCourse = createAsyncThunk('courseSlice/allCourse',
-    async ({ category_id, instructor_id, is_active, status, is_admin_block }, { rejectWithValue }) => {
+    async ({ category_id, instructor_id, is_active, status, is_admin_block, is_deleted = false }, { rejectWithValue }) => {
 
         let query = supabase.from("courses").select(`id,title,description,price,status,feature,thumbnail,created_at,is_active,is_completed,is_admin_block,
                     is_exam_scheduled,category:categories (id,name,description,category_image,status),
                     instructor:instructors (id,name,email,profile_image_url,bio,expertise,social_links,is_verified,application_status)
-                    `).order("created_at", { ascending: false });
+                    `).eq("is_deleted", is_deleted).order("created_at", { ascending: false });
 
         if (category_id) {
             query = query.eq('category_id', category_id);
@@ -144,19 +142,14 @@ export const updateCourseBlockUnblock = createAsyncThunk('courseSlice/updateCour
 
 // delete course 
 export const deleteCourse = createAsyncThunk('courseSlice/deleteCourse',
-    async ({ id, thumbnail }, { rejectWithValue }) => {
-        // console.log('Received data for delete course', id, thumbnail);
+    async ({ id }, { rejectWithValue }) => {
+        // console.log('Received data for delete course', id);
 
         try {
-            if (thumbnail) {
-                const filePath = getFilePathFromPublicUrl(thumbnail, 'course');
-                if (filePath) {
-                    await supabase.storage.from('course').remove([filePath]);
-                }
-            }
-
-            // delete course
-            const res = await supabase.from('courses').delete().eq('id', id);
+            const res = await supabase.from('courses').update({
+                is_deleted: true,
+                updated_at: new Date().toISOString()
+            }).eq('id', id).select().single();
             // console.log('Response after deleting course in slice', res);
 
             if (res.error) throw res.error;

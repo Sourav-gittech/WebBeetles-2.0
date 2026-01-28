@@ -1,13 +1,14 @@
- import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../../api/axiosInstance/axiosInstance";
-import { endPoint_payment_create } from "../../api/apiUrl/apiUrl";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import supabase from "../../util/supabase/supabase";
 
 export const makePayment = createAsyncThunk('paymentSlice/makePayment',
-    async (id) => {
-        console.log('Received data in payment slice', id);
+    async ({ orderId, payment_status }) => {
+        // console.log('Received data in payment slice', orderId, payment_status);
 
-        const res = await axiosInstance.post(`${endPoint_payment_create}/${id}`);
-        console.log('Response from payment slice', res);
+        const res = await supabase.from('purchases').update({ payment_status: payment_status }).eq('razorpay_order_id', orderId).select().single();
+        // console.log('Response from payment slice', res);
+
+        if (res.error) throw res.error;
 
         return res.data;
     });

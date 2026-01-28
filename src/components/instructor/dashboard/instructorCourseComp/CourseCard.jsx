@@ -44,7 +44,7 @@ const CourseCard = ({ course, setDeletedData, setSelectedCourse, setExpandedSect
                         </div>
                         <div className="flex items-center gap-2 text-gray-400">
                             <Star className="w-4 h-4 text-yellow-400" />
-                            <span>{course?.rating}</span>
+                            <span>{course?.rating ?? 0.0}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-400">
                             <PlayCircle className="w-4 h-4" />
