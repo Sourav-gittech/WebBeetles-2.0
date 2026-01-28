@@ -161,6 +161,12 @@ const StudentNavbar = () => {
                     >
                       Dashboard
                     </Link>
+                    <Link
+                      to="/cart"
+                      className="block px-4 py-2 hover:bg-white/20 transition-all duration-200"
+                    >
+                      Cart
+                    </Link>
                     <button
                       onClick={() => userLogout()}
                       className="w-full text-left px-4 py-2 hover:bg-white/20 transition-all duration-200"
@@ -307,6 +313,14 @@ const StudentNavbar = () => {
                       onClick={handleNavClick}
                     >
                       Dashboard
+                    </Link>
+                    
+                    <Link
+                      to="/cart"
+                      className="block text-white hover:text-purple-300 hover:bg-white/5 transition-all duration-200 font-medium py-4 px-4 rounded-lg mb-3"
+                      onClick={handleNavClick}
+                    >
+                      Cart
                     </Link>
 
                     <button

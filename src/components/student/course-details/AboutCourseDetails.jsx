@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { FaCheckCircle } from "react-icons/fa";
 import Lottie from "lottie-react";
-import loaderAnimation from "../../../../assets/animations/loader.json";
+import loaderAnimation from "../../../assets/animations/loader.json";
 import { motion } from "framer-motion";
-import { useCourseVideos } from "../../../../tanstack/query/fetchLectureVideo";
+import { useCourseVideos } from "../../../tanstack/query/fetchLectureVideo";
 
 const AboutCourseDetails = ({ courseData: getSpecificCourseData }) => {
     const [activeLesson, setActiveLesson] = useState(0);

@@ -15,6 +15,7 @@ import Error404 from "../pages/common/Error404";
 import ForgetPassword from "../pages/student/auth/forgetPassword/ForgetPassword";
 import ResetPassword from "../pages/student/auth/resetPassword/ResetPassword";
 import Otp from "../pages/student/auth/otp/Otp";
+import Cart from "../pages/student/cart/Cart";
 import Course from "../pages/student/Course";
 import Category from "../pages/student/Category";
 import ContactUs from "../pages/student/ContactUs";
@@ -99,6 +100,7 @@ const Routing = () => {
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/otp" element={<Otp />} />
+        <Route path="/cart" element={<Cart />} />
 
 
         {/* instructor */}

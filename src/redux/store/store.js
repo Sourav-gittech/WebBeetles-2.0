@@ -4,26 +4,30 @@ import categorySliceReducer from "../slice/categorySlice";
 import checkUserAuthSliceReducer from "../slice/authSlice/checkUserAuthSlice";
 import courseSliceReducer from "../slice/couseSlice";
 import studentProfileSliceReducer from "../slice/studentSlice";
-import specificCategorySliceReducer from "../slice/specificCategorySlice";
 import contactAuthSliceReducer from "../slice/contactSlice";
-import specificInstructorSliceReducer from "../slice/specificInstructorSlice";
 import instructorSliceReducer from "../slice/instructorSlice";
 import reviewSliceReducer from "../slice/reviewSlice";
 import videoSliceReducer from "../slice/videoSlice";
+import chargesSliceReducer from "../slice/chargesSlice";
+import promocodeSliceReducer from "../slice/promocodeSlice";
+import cartSliceReducer from "../slice/cartSlice";
+import purchaseSliceReducer from "../slice/purchaseSlice";
 
 const store = configureStore({
     reducer: {
         checkAuth: checkUserAuthSliceReducer,
         auth: authSliceReducer,
         student: studentProfileSliceReducer,
+        instructor: instructorSliceReducer,
         category: categorySliceReducer,
         course: courseSliceReducer,
-        specificCategory: specificCategorySliceReducer,
-        query: contactAuthSliceReducer,
+        lecture: videoSliceReducer,
         review: reviewSliceReducer,
-        instructor: instructorSliceReducer,
-        specificInstructor: specificInstructorSliceReducer,
-        lecture: videoSliceReducer
+        charge: chargesSliceReducer,
+        cart: cartSliceReducer,
+        promocode: promocodeSliceReducer,
+        purchase: purchaseSliceReducer,
+        query: contactAuthSliceReducer,
     }
 });
 
