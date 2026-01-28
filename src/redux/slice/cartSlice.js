@@ -31,8 +31,7 @@ export const fetchCartItems = createAsyncThunk("cartSlice/fetchCartItems",
         // console.log('Fetching details for cart id', cartId);
 
         try {
-            const res = await supabase.from("cart_items").select(`
-          id,course_id, courses (*,course_content (*))`).eq("cart_id", cartId);
+            const res = await supabase.from("cart_items").select(`id,course_id, courses (*)`).eq("cart_id", cartId);
             // console.log('Response for cart details', res);
 
             if (res?.error) throw res?.error;

@@ -91,8 +91,7 @@ const InstructorCourseDetails = ({ courseData: getSpecificCourseData }) => {
                     <Lottie
                         animationData={loaderAnimation}
                         loop={true}
-                        className="w-40 h-40 sm:w-52 sm:h-52"
-                    />
+                        className="w-40 h-40 sm:w-52 sm:h-52" />
                 </div>
             ) : (
                 <>

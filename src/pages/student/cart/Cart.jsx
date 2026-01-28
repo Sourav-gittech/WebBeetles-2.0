@@ -14,7 +14,7 @@ import SupportModal from '../../../Components/student/cart/SupportModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkLoggedInUser } from '../../../redux/slice/authSlice/checkUserAuthSlice';
 import getSweetAlert from '../../../util/alert/sweetAlert';
-import { fetchCartItems,getOrCreateCart } from '../../../Redux/Slice/cartSlice';
+import { fetchCartItems, getOrCreateCart } from '../../../redux/slice/cartSlice';
 import { fetchCharges } from '../../../redux/slice/chargesSlice';
 import { fetchCodes } from '../../../redux/slice/promocodeSlice';
 import { useNavigate } from 'react-router-dom';
@@ -34,9 +34,9 @@ const Cart = () => {
 
   // Calculate totals
   let tax = 0;
-  const subtotal = cartItems?.reduce((sum, item) => sum + parseInt(item?.courses?.pricing), 0);
+  const subtotal = cartItems?.reduce((sum, item) => sum + parseInt(item?.courses?.price), 0);
   const discountAmount = Math.round(subtotal * (discount / 100));
-  allCharges?.course?.forEach(charge => {
+  allCharges?.forEach(charge => {
     tax += Math?.round((subtotal - discountAmount) * (Number.parseInt(charge?.percentage)) / 100);
   })
   const total = subtotal - discountAmount + tax;
@@ -77,7 +77,7 @@ const Cart = () => {
   }, [userAuthData?.id, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchCharges({ type: 'course', status: true }))
+    dispatch(fetchCharges({ status: true }))
       .then(res => {
         // console.log('Response for fetching all charges for course', res);
       })
@@ -100,7 +100,7 @@ const Cart = () => {
 
   // console.log('Available cart items', cartItems);
   // console.log('Available promocode', promoCodes);
-  // console.log('Available charges', allCharges?.course);
+  // console.log('Available charges', allCharges);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
@@ -154,7 +154,7 @@ const Cart = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-4 space-y-5">
                 {/* Main Summary Card */}
-                <PaymentSummaryCard cartId={currentCart?.id} cartItems={cartItems} userAuthData={userAuthData} allCharges={allCharges?.course} promoCodes={promoCodes} subtotal={subtotal} tax={tax} total={total} discountAmount={discountAmount} discount={discount} setDiscount={setDiscount} />
+                <PaymentSummaryCard cartId={currentCart?.id} cartItems={cartItems} userAuthData={userAuthData} allCharges={allCharges} promoCodes={promoCodes} subtotal={subtotal} tax={tax} total={total} discountAmount={discountAmount} discount={discount} setDiscount={setDiscount} />
 
                 {/* Security & Trust */}
                 <SecurityTrust />

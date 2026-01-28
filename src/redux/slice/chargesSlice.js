@@ -127,8 +127,7 @@ export const chargesSlice = createSlice({
             })
             .addCase(fetchCharges.fulfilled, (state, action) => {
                 state.isChargesLoading = false;
-                const { data } = action.payload;
-                state.allCharges = data;
+                state.allCharges = action.payload;
             })
             .addCase(fetchCharges.rejected, (state, action) => {
                 state.isChargesLoading = false;

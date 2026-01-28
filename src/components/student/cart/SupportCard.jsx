@@ -9,7 +9,7 @@ const SupportCard = ({ setShowSupportModal }) => {
                 Need Help?
             </h3>
             <p className="text-xs text-slate-600 mb-4">
-                Our visa experts are here to assist you
+                Our experts are here to assist you
             </p>
             <div className="space-y-2">
                 <button

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch } from 'react-redux';
-import { deleteCart } from '../../../Redux/Slice/cartSlice';
+import { deleteCart } from '../../../redux/slice/cartSlice';
 import hotToast from '../../../util/alert/hot-toast';
 import getSweetAlert from '../../../util/alert/sweetAlert';
 

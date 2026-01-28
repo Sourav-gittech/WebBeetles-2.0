@@ -30,7 +30,8 @@ const Signup = () => {
       password: data.password,
       profile_image: data.profile_img[0],
       is_verified: "pending",
-      is_blocked: false
+      is_blocked: false,
+      course_purchased: false,
     }
 
     if (data.password !== data.cPassword) {
