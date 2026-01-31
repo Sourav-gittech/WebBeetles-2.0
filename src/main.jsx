@@ -17,5 +17,5 @@ createRoot(document.getElementById("root")).render(
         </TanstackProvider>
       </BrowserRouter>
     </Provider>
-  </StrictMode>
+   </StrictMode>
 );

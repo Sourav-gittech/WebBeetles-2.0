@@ -56,6 +56,25 @@ export const updateStudentProfile = createAsyncThunk("studentProfileSlice/update
     }
 );
 
+// updates `course purchase or not`
+export const updateCoursePurchaseStatus = createAsyncThunk("userProfileSlice/updateCoursePurchaseStatus",
+    async ({ id }, { rejectWithValue }) => {
+        console.log('update purchase course data', id);
+
+        try {
+            const res = await supabase.from("students").update({ course_purchased: true }).eq("id", id).select();
+
+            // console.log('Response for updating purchase status', res);
+
+            if (res?.error) return rejectWithValue(res?.error);
+
+            return res?.data;
+        } catch (err) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 const initialState = {
     isStudentLoading: false,
     getStudentData: {},
@@ -66,20 +85,37 @@ export const studentProfileSlice = createSlice({
     name: "studentProfileSlice",
     initialState,
     extraReducers: (builder) => {
+        builder
+
         // update user profile reducer 
-        builder.addCase(updateStudentProfile.pending, (state) => {
+        .addCase(updateStudentProfile.pending, (state) => {
             state.isStudentLoading = true;
         })
-        builder.addCase(updateStudentProfile.fulfilled, (state, action) => {
+        .addCase(updateStudentProfile.fulfilled, (state, action) => {
             state.isStudentLoading = false;
             state.getStudentData = action.payload;
             state.isStudentError = null;
         })
-        builder.addCase(updateStudentProfile.rejected, (state, action) => {
+        .addCase(updateStudentProfile.rejected, (state, action) => {
             state.isStudentLoading = false;
             state.getStudentData = {};
             state.isStudentError = action.error?.message;
         })
+
+         // updates `course purchase ststua` reducer 
+            .addCase(updateCoursePurchaseStatus.pending, (state) => {
+                state.isStudentLoading = true;
+            })
+            .addCase(updateCoursePurchaseStatus.fulfilled, (state, action) => {
+                state.isStudentLoading = false;
+                state.getStudentData = action.payload;
+                state.isStudentError = null;
+            })
+            .addCase(updateCoursePurchaseStatus.rejected, (state, action) => {
+                state.isStudentLoading = false;
+                state.getStudentData = {};
+                state.isStudentError = action.error?.message;
+            });
     },
 });
 
