@@ -3,6 +3,7 @@ import InstructorLessonItem from './InstructorLessonItem';
 import { ChevronDown, ChevronRight, FileBadge, LockKeyhole, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import hotToast from '../../../../../../util/alert/hot-toast';
+import { formatToHHMMSS } from '../../../../../../util/timeFormat/timeFormat';
 
 const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, setUpdateData, expandedSections, setExpandedSections, section, setDeletedData, setShowVideoModal, setShowDeleteLectureModal, setUploadForm, setShowUploadModal }) => {
 
@@ -18,7 +19,8 @@ const InstructorSpecificCourseItemsRow = ({ lectureData, selectedCourse, setUpda
         lecture = lectureData?.filter(lecture => lecture?.isPreview != true && lecture?.type == 'document');
     }
 
-    const totalLectureTiming = lecture?.reduce((acc, value) => acc + Number(value?.duration || 0), 0).toFixed(2);
+    const totalSeconds = lecture?.reduce((acc, value) => acc + Number(value?.duration || 0), 0) || 0;
+    const totalLectureTiming = formatToHHMMSS(totalSeconds);
 
     const canExpand = section?.type === "demo" || (section?.type !== "exam" && selectedCourse?.status === "approved") || (section?.type === "exam" && selectedCourse?.is_completed);
     const navigate = useNavigate();

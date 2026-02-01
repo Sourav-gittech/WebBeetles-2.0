@@ -2,10 +2,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const addPaymentDetails = createAsyncThunk('paymentSlice/addPaymentDetails',
     async (paymentDetails) => {
-        console.log('Received data for adding in payment details', paymentDetails);
+        // console.log('Received data for adding in payment details', paymentDetails);
 
         const res = await supabase.from("payment_details").insert([paymentDetails]).select();
-        console.log("Response for adding payment details", res);
+        // console.log("Response for adding payment details", res);
 
         if (res?.error) return res?.error;
 

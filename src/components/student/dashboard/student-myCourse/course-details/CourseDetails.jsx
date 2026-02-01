@@ -1,22 +1,27 @@
 import React from 'react'
-import { calculateRating } from '../../../../../function/getRating'
+import { formatToHHMMSS } from '../../../../../util/timeFormat/timeFormat';
+import { Award, BookOpen, Clock } from 'lucide-react';
+import CourseRating from '../rating-review/CourseRating';
 
-const CourseDetails = ({ selectedCourse }) => {
+const CourseDetails = ({ selectedCourse, lectureData }) => {
+
+    const totalSeconds = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0) || 0;
+    const totalLectureTiming = formatToHHMMSS(totalSeconds);
 
     return (
         <div className="flex items-start justify-between mb-6">
             <div>
-                <h1 className="text-4xl font-bold mb-3">{selectedCourse.title}</h1>
-                <p className="text-lg text-gray-400 mb-4">by {selectedCourse.instructor.name}</p>
+                <h1 className="text-4xl font-bold mb-3">{selectedCourse?.title ?? 'N/A'}</h1>
+                <p className="text-lg text-gray-400 mb-4">by {selectedCourse?.instructor?.name ?? 'N/A'}</p>
                 <div className="flex items-center gap-6 text-sm text-gray-400">
                     {[
-                        { icon: Clock, text: '20:00' },
-                        { icon: BookOpen, text: `15 Lessons` },
+                        { icon: Clock, text: totalLectureTiming },
+                        { icon: BookOpen, text: `${lectureData?.length} Lesson${lectureData?.length > 1 ? 's' : ''}` },
                         { icon: Award, text: 'Certificate Available' }
-                    ].map((item, i) => (
+                    ]?.map((item, i) => (
                         <span key={i} className="flex items-center gap-2">
                             <item.icon className="w-4 h-4" />
-                            {item.text}
+                            {item?.text ?? 0}
                         </span>
                     ))}
                 </div>
@@ -35,13 +40,13 @@ const CourseDetails = ({ selectedCourse }) => {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="bg-gray-800 rounded-lg p-3">
                         <div className="text-gray-400 mb-1">Completed</div>
-                        <div className="font-semibold text-lg">10/15</div>
+                        <div className="font-semibold text-lg">10/{lectureData?.length}</div>
                     </div>
                     <div className="bg-gray-800 rounded-lg p-3">
                         <div className="text-gray-400 mb-1">Rating</div>
                         <div className="font-semibold text-lg flex items-center gap-1">
                             <span className="text-yellow-400">★</span>
-                            {calculateRating(getSpecificCourseData)}
+                            <CourseRating courseId={selectedCourse?.id} />
                         </div>
                     </div>
                 </div>

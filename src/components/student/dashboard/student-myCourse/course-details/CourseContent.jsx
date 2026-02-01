@@ -1,30 +1,36 @@
-import React from 'react'
-import LessonItem from './lesson-item/LessonItem'
+import React from 'react';
+import SectionContent from './section-content/SectionContent';
 
-const CourseContent = ({getSpecificCourseData}) => {
+const CourseContent = ({ getSpecificCourseData }) => {
+
+  const courseSection = [
+    { id: 1, title: 'Demo lecture video', type: 'demo' },
+    { id: 2, title: 'Course lecture video', type: 'video' },
+    { id: 3, title: 'Course document', type: 'document' },
+    { id: 4, title: 'Certification test', type: 'exam' }
+  ];
+
+  const specificLecture = (sectionType) => {
+    if (!Array.isArray(getSpecificCourseData)) return [];
+
+    if (sectionType === 'demo') {
+      return getSpecificCourseData.filter(v => v.type === 'video' && v.isPreview === true);
+    }
+
+    if (sectionType === 'video') {
+      return getSpecificCourseData.filter(v => v.type === 'video' && v.isPreview === false);
+    }
+
+    return getSpecificCourseData.filter(v => v.type === sectionType);
+  };
+
   return (
     <>
-      {getSpecificCourseData?.sections?.map((section, index) => (
-        <div key={index} className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
-          <button onClick={() => setExpandedSections(prev => ({ ...prev, [section.id]: !prev[section.id] }))} className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors">
-            <div className="flex items-center gap-4">
-              {expandedSections[section.id] ? <ChevronDown className="w-5 h-5 text-purple-400" /> : <ChevronRight className="w-5 h-5 text-purple-400" />}
-              <div className="text-left">
-                <h3 className="font-semibold text-lg">{section.sectionTitle}</h3>
-                <p className="text-sm text-gray-400">{section.lectures.length} lessons • 20.00</p>
-              </div>
-            </div>
-            <div className="text-sm text-gray-400">1/{section.lectures.length} completed</div>
-          </button>
-          {expandedSections[section.id] && (
-            <div className="border-t border-gray-800">
-              {section.lectures.map((lesson, index) => <LessonItem key={index} lesson={lesson} />)}
-            </div>
-          )}
-        </div>
+      {courseSection.map(section => (
+        <SectionContent key={section.id} section={section} getSpecificCourseData={specificLecture(section.type)} />
       ))}
     </>
-  )
-}
+  );
+};
 
-export default CourseContent
+export default CourseContent;

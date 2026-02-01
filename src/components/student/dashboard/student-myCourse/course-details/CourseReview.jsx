@@ -1,8 +1,10 @@
 import React from 'react'
 import { calculateRating } from '../../../../../function/getRating';
 import { getStarCount } from '../../../../../function/getStarCount';
+import { Star, Stars } from 'lucide-react';
 
 const CourseReview = ({getSpecificCourseData}) => {
+    
     return (
         <div className="bg-gray-900 rounded-xl p-8 mb-8 border border-gray-800">
             <div className="flex items-start gap-8">

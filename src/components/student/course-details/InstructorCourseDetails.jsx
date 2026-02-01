@@ -31,7 +31,7 @@ const InstructorCourseDetails = ({ courseData: getSpecificCourseData }) => {
 
     useEffect(() => {
         if (userAuthData) {
-            dispatch(fetchUserPurchase({ userId: userAuthData?.id, status: 'success' }))
+            dispatch(fetchUserPurchase({ userId: userAuthData?.id, status: 'paid' }))
                 .then(res => {
                     // console.log('Response for fetching user profile', res);
                 })
@@ -42,7 +42,8 @@ const InstructorCourseDetails = ({ courseData: getSpecificCourseData }) => {
         }
     }, [userAuthData]);
 
-    const purchasedCourse = getPurchaseData?.purchase_items?.map(order => order?.id);
+    const purchasedCourse = getPurchaseData?.filter(order => order.payment_status === "paid")
+                            ?.flatMap(order => order.purchase_items.map(item => item.course_id));
 
     // Handle add to cart 
     const addToCart = async (course) => {
@@ -83,6 +84,8 @@ const InstructorCourseDetails = ({ courseData: getSpecificCourseData }) => {
                 })
         }
     };
+
+    // console.log('Purchased data', getPurchaseData);
 
     return (
         <div className="bg-black p-6 rounded-3xl shadow-lg text-white">

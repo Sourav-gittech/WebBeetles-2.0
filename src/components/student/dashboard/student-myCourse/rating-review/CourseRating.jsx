@@ -1,32 +1,27 @@
-import { useQuery } from "@tanstack/react-query";
-import { useCourseDetails } from "../../../../../hooks/userDashboard";
+import { Loader2, TriangleAlert } from "lucide-react";
+import { useCourseReviews } from "../../../../../tanstack/query/fetchSpecificCourseReview";
+import { useMemo } from "react";
 
 const CourseRating = ({ courseId }) => {
 
-    const calculateRating = (courseData) => {
-        if (courseData?.ratings) {
+    const { data: reviews = [], isLoading, isError } = useCourseReviews(courseId);
 
-            const noRating = courseData?.ratings.length;
-            let totalRatings = 0;
-            courseData?.ratings.forEach(element => {
-                totalRatings += Number.parseInt(element.value);
-            });
+    const rating = useMemo(() => {
+        if (!reviews.length) return '0.0';
 
-            const rating = totalRatings / noRating;
+        const total = reviews.reduce((acc, cur) => acc + Number(cur?.rating_count || 0),0);
 
-            return rating ? rating.toFixed(1) : '0.0';
-        }
+        return (total / reviews.length).toFixed(1);
+    }, [reviews]);
+
+    if (isLoading) {
+        return <span><Loader2 className="w-3 h-3 animate-spin" /></span>;
     }
 
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ['course-rating', courseId],
-        queryFn: () => useCourseDetails(courseId),
-    });
+    if (isError) {
+        return <span><TriangleAlert className="w-4 h-4 text-red-400" /></span>;
+    }
 
-    if (isLoading) return <span>Loading...</span>;
-    if (isError) return <span>Error</span>;
-
-    const rating = calculateRating(data?.data);
     return <span>{rating}</span>;
 };
 

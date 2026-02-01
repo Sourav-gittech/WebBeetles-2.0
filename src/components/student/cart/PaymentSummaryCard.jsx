@@ -30,7 +30,7 @@ const PaymentSummaryCard = ({
 
         if (!promo) return hotToast('Oops! Invalid promocode.', 'info', <Info className="text-orange-600" />);
 
-        if ((promo.apply_mode === 'first_time' && !userAuthData?.has_purchase_course) || promo.apply_mode === 'always') {
+        if ((promo.apply_mode === 'first_time' && !userAuthData?.course_purchased) || promo.apply_mode === 'always') {
             setDiscount(promo.discount_amount);
             setPromoApplied(true);
             hotToast('Congrats! Promocode added.', 'success');
@@ -72,7 +72,7 @@ const PaymentSummaryCard = ({
             // getSweetAlert("Success!", "Payment completed successfully!", "success");
             // setTimeout(() => navigate("/student/dashboard"), 1500);
         } catch (err) {
-            console.error("Payment verification error:", err);
+            // console.error("Payment verification error:", err);
             getSweetAlert("Error", "Something went wrong during payment verification", "error");
         }
     };
@@ -137,18 +137,18 @@ const PaymentSummaryCard = ({
 
     const numericTotal = Number(total);
 
-    if (!numericTotal || Number.isNaN(numericTotal)) {
-        console.error("Invalid total on frontend:", total);
-        getSweetAlert('Oops!', "Invalid total amount. Please refresh the page.", 'warning');
-        return;
-    }
-
     const handlePayment = async () => {
         try {
             const token = sessionStorage.getItem("student_token");
 
             if (!token) {
                 getSweetAlert('Oops!', "User not authenticated. Please sign in.", 'warning');
+                return;
+            }
+
+            if (!numericTotal || Number.isNaN(numericTotal)) {
+                // console.error("Invalid total on frontend:", total);
+                getSweetAlert('Oops!', "Invalid total amount. Please refresh the page.", 'warning');
                 return;
             }
 
@@ -169,7 +169,7 @@ const PaymentSummaryCard = ({
             if (!res.ok) {
                 setPaymentLoad(false);
                 const text = await res.text();
-                console.error("Create order API error:", text);
+                // console.error("Create order API error:", text);
                 getSweetAlert('Oops!', "Order processing failed", 'error');
                 return;
             }
@@ -179,7 +179,7 @@ const PaymentSummaryCard = ({
             openRazorpay(orderData);
 
         } catch (err) {
-            console.error("handlePayment failed:", err);
+            // console.error("handlePayment failed:", err);
             getSweetAlert('Oops!', "Payment service is currently unavailable. Please try again later.", 'warning');
         }
     };

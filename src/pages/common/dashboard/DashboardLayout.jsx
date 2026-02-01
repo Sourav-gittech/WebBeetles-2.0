@@ -37,7 +37,6 @@ const DashboardLayout = ({ currentPage }) => {
       });
   }, [dispatch]);
 
-
   useEffect(() => {
     const handleOpenTab = () => setActivePage("student-myCourses");
     window.addEventListener("open-user-course", handleOpenTab);

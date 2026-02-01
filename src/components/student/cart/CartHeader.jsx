@@ -2,7 +2,7 @@ import React from 'react'
 import { CheckCircle, ShoppingCart } from 'lucide-react'
 
 const CartHeader = ({ cartItems, total }) => {
-    
+
     return (
         <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div>
@@ -26,7 +26,7 @@ const CartHeader = ({ cartItems, total }) => {
                 <div className="hidden lg:flex items-center justify-end gap-6">
                     <div className="text-right">
                         <p className="text-white/60 text-sm mb-1">Total Amount</p>
-                        <p className="text-4xl font-bold">₹{total?.toLocaleString('en-IN')}</p>
+                        <p className="text-4xl font-bold">₹{total ? total?.toLocaleString('en-IN') : '0'}</p>
                         <p className="text-white/70 text-xs mt-1">Inclusive of all taxes</p>
                     </div>
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">

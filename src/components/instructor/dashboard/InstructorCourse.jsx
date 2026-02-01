@@ -27,7 +27,6 @@ const InstructorCourse = () => {
   ]);
 
 
-
   const dispatch = useDispatch(),
     { isUserLoading, userAuthData, userError } = useSelector(state => state.checkAuth),
     { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state.course);

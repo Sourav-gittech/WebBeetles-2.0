@@ -126,7 +126,7 @@ const StudentDashboardHeader = ({ userDetails }) => {
                     </div>
 
                     {/* DOWNLOAD BUTTON */}
-                    <button className="flex items-center gap-2 px-5 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-xl font-medium transition-all shadow-lg border border-white/30 hover:scale-105">
+                    <button className="flex items-center gap-2 px-5 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-xl font-medium transition-all shadow-lg border border-white/30 hover:scale-105 cursor-pointer">
                         <Download size={18} />
                         <span className="hidden sm:inline">Download Report</span>
                     </button>

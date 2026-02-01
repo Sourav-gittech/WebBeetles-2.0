@@ -39,7 +39,7 @@ export const fetchUserPurchase = createAsyncThunk("purchaseSlice/fetchUserPurcha
                 .order("created_at", { ascending: false });
 
             if (status) {
-                query = query.eq("status", status);
+                query = query.eq("payment_status", status);
             }
             const res = await query;
             // console.log('Response for fetching specific user purchase', res);

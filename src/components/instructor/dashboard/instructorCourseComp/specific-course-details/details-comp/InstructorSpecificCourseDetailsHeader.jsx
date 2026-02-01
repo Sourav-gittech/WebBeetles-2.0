@@ -3,6 +3,7 @@ import UpdateCourseModal from '../../modal/UpdateCourseModal';
 import DeleteCourseAndLectureModal from '../../modal/DeleteCourseAndLectureModal';
 import { Award, CheckCheck, ChevronRight, Clock, Edit2, Star, Trash2, Users } from 'lucide-react';
 import ConfirmCompleteBlockUnblockModal from '../../modal/ConfirmCompleteBlockUnblockModal';
+import { formatToHHMMSS } from '../../../../../../util/timeFormat/timeFormat';
 
 const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, setSelectedCourse, editForm, setEditForm }) => {
 
@@ -13,7 +14,8 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
     const [markCourse, setMarkCourse] = useState(null);
     const deleteType = 'course', markType = 'complete';
 
-    const totalLectureTiming = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0).toFixed(2);
+    const totalSeconds = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0) || 0;
+    const totalLectureTiming = formatToHHMMSS(totalSeconds);
 
     const canMarkComplete = selectedCourse?.status === "approved" && selectedCourse?.is_completed === false;
 
@@ -41,7 +43,7 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
                         Edit Course
                     </button>
                     <button onClick={() => { setShowDeleteModal(true); setDeletedData({ lectureId: selectedCourse?.id, lectureName: selectedCourse?.title, doc_type: selectedCourse?.type, courseId: null, video_title: null }); }}
-                    disabled={selectedCourse?.status != 'approved'} className={`px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 
+                        disabled={selectedCourse?.status != 'approved'} className={`px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 
                     ${selectedCourse?.status != 'approved' ? 'cursor-not-allowed bg-red-400' : 'cursor-pointer bg-red-600 hover:bg-red-700'}`}>
                         <Trash2 className="w-4 h-4" />
                         Delete

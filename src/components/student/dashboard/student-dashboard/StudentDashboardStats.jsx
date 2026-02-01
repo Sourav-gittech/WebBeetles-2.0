@@ -1,9 +1,42 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BookOpen, TrendingUp, Award, Clock, Target } from "lucide-react";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserPurchase } from '../../../../redux/slice/purchaseSlice';
+import getSweetAlert from '../../../../util/alert/sweetAlert';
 
 const StudentDashboardStats = () => {
 
     const [stats, setStats] = useState({ coursesEnrolled: 0, coursesCompleted: 0, coursePending: 0, certificatesEarned: 0 });
+
+    const dispatch = useDispatch(),
+        { userAuthData } = useSelector(state => state.checkAuth),
+        { isPurchaseLoading, getPurchaseData, hasPurchaseError } = useSelector(state => state.purchase);
+
+    const purchaseItems = getPurchaseData?.flatMap(order => order.purchase_items.map(item => item?.courses)) || [];
+
+    useEffect(() => {
+        if (userAuthData) {
+            dispatch(fetchUserPurchase({ userId: userAuthData?.id }))
+                .then(res => {
+                    // console.log('Response for fetching user profile', res);
+                })
+                .catch((err) => {
+                    console.log("Error occurred", err);
+                    getSweetAlert('Oops...', 'Something went wrong!', 'error');
+                });
+        }
+    }, [userAuthData]);
+
+    useEffect(() => {
+        if (purchaseItems?.length) {
+            setStats({
+                coursesEnrolled: purchaseItems?.length ?? 0,
+                coursesCompleted: 3,
+                coursePending: 47,
+                certificatesEarned: 3,
+            });
+        }
+    }, [getPurchaseData]);
 
     const statCards = [
         { icon: BookOpen, value: stats.coursesEnrolled, label: "Courses Enrolled", color: "purple", trend: "+2" },
