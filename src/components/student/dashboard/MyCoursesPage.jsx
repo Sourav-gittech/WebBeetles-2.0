@@ -22,7 +22,7 @@ const MyCoursesPage = ({ userData }) => {
           // console.log('Response for fetching user profile', res);
         })
         .catch((err) => {
-          console.log("Error occurred", err);
+          // console.log("Error occurred", err);
           getSweetAlert('Oops...', 'Something went wrong!', 'error');
         });
     }
@@ -44,11 +44,11 @@ const MyCoursesPage = ({ userData }) => {
           <p className="text-gray-400">Continue your learning journey</p>
         </div>
 
-        <StudentMyCourseStats />
+        <StudentMyCourseStats purchaseItems={purchaseItems} />
 
-        {purchaseItems?.map(course => (
+        {purchaseItems?.length > 0 ? purchaseItems?.map(course => (
           <CourseCard key={course?.id} course={course} setSelectedCourse={setSelectedCourse} />
-        ))}
+        )) : <p className='text-center py-4'>No course available</p>}
       </div>
     </div>
   );

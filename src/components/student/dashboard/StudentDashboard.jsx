@@ -1,5 +1,4 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import StudentDashboardHeader from "./student-dashboard/StudentDashboardHeader";
 import StudentDashboardStats from "./student-dashboard/StudentDashboardStats";
 import StudentDashboardContinueLearning from "./student-dashboard/StudentDashboardContinueLearning";
@@ -8,9 +7,7 @@ import StudentDashboardDeadlines from "./student-dashboard/StudentDashboardDeadl
 import StudentDashboardWeeklyGoal from "./student-dashboard/StudentDashboardWeeklyGoal";
 import StudentDashboardQuickAction from "./student-dashboard/StudentDashboardQuickAction";
 
-const StudentDashboard = ({studentDetails:getStudentData}) => {
-
-  const dispatch = useDispatch();
+const StudentDashboard = ({ studentDetails: getStudentData }) => {
 
   // console.log('Logged student data', getStudentData);
 

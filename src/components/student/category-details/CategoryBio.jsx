@@ -96,8 +96,6 @@ const CategoryBio = ({ categoryDetails }) => {
                                 </p>
                             </div>
 
-
-
                             <div className="space-y-4">
                                 <h3 className="text-xl sm:text-2xl font-semibold text-purple-500">
                                     Career & Job Scope

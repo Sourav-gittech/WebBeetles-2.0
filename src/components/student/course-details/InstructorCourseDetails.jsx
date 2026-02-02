@@ -43,7 +43,7 @@ const InstructorCourseDetails = ({ courseData: getSpecificCourseData }) => {
     }, [userAuthData]);
 
     const purchasedCourse = getPurchaseData?.filter(order => order.payment_status === "paid")
-                            ?.flatMap(order => order.purchase_items.map(item => item.course_id));
+        ?.flatMap(order => order.purchase_items.map(item => item.course_id));
 
     // Handle add to cart 
     const addToCart = async (course) => {
@@ -74,12 +74,12 @@ const InstructorCourseDetails = ({ courseData: getSpecificCourseData }) => {
                             }
                         })
                         .catch(err => {
-                            console.log('Error occured', err);
+                            // console.log('Error occured', err);
                             getSweetAlert('Oops...', 'Something went wrong!', 'error');
                         })
                 })
                 .catch(err => {
-                    console.log(err);
+                    // console.log(err);
                     getSweetAlert('Oops...', 'Something went wrong!', 'error');
                 })
         }
@@ -152,7 +152,7 @@ const InstructorCourseDetails = ({ courseData: getSpecificCourseData }) => {
                     </div>
                 </>
             )}
-            <ReviewCourse />
+            <ReviewCourse getSpecificCourseData={getSpecificCourseData}/>
         </div>
     );
 };

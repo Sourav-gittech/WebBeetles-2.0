@@ -4,6 +4,8 @@ import DeleteCourseAndLectureModal from '../../modal/DeleteCourseAndLectureModal
 import { Award, CheckCheck, ChevronRight, Clock, Edit2, Star, Trash2, Users } from 'lucide-react';
 import ConfirmCompleteBlockUnblockModal from '../../modal/ConfirmCompleteBlockUnblockModal';
 import { formatToHHMMSS } from '../../../../../../util/timeFormat/timeFormat';
+import CourseRating from '../../../../../student/dashboard/student-myCourse/rating-review/CourseRating';
+import { useCoursePurchases } from '../../../../../../tanstack/query/fetchCoursePurchase';
 
 const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, setSelectedCourse, editForm, setEditForm }) => {
 
@@ -18,6 +20,7 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
     const totalLectureTiming = formatToHHMMSS(totalSeconds);
 
     const canMarkComplete = selectedCourse?.status === "approved" && selectedCourse?.is_completed === false;
+    const { data: students, isLoading: isStudentLoading } = useCoursePurchases(selectedCourse?.id);
 
     return (
         <>
@@ -30,8 +33,8 @@ const InstructorSpecificCourseDetailsHeader = ({ lectureData, selectedCourse, se
                 <div>
                     <h1 className="text-4xl font-bold mb-3">{selectedCourse?.title?.toUpperCase() ?? 'N/A'}</h1>
                     <div className="flex items-center gap-6 text-sm text-gray-400">
-                        <span className="flex items-center gap-2"><Users className="w-4 h-4" />{selectedCourse.students} students</span>
-                        <span className="flex items-center gap-2"><Star className="w-4 h-4" />{selectedCourse.rating} rating</span>
+                        <span className="flex items-center gap-2"><Users className="w-4 h-4" />{students?.length?.toLocaleString() ?? 0} student{students?.length > 1 ? 's' : ''}</span>
+                        <span className="flex items-center gap-2"><Star className="w-4 h-4" /><CourseRating courseId={selectedCourse?.id} /> rating</span>
                         <span className="flex items-center gap-2"><Clock className="w-4 h-4" />{totalLectureTiming}</span>
                     </div>
                 </div>

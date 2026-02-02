@@ -1,15 +1,17 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from 'react-redux';
-import { addReviewRequest } from '../../../../../redux/slice/reviewSlice';
-import { Star } from 'lucide-react';
+import { addReviewRequest, updateReviewRequest } from '../../../../../redux/slice/reviewSlice';
+import { Loader2, Star } from 'lucide-react';
 import getSweetAlert from '../../../../../util/alert/sweetAlert';
-// import { specificCourse } from '../../../../../redux/slice/specificCourseSlice';
+import hotToast from '../../../../../util/alert/hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
-const ReviewForm = ({ getSpecificCourseData, setShowReviewForm}) => {
+const ReviewForm = ({ getSpecificCourseData, authId, setShowReviewForm, reviewFormData, setReviewFormData }) => {
 
-    const [reviewForm, setReviewForm] = useState({ rating: 0, comment: '' }),
-        dispatch = useDispatch(),
+    const dispatch = useDispatch(),
+        queryClient = useQueryClient(),
+        isUpdate = !!reviewFormData?.id,
         { control, register, handleSubmit, reset, formState: { errors } } = useForm({ defaultValues: { rating: 0, comment: "" } }),
         { isReviewPending, getReviewData, isReviewError } = useSelector(state => state.review);
 
@@ -25,39 +27,56 @@ const ReviewForm = ({ getSpecificCourseData, setShowReviewForm}) => {
         </div>
     );
 
-    const getSpecificCourse = (id) => {
-        // dispatch(specificCourse(id))
-        //     .then(res => {
-        //         // console.log('Response for specific course details fetching', res);
-        //     })
-        //     .catch(err => {
-        //         getSweetAlert('Oops...', 'Something went wrong!', 'error');
-        //         console.log("Error occurred", err);
-        //     });
-    }
+    useEffect(() => {
+        if (reviewFormData?.id) {
+            reset({
+                rating: reviewFormData?.rating,
+                comment: reviewFormData?.comment
+            })
+        }
+    }, [reviewFormData]);
 
     const handleSubmitReview = async (data) => {
-        const reviewObj = {
-            rating: Number(data.rating),
-            review: data.comment,
+        const review_obj = {
+            course_id: getSpecificCourseData?.id,
+            category_id: getSpecificCourseData?.category_id,
+            student_id: authId,
+            rating_count: Number(data?.rating),
+            review: data?.comment,
+            helpful: 0,
+            help_voted_user_id: []
         };
-        const id = getSpecificCourseData._id;
 
-        dispatch(addReviewRequest({ reviewObj, id }))
+        const updated_obj = {
+            id: reviewFormData?.id,
+            rating_count: Number(data?.rating),
+            review: data?.comment,
+        }
+
+        dispatch(!isUpdate ? addReviewRequest({ review_obj }) : updateReviewRequest({ review_obj: updated_obj }))
             .then(res => {
-                if (res.meta.requestStatus !== "rejected") {
-                    getSweetAlert("Success...", "Review added successfully", "success");
+                // console.log('Response for adding/updating review', res);
+
+                if (res.meta.requestStatus == "fulfilled") {
                     reset();
                     setShowReviewForm(false);
 
-                    getSpecificCourse(id);
+                    queryClient.invalidateQueries(['course-reviews', getSpecificCourseData?.id]);
+                    if (isUpdate) {
+                        setReviewFormData({ id: null, rating: 0, comment: null });
+                        hotToast("Review updated successfully", "success");
+                    }
+                    else {
+                        hotToast("Review added successfully", "success");
+                    }
+
                 } else {
                     getSweetAlert("Oops...", "Something went wrong!", "error");
                 }
             })
             .catch(err => {
-                getSweetAlert('Oops...', 'Something went wrong!', 'error');
                 console.log("Error occurred", err);
+                getSweetAlert('Oops...', 'Something went wrong!', 'error');
             });
     }
 
@@ -96,16 +115,16 @@ const ReviewForm = ({ getSpecificCourseData, setShowReviewForm}) => {
 
                 {/* Buttons */}
                 <div className="flex gap-3">
-                    <button type="submit"
-                        className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors">
-                        {isReviewPending ? 'Submitting...' : 'Submit Review'}
+                    <button type="submit" disabled={isReviewPending}
+                        className={`px-6 py-3 hover:bg-purple-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors ${!isReviewPending ? 'bg-purple-600 cursor-pointer' : 'bg-purple-700 cursor-not-allowed'}`}>
+                        {isReviewPending && <Loader2 className='w-4 h-4 animate-spin inline' />} Submit Review
                     </button>
 
-                    <button type="button" onClick={() => {
+                    <button type="button" disabled={isReviewPending} onClick={() => {
                         setShowReviewForm(false);
                         reset()
                     }}
-                        className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors">
+                        className={`px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors ${isReviewPending ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                         Cancel
                     </button>
                 </div>

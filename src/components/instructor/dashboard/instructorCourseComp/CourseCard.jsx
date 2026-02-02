@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { useCourseVideos } from '../../../../tanstack/query/fetchLectureVideo';
 import ConfirmCompleteBlockUnblockModal from './modal/ConfirmCompleteBlockUnblockModal';
 import { IndianRupee, Edit2, PlayCircle, Star, Trash2, Users, CircleOff, CircleCheckBig } from 'lucide-react';
+import CourseRating from '../../../student/dashboard/student-myCourse/rating-review/CourseRating';
+import { useCoursePurchases } from '../../../../tanstack/query/fetchCoursePurchase';
 
 const CourseCard = ({ course, setDeletedData, setSelectedCourse, setExpandedSections, setEditForm, setShowEditModal, setShowDeleteModal }) => {
 
     const { isLoading, data: lectureData, error } = useCourseVideos({ courseId: course?.id });
+    const { data: students, isLoading: isStudentLoading } = useCoursePurchases(course?.id);
+
     const [openMarkModal, setOpenMarkModal] = useState(false);
     const [markCourse, setMarkCourse] = useState(null);
     const markType = 'block/unblock';
@@ -40,11 +44,11 @@ const CourseCard = ({ course, setDeletedData, setSelectedCourse, setExpandedSect
                     <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                         <div className="flex items-center gap-2 text-gray-400">
                             <Users className="w-4 h-4" />
-                            <span>{course?.students ?? 0} students</span>
+                            <span>{students?.length?.toLocaleString() ?? 0} student{students?.length > 1 ? 's' : ''}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-400">
                             <Star className="w-4 h-4 text-yellow-400" />
-                            <span>{course?.rating ?? 0.0}</span>
+                            <span><CourseRating courseId={course?.id} /></span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-400">
                             <PlayCircle className="w-4 h-4" />

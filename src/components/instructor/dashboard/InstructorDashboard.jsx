@@ -13,12 +13,14 @@ import InstructorAccountStatus from "./dashboardComp/InstructorAccountStatus";
 import { useDispatch, useSelector } from "react-redux";
 import { allCourse } from '../../../redux/slice/couseSlice';
 import getSweetAlert from "../../../util/alert/sweetAlert";
+import { getInstructorStudentCount } from "../../../function/getStudentCountBasedOnSpecificInstructor";
 
 const InstructorDashboard = ({ instructorDetails }) => {
 
   // console.log('Instructor data', instructorDetails);
 
   const dispatch = useDispatch(),
+    [studentCount, setStudentCount] = useState(0),
     { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state.course);
 
   useEffect(() => {
@@ -27,10 +29,19 @@ const InstructorDashboard = ({ instructorDetails }) => {
         // console.log('Response for fetching instructorwise course', res);
       })
       .catch(err => {
-        console.log('Error occured', err);
+        // console.log('Error occured', err);
         getSweetAlert("Error", "Something went wrong.", "error");
       })
   }, [dispatch]);
+
+  useEffect(() => {
+    const loadStudentCount = async () => {
+      const count = await getInstructorStudentCount(instructorDetails?.id);
+      setStudentCount(count);
+    };
+
+    loadStudentCount();
+  }, [instructorDetails?.id]);
 
   // console.log('Get course details', getCourseData);
 
@@ -62,7 +73,7 @@ const InstructorDashboard = ({ instructorDetails }) => {
 
   const stats = [
     { icon: BookOpen, value: getCourseData?.length ?? 0, label: "Total Courses", color: "purple" },
-    { icon: Users, value: data.stats.totalStudents.toLocaleString(), label: "Total Students", color: "blue" }
+    { icon: Users, value: studentCount?.toLocaleString(), label: "Total Students", color: "blue" }
   ];
 
   const quickActions = [

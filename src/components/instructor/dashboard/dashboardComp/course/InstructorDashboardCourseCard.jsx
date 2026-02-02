@@ -1,10 +1,13 @@
 import React from 'react'
 import { IndianRupee, Eye, Star, Target, TrendingUp, Users } from 'lucide-react'
 import { useCourseVideos } from '../../../../../tanstack/query/fetchLectureVideo';
+import CourseRating from '../../../../student/dashboard/student-myCourse/rating-review/CourseRating';
+import { useCoursePurchases } from '../../../../../tanstack/query/fetchCoursePurchase';
 
 const InstructorDashboardCourseCard = ({ course }) => {
 
     const { isLoading, data: lectureData, error } = useCourseVideos({ courseId: course?.id });
+    const { data: students, isLoading: isStudentLoading } = useCoursePurchases(course?.id);
 
     const totalViews = lectureData?.reduce((acc, cur) => acc + Number(cur?.views || 0), 0);
     const status = (course?.status == 'approved' && course?.is_active) ? 'Published' : (course?.status == 'approved' && !course?.is_active) ? 'Draft' : course?.status == 'pending' ? 'Pending' : 'Rejected';
@@ -20,9 +23,9 @@ const InstructorDashboardCourseCard = ({ course }) => {
                 <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-white text-sm sm:text-base lg:text-lg mb-2 group-hover:text-blue-200 transition-colors line-clamp-2">{course?.title?.length > 30 ? course?.title?.slice(0, 30)?.toUpperCase() + '...' : course?.title?.toUpperCase() ?? 'N/A'}</h3>
                     <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3">
-                        <span className="inline-flex items-center gap-1 bg-blue-500/20 px-2 py-1 rounded-md text-xs text-purple-200 font-medium border border-white/10"><Users size={12} />{course?.students?.toLocaleString() ?? 0}</span>
+                        <span className="inline-flex items-center gap-1 bg-blue-500/20 px-2 py-1 rounded-md text-xs text-purple-200 font-medium border border-white/10"><Users size={12} />{students?.length?.toLocaleString() ?? 0}</span>
                         <span className="inline-flex items-center gap-1 bg-green-500/20 px-2 py-1 rounded-md text-xs text-purple-200 font-medium border border-white/10"><IndianRupee size={12} />{course?.price?.toLocaleString() ?? 0}</span>
-                        <span className="inline-flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-md text-xs text-purple-200 font-medium border border-white/10"><Star size={12} className="text-yellow-400 fill-yellow-400" />{course?.rating ?? 0}</span>
+                        <span className="inline-flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-md text-xs text-purple-200 font-medium border border-white/10"><Star size={12} className="text-yellow-400 fill-yellow-400" /><CourseRating courseId={course?.id} /></span>
                         {/* <span className="inline-flex items-center gap-1 bg-green-500/20 px-2 py-1 rounded-md border border-green-400/30 text-green-300 text-xs font-bold"><TrendingUp size={12} />{course?.trend??0}</span> */}
                     </div>
                     <div className="grid grid-cols-2 gap-2">

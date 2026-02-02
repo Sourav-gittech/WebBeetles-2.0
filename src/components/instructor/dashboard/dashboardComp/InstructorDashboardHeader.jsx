@@ -94,7 +94,7 @@ const InstructorDashboardHeader = ({ instructorDetails }) => {
                 }
             })
             .catch(err => {
-                console.error("Error occurred in uploading photo", err);
+                // console.error("Error occurred in uploading photo", err);
                 getSweetAlert("Oops...", "Something went wrong!", "error");
             })
             .finally(() => {
@@ -126,7 +126,7 @@ const InstructorDashboardHeader = ({ instructorDetails }) => {
                     }
                 })
                 .catch(err => {
-                    console.error("Error occurred in updating bio", err);
+                    // console.error("Error occurred in updating bio", err);
                     getSweetAlert("Oops...", "Something went wrong!", "error");
                 })
         }

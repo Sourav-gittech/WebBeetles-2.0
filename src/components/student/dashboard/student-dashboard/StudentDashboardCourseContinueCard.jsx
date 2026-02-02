@@ -3,14 +3,14 @@ import { Clock, Play, Star, Users } from "lucide-react";
 import { useCourseDetails } from '../../../../tanstack/query/fetchSpecificCourseDetails';
 import { useCourseVideos } from '../../../../tanstack/query/fetchLectureVideo';
 import { formatToHHMMSS } from '../../../../util/timeFormat/timeFormat';
-import { useCourseReviews } from '../../../../tanstack/query/fetchSpecificCourseReview';
 import CourseRating from '../student-myCourse/rating-review/CourseRating';
+import { useCoursePurchases } from '../../../../tanstack/query/fetchCoursePurchase';
 
 const StudentDashboardCourseContinueCard = ({ course }) => {
 
     const { isLoading: isCourseDetailsLoading, data: courseDetails, error: hasCourseDetailsError } = useCourseDetails(course?.id);
     const { isLoading, data: lectureData, error } = useCourseVideos({ courseId: course?.id });
-    const { data: reviews, isLoading: isReviewLoading } = useCourseReviews(course?.id);
+    const { data: students, isLoading: isStudentLoading } = useCoursePurchases(course?.id);
 
     const totalSeconds = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0) || 0;
     const totalLectureTiming = formatToHHMMSS(totalSeconds);
@@ -33,7 +33,7 @@ const StudentDashboardCourseContinueCard = ({ course }) => {
                     <p className="text-sm text-purple-200 mb-3">by {courseDetails?.instructor?.name ?? 'N/A'}</p>
                     <div className="flex flex-wrap items-center gap-3 md:gap-4 text-xs text-purple-200 mb-4">
                         <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-lg"><Star size={14} className="text-yellow-400" fill="currentColor" /><CourseRating courseId={courseDetails?.id} /></span>
-                        <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-lg"><Users size={14} />{10}</span>
+                        <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-lg"><Users size={14} />{students?.length ?? 0}</span>
                         <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-lg"><Clock size={14} />{totalLectureTiming}</span>
                     </div>
                     <div className="space-y-3">

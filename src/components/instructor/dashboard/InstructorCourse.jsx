@@ -9,6 +9,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { allCourse } from '../../../redux/slice/couseSlice';
 import getSweetAlert from '../../../util/alert/sweetAlert';
 import { Loader2 } from 'lucide-react';
+import { getInstructorStudentCount } from '../../../function/getStudentCountBasedOnSpecificInstructor';
+import { getInstructorTotalRevenue } from "../../../function/getTotalRevenueBasedonSpecificInstructor";
+import { getInstructorAverageRating } from "../../../function/getAvgRatingBasedonSpecificInstructor";
 
 const InstructorCourse = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -17,6 +20,10 @@ const InstructorCourse = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [deletedData, setDeletedData] = useState(null);
   const [editForm, setEditForm] = useState(null);
+  const [studentCount, setStudentCount] = useState(0),
+    [totalRevenue, setTotalRevenue] = useState(0),
+    [avgRating, setAvgRating] = useState(0.0);
+
   const deleteType = 'course';
 
   const [courses, setCourses] = useState([
@@ -42,6 +49,33 @@ const InstructorCourse = () => {
       })
   }, [dispatch]);
 
+  useEffect(() => {
+    const loadStudentCount = async () => {
+      const count = await getInstructorStudentCount(userAuthData?.id);
+      setStudentCount(count);
+    };
+
+    loadStudentCount();
+  }, [userAuthData?.id]);
+
+  useEffect(() => {
+    const loadRevenue = async () => {
+      const total = await getInstructorTotalRevenue(userAuthData?.id);
+      setTotalRevenue(total);
+    };
+
+    loadRevenue();
+  }, [userAuthData?.id]);
+
+  useEffect(() => {
+    const loadAvgRating = async () => {
+      const rating = await getInstructorAverageRating(userAuthData?.id);
+      setAvgRating(rating);
+    };
+
+    loadAvgRating();
+  }, [userAuthData?.id]);
+
   // console.log('Get course details', getCourseData);
 
   if (selectedCourse) {
@@ -60,7 +94,7 @@ const InstructorCourse = () => {
         </div>
 
         <div className="grid grid-cols-4 gap-6 mb-8">
-          <StatsCard courses={courses} getCourseData={getCourseData} />
+          <StatsCard courses={courses} getCourseData={getCourseData} studentCount={studentCount} totalRevenue={totalRevenue} avgRating={avgRating} />
         </div>
 
         {isCourseLoading ? (
@@ -74,7 +108,7 @@ const InstructorCourse = () => {
 
       {/* Delete Course Modal */}
       {showDeleteModal && (
-        <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteModal} deletedData={deletedData} deleteType={deleteType} onDeleted={() => setSelectedCourse(null)}/>
+        <DeleteCourseAndLectureModal setShowDeleteLectureModal={setShowDeleteModal} deletedData={deletedData} deleteType={deleteType} onDeleted={() => setSelectedCourse(null)} />
       )}
 
       {/* Edit Course Modal */}

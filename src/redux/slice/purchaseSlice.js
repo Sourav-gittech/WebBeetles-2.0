@@ -53,6 +53,26 @@ export const fetchUserPurchase = createAsyncThunk("purchaseSlice/fetchUserPurcha
     }
 );
 
+// fetch course wise purchase details
+export const fetchCoursePurchase = createAsyncThunk("purchaseSlice/fetchCoursePurchase",
+    async ({ courseId }, { rejectWithValue }) => {
+        // console.log('Received data for fetching specific user course', userId, status);
+
+        try {
+            const res = await supabase.from("purchase_items").select(`*,students (*)`).eq("course_id", courseId)
+                .order("created_at", { ascending: false });
+
+            // console.log('Response for fetching specific course purchase', res);
+
+            if (res?.error) throw res?.error;
+
+            return res?.data;
+        } catch (err) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 const initialState = {
     isPurchaseLoading: false,
     getPurchaseData: [],
@@ -99,6 +119,19 @@ export const purchaseSlice = createSlice({
                 state.getPurchaseData = action.payload;
             })
             .addCase(fetchUserPurchase.rejected, (state, action) => {
+                state.isPurchaseLoading = false;
+                state.hasPurchaseError = action.payload;
+            })
+            
+            // fetch course order
+            .addCase(fetchCoursePurchase.pending, state => {
+                state.isPurchaseLoading = true;
+            })
+            .addCase(fetchCoursePurchase.fulfilled, (state, action) => {
+                state.isPurchaseLoading = false;
+                state.getPurchaseData = action.payload;
+            })
+            .addCase(fetchCoursePurchase.rejected, (state, action) => {
                 state.isPurchaseLoading = false;
                 state.hasPurchaseError = action.payload;
             });

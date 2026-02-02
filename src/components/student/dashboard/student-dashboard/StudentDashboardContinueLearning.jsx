@@ -36,10 +36,11 @@ const StudentDashboardContinueLearning = () => {
                 text-sm flex items-center gap-1 bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition-all border border-white/20">View All<ArrowRight size={16} /></button>
             </div>
             <div className="space-y-5">
-                {purchaseItems?.slice(0, 3)?.map(course => (
-                    <StudentDashboardCourseContinueCard key={course?.id} course={course} />
-                )
-                )}
+                {purchaseItems?.length > 0 ?
+                    purchaseItems?.slice(0, 3)?.map(course => (
+                        <StudentDashboardCourseContinueCard key={course?.id} course={course} />
+                    )
+                    ) : 'No course available'}
             </div>
         </div>
     )

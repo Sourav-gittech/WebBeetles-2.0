@@ -1,24 +1,26 @@
 import React from 'react'
-import { calculateRating } from '../../../../../function/getRating';
 import { getStarCount } from '../../../../../function/getStarCount';
 import { Star, Stars } from 'lucide-react';
+import CourseRating from '../rating-review/CourseRating';
 
-const CourseReview = ({getSpecificCourseData}) => {
-    
+const CourseReview = ({ getSpecificCourseData, selectedCourse, review }) => {
+
     return (
         <div className="bg-gray-900 rounded-xl p-8 mb-8 border border-gray-800">
             <div className="flex items-start gap-8">
                 <div className="text-center">
-                    <div className="text-5xl font-bold mb-2">{calculateRating(getSpecificCourseData)}</div>
-                    <Stars rating={Math.round(calculateRating(getSpecificCourseData))} />
+
+                    <span className="text-5xl font-bold mb-2">
+                        <Stars className='h-6 w-6 text-yellow-400' />{" "}
+                        <CourseRating courseId={selectedCourse?.id} />
+                    </span>
+
                     <div className="text-sm text-gray-400 mt-2">Course Rating</div>
                 </div>
                 <div className="flex-1 space-y-2">
                     {[5, 4, 3, 2, 1].map((star) => {
-                        const counts = getStarCount()[0];
-                        // console.log(counts);
-
-                        const percentage = getStarCount()[1] != 0 ? (counts[star] / getStarCount()[1]) * 100 : 0;
+                        const counts = getStarCount(review)[0];
+                        const percentage = getStarCount(review)[1] != 0 ? (counts[star] / getStarCount(review)[1]) * 100 : 0;
                         return (
                             <div key={star} className="flex items-center gap-3">
                                 <div className="flex items-center gap-1 w-20">
