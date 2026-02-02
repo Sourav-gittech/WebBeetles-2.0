@@ -13,6 +13,7 @@ import promocodeSliceReducer from "../slice/promocodeSlice";
 import cartSliceReducer from "../slice/cartSlice";
 import purchaseSliceReducer from "../slice/purchaseSlice";
 import paymentSliceReducer from "../slice/paymentSlice";
+import activitySliceReducer from "../slice/activitySlice";
 
 const store = configureStore({
     reducer: {
@@ -29,7 +30,8 @@ const store = configureStore({
         promocode: promocodeSliceReducer,
         purchase: purchaseSliceReducer,
         query: contactAuthSliceReducer,
-        payment:paymentSliceReducer
+        payment: paymentSliceReducer,
+        activity: activitySliceReducer
     }
 });
 

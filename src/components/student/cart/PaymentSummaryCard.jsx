@@ -8,9 +8,11 @@ import { deleteCart } from '../../../redux/slice/cartSlice';
 import { updateCoursePurchaseStatus } from '../../../redux/slice/studentSlice';
 import { loadRazorpay } from '../../../util/razorpay/razorpayLoader';
 import { useDispatch } from 'react-redux';
+import { addActivityRequest } from '../../../redux/slice/activitySlice';
 
 const PaymentSummaryCard = ({
     cartId, cartItems, userAuthData, allCharges, promoCodes, subtotal, tax, total, discountAmount, discount, setDiscount }) => {
+    console.log(cartItems);
 
     const [promoCode, setPromoCode] = useState('');
     const [agreeTerms, setAgreeTerms] = useState(false);
@@ -66,6 +68,20 @@ const PaymentSummaryCard = ({
 
             await dispatch(deleteCart(cartId));
             await dispatch(updateCoursePurchaseStatus({ id: userAuthData.id }));
+
+            for (const item of cartItems) {
+                await dispatch(addActivityRequest({
+                    activity: {
+                        course_id: item.course_id,
+                        instructor_id: item.courses.instructor_id,
+                        student_id: userAuthData.id,
+                        title: "New Enrollment",
+                        message: `A student enrolled in ${item.courses.title}`,
+                        status: "success",
+                        viewer_type: "all"
+                    }
+                }));
+            }
 
             navigate("/student/dashboard");
 
