@@ -138,7 +138,7 @@ const InstructorDashboard = ({ instructorDetails }) => {
             <InstructorUpcommingTasks tasks={data.tasks} />
 
             {/* MONTHLY */}
-            <InstructorThisMonthsStats monthly={data.monthly} />
+            <InstructorThisMonthsStats instructorDetails={instructorDetails} />
 
             {/* QUICK ACTIONS */}
             <InstructorQuickLinks quickActions={quickActions} />
