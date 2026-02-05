@@ -32,7 +32,7 @@ const MyCoursesPage = ({ userData }) => {
 
   if (selectedCourse) {
     return (
-      <ActiveCourse setSelectedCourse={setSelectedCourse} selectedCourse={selectedCourse} />
+      <ActiveCourse setSelectedCourse={setSelectedCourse} selectedCourse={selectedCourse} getPurchaseData={getPurchaseData} />
     )
   }
 

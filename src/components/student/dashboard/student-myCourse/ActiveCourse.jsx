@@ -10,7 +10,7 @@ import { useCourseDetails } from '../../../../tanstack/query/fetchSpecificCourse
 import { useCourseReviews } from '../../../../tanstack/query/fetchSpecificCourseReview';
 import { useSelector } from 'react-redux';
 
-const ActiveCourse = ({ setSelectedCourse, selectedCourse }) => {
+const ActiveCourse = ({ setSelectedCourse, selectedCourse, getPurchaseData }) => {
 
     const [activeTab, setActiveTab] = useState('content');
     const [showReviewForm, setShowReviewForm] = useState(false);
@@ -79,7 +79,7 @@ const ActiveCourse = ({ setSelectedCourse, selectedCourse }) => {
                 {activeTab === 'content' && (
                     <div className="space-y-4">
                         <h2 className="text-2xl font-bold mb-6">Course Content</h2>
-                        <CourseContent getSpecificCourseData={lectureData} userAuthData={userAuthData} />
+                        <CourseContent getSpecificCourseData={lectureData} userAuthData={userAuthData} selectedCourse={courseDetails} getPurchaseData={getPurchaseData} />
                     </div>
                 )}
 

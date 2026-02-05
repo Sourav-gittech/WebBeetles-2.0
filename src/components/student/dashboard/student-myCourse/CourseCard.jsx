@@ -17,6 +17,21 @@ const CourseCard = ({ course, setSelectedCourse, userData }) => {
 
     const completedCourse = progressData?.filter(course => course?.completed);
 
+    const watchedSeconds = progressData?.reduce((acc, v) => acc + Math.min(v.watched_seconds || 0, v.total_seconds || 0), 0) || 0;
+
+    const calculateCourseProgress = () => {
+        if (!totalSeconds) return 0;
+
+        const raw = (watchedSeconds / totalSeconds) * 100;
+        if (raw >= 100) {
+            if (!courseDetails?.is_completed) return 99;
+            return 100;
+        }
+        return Math.floor(raw);
+    };
+
+    const progressPercent = calculateCourseProgress();
+
     // console.log('Course details', course, courseDetails);
     // console.log('Course progress details', progressData);
 
@@ -46,10 +61,10 @@ const CourseCard = ({ course, setSelectedCourse, userData }) => {
                 <div className="mb-4">
                     <div className="flex justify-between text-sm mb-2">
                         <span className="text-gray-400">Progress</span>
-                        <span className="font-semibold text-purple-400">70%</span>
+                        <span className="font-semibold text-purple-400">{progressPercent}%</span>
                     </div>
                     <div className="w-full bg-gray-800 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all" style={{ width: `70%` }} />
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all" style={{ width: `${progressPercent}%` }} />
                     </div>
                 </div>
                 <button onClick={() => setSelectedCourse(course)} className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer">

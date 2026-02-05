@@ -19,6 +19,21 @@ const StudentDashboardCourseContinueCard = ({ course, userAuthData }) => {
 
     const completedCourse = progressData?.filter(course => course?.completed);
 
+    const watchedSeconds = progressData?.reduce((acc, v) => acc + Math.min(v.watched_seconds || 0, v.total_seconds || 0), 0) || 0;
+
+    const calculateCourseProgress = () => {
+        if (!totalSeconds) return 0;
+
+        const raw = (watchedSeconds / totalSeconds) * 100;
+        if (raw >= 100) {
+            if (!courseDetails?.is_completed) return 99;
+            return 100;
+        }
+        return Math.floor(raw);
+    };
+
+    const progressPercent = calculateCourseProgress();
+
     // console.log('Course details',courseDetails);
 
     return (
@@ -43,10 +58,10 @@ const StudentDashboardCourseContinueCard = ({ course, userAuthData }) => {
                     <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-purple-200">Progress: {completedCourse?.length ?? 0}/{lectureData?.length ?? 0} lessons</span>
-                            <span className="font-bold text-white bg-white/20 px-3 py-1 rounded-lg">70%</span>
+                            <span className="font-bold text-white bg-white/20 px-3 py-1 rounded-lg">{progressPercent}%</span>
                         </div>
                         <div className="h-3 bg-white/20 rounded-full overflow-hidden shadow-inner">
-                            <div className="h-full bg-gradient-to-r from-purple-400 via-pink-500 to-purple-500 rounded-full transition-all duration-500 shadow-lg" style={{ width: `70%` }} />
+                            <div className="h-full bg-gradient-to-r from-purple-400 via-pink-500 to-purple-500 rounded-full transition-all duration-500 shadow-lg" style={{ width: `${progressPercent}%` }} />
                         </div>
                         <p className="text-xs text-purple-200 flex items-center gap-2">
                             <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>Category: <span className="font-semibold text-white">{courseDetails?.category?.name ?? 'N/A'}</span>
