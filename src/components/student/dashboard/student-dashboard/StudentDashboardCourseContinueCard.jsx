@@ -5,15 +5,19 @@ import { useCourseVideos } from '../../../../tanstack/query/fetchLectureVideo';
 import { formatToHHMMSS } from '../../../../util/timeFormat/timeFormat';
 import CourseRating from '../student-myCourse/rating-review/CourseRating';
 import { useCoursePurchases } from '../../../../tanstack/query/fetchCoursePurchase';
+import { useLectureProgress } from '../../../../tanstack/query/fetchVideoProgressDetails';
 
-const StudentDashboardCourseContinueCard = ({ course }) => {
+const StudentDashboardCourseContinueCard = ({ course, userAuthData }) => {
 
     const { isLoading: isCourseDetailsLoading, data: courseDetails, error: hasCourseDetailsError } = useCourseDetails(course?.id);
     const { isLoading, data: lectureData, error } = useCourseVideos({ courseId: course?.id });
     const { data: students, isLoading: isStudentLoading } = useCoursePurchases(course?.id);
+    const { isLoading: isCourseProgressLoading, data: progressData, error: hasCourseProgressError } = useLectureProgress({ student_id: userAuthData?.id, course_id: course?.id });
 
     const totalSeconds = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0) || 0;
     const totalLectureTiming = formatToHHMMSS(totalSeconds);
+
+    const completedCourse = progressData?.filter(course => course?.completed);
 
     // console.log('Course details',courseDetails);
 
@@ -38,7 +42,7 @@ const StudentDashboardCourseContinueCard = ({ course }) => {
                     </div>
                     <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
-                            <span className="text-purple-200">Progress: 10/{lectureData?.length ?? 0} lessons</span>
+                            <span className="text-purple-200">Progress: {completedCourse?.length ?? 0}/{lectureData?.length ?? 0} lessons</span>
                             <span className="font-bold text-white bg-white/20 px-3 py-1 rounded-lg">70%</span>
                         </div>
                         <div className="h-3 bg-white/20 rounded-full overflow-hidden shadow-inner">

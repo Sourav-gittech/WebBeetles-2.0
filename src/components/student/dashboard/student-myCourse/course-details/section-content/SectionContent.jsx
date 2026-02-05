@@ -2,8 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Lock } from 'lucide-react';
 import LessonItem from './lesson-item/LessonItem';
 import { formatToHHMMSS } from '../../../../../../util/timeFormat/timeFormat';
+import { useLectureProgress } from '../../../../../../tanstack/query/fetchVideoProgressDetails';
 
-const SectionContent = ({ section, getSpecificCourseData }) => {
+const SectionContent = ({ section, getSpecificCourseData, userAuthData }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const sectionLectures = useMemo(() => {
@@ -15,8 +16,14 @@ const SectionContent = ({ section, getSpecificCourseData }) => {
 
     }, [getSpecificCourseData, section.type]);
 
+    const { isLoading, data: progressData, error } = useLectureProgress({ student_id: userAuthData?.id, course_id: getSpecificCourseData?.[0]?.course_id, type: section.type });
+
     const totalSeconds = sectionLectures?.reduce((acc, value) => acc + Number(value?.duration || 0), 0) || 0;
     const totalLectureTiming = formatToHHMMSS(totalSeconds);
+
+    const completedLecture = progressData?.filter(lecture => lecture?.completed);
+
+    // console.log('Lecture progress details', progressData);
 
     return (
         <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
@@ -51,14 +58,14 @@ const SectionContent = ({ section, getSpecificCourseData }) => {
                     </div>
                 </div>
                 {section?.type != 'exam' && (
-                    <div className="text-sm text-gray-400"> 1/{sectionLectures?.length} completed </div>
+                    <div className="text-sm text-gray-400"> {completedLecture?.length ?? 0}/{sectionLectures?.length} completed </div>
                 )}
             </button>
 
             {isExpanded && (
                 <div className="border-t border-gray-800">
                     {sectionLectures?.map((lesson, index) => (
-                        <LessonItem key={lesson.id ?? index} lesson={lesson} />
+                        <LessonItem key={lesson.id ?? index} lesson={lesson} userAuthData={userAuthData} type={section?.type} />
                     ))}
                 </div>
             )}

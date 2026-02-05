@@ -38,7 +38,7 @@ const StudentDashboardContinueLearning = () => {
             <div className="space-y-5">
                 {purchaseItems?.length > 0 ?
                     purchaseItems?.slice(0, 3)?.map(course => (
-                        <StudentDashboardCourseContinueCard key={course?.id} course={course} />
+                        <StudentDashboardCourseContinueCard key={course?.id} course={course} userAuthData={userAuthData} />
                     )
                     ) : 'No course available'}
             </div>

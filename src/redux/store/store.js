@@ -14,6 +14,7 @@ import cartSliceReducer from "../slice/cartSlice";
 import purchaseSliceReducer from "../slice/purchaseSlice";
 import paymentSliceReducer from "../slice/paymentSlice";
 import activitySliceReducer from "../slice/activitySlice";
+import videoProgressSliceReducer from "../slice/videoProgressSlice";
 
 const store = configureStore({
     reducer: {
@@ -31,7 +32,8 @@ const store = configureStore({
         purchase: purchaseSliceReducer,
         query: contactAuthSliceReducer,
         payment: paymentSliceReducer,
-        activity: activitySliceReducer
+        activity: activitySliceReducer,
+        lectureProgress: videoProgressSliceReducer
     }
 });
 

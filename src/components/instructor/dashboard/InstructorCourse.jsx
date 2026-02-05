@@ -14,6 +14,7 @@ import { getInstructorTotalRevenue } from "../../../function/getTotalRevenueBase
 import { getInstructorAverageRating } from "../../../function/getAvgRatingBasedonSpecificInstructor";
 
 const InstructorCourse = () => {
+  
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [expandedSections, setExpandedSections] = useState({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);

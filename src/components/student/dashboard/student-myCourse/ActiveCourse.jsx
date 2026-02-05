@@ -63,7 +63,7 @@ const ActiveCourse = ({ setSelectedCourse, selectedCourse }) => {
                         <span>Back to My Courses</span>
                     </button>
 
-                    <CourseDetails selectedCourse={courseDetails} lectureData={lectureData} />
+                    <CourseDetails selectedCourse={courseDetails} lectureData={lectureData} userAuthData={userAuthData} />
                 </div>
 
                 <div className="flex gap-6 border-b border-gray-800 mb-8">
@@ -79,7 +79,7 @@ const ActiveCourse = ({ setSelectedCourse, selectedCourse }) => {
                 {activeTab === 'content' && (
                     <div className="space-y-4">
                         <h2 className="text-2xl font-bold mb-6">Course Content</h2>
-                        <CourseContent getSpecificCourseData={lectureData} />
+                        <CourseContent getSpecificCourseData={lectureData} userAuthData={userAuthData} />
                     </div>
                 )}
 

@@ -20,12 +20,13 @@ export const addActivityRequest = createAsyncThunk("activitySlice/addActivity",
 
 // fetch activity 
 export const fetchActivityRequest = createAsyncThunk("activitySlice/fetchActivity",
+
     async ({ viewer_type, instructor_id, student_id } = {}, { rejectWithValue }) => {
 
         try {
             let query = supabase.from("activity").select("*").order("created_at", { ascending: false });
 
-            if (viewer_type) {
+            if (viewer_type && viewer_type !== "all") {
                 query = query.eq("viewer_type", viewer_type);
             }
 
@@ -38,7 +39,7 @@ export const fetchActivityRequest = createAsyncThunk("activitySlice/fetchActivit
             }
 
             const res = await query;
-            console.log('Response for fetching activity', res);
+            console.log('Response for fetching activity details', res);
 
             if (res?.error) throw res?.error;
 

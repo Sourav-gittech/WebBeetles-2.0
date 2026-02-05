@@ -4,15 +4,21 @@ import { useCourseDetails } from '../../../../tanstack/query/fetchSpecificCourse
 import CourseRating from './rating-review/CourseRating';
 import { useCourseVideos } from '../../../../tanstack/query/fetchLectureVideo';
 import { formatToHHMMSS } from '../../../../util/timeFormat/timeFormat';
+import { useLectureProgress } from '../../../../tanstack/query/fetchVideoProgressDetails';
 
-const CourseCard = ({ course, setSelectedCourse }) => {
+const CourseCard = ({ course, setSelectedCourse, userData }) => {
 
     const { isLoading: isCourseDetailsLoading, data: courseDetails, error: hasCourseDetailsError } = useCourseDetails(course?.id);
     const { isLoading, data: lectureData, error } = useCourseVideos({ courseId: course?.id });
+    const { isLoading: isCourseProgressLoading, data: progressData, error: hasCourseProgressError } = useLectureProgress({ student_id: userData?.id, course_id: course?.id });
+
     const totalSeconds = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0) || 0;
     const totalLectureTiming = formatToHHMMSS(totalSeconds);
 
+    const completedCourse = progressData?.filter(course => course?.completed);
+
     // console.log('Course details', course, courseDetails);
+    // console.log('Course progress details', progressData);
 
     return (
         <div className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-purple-600 transition-all group">
@@ -35,7 +41,7 @@ const CourseCard = ({ course, setSelectedCourse }) => {
                         <span><CourseRating courseId={course?.id} /></span>
                     </div>
                     <span className="text-gray-600">|</span>
-                    <span className="text-gray-400">10/{lectureData?.length ?? 0} completed</span>
+                    <span className="text-gray-400">{completedCourse?.length ?? 0}/{lectureData?.length ?? 0} completed</span>
                 </div>
                 <div className="mb-4">
                     <div className="flex justify-between text-sm mb-2">

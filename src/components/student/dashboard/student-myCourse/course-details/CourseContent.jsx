@@ -1,7 +1,7 @@
 import React from 'react';
 import SectionContent from './section-content/SectionContent';
 
-const CourseContent = ({ getSpecificCourseData }) => {
+const CourseContent = ({ getSpecificCourseData, userAuthData }) => {
 
   const courseSection = [
     { id: 1, title: 'Demo lecture video', type: 'demo' },
@@ -27,7 +27,7 @@ const CourseContent = ({ getSpecificCourseData }) => {
   return (
     <>
       {courseSection.map(section => (
-        <SectionContent key={section.id} section={section} getSpecificCourseData={specificLecture(section.type)} />
+        <SectionContent key={section.id} section={section} getSpecificCourseData={specificLecture(section.type)} userAuthData={userAuthData} />
       ))}
     </>
   );

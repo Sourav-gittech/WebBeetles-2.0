@@ -47,7 +47,7 @@ const MyCoursesPage = ({ userData }) => {
         <StudentMyCourseStats purchaseItems={purchaseItems} />
 
         {purchaseItems?.length > 0 ? purchaseItems?.map(course => (
-          <CourseCard key={course?.id} course={course} setSelectedCourse={setSelectedCourse} />
+          <CourseCard key={course?.id} course={course} setSelectedCourse={setSelectedCourse} userData={userData} />
         )) : <p className='text-center py-4'>No course available</p>}
       </div>
     </div>

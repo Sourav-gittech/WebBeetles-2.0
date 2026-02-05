@@ -2,11 +2,15 @@ import React from 'react'
 import { formatToHHMMSS } from '../../../../../util/timeFormat/timeFormat';
 import { Award, BookOpen, Clock } from 'lucide-react';
 import CourseRating from '../rating-review/CourseRating';
+import { useLectureProgress } from '../../../../../tanstack/query/fetchVideoProgressDetails';
 
-const CourseDetails = ({ selectedCourse, lectureData }) => {
+const CourseDetails = ({ selectedCourse, lectureData, userAuthData }) => {
+
+    const { isLoading, data: progressData, error } = useLectureProgress({ student_id: userAuthData?.id, course_id: selectedCourse?.id });
 
     const totalSeconds = lectureData?.reduce((acc, value) => acc + Number(value?.duration || 0), 0) || 0;
     const totalLectureTiming = formatToHHMMSS(totalSeconds);
+    const completedCourse = progressData?.filter(course => course?.completed);
 
     return (
         <div className="flex items-start justify-between mb-6">
@@ -40,7 +44,7 @@ const CourseDetails = ({ selectedCourse, lectureData }) => {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="bg-gray-800 rounded-lg p-3">
                         <div className="text-gray-400 mb-1">Completed</div>
-                        <div className="font-semibold text-lg">10/{lectureData?.length}</div>
+                        <div className="font-semibold text-lg">{completedCourse?.length ?? 0}/{lectureData?.length ?? 0}</div>
                     </div>
                     <div className="bg-gray-800 rounded-lg p-3">
                         <div className="text-gray-400 mb-1">Rating</div>

@@ -96,7 +96,7 @@ const DashboardLayout = ({ currentPage }) => {
         navigate('/course');
         return;
       case 'student-myCourses':
-        return <MyCoursesPage studentData={userAuthData} />;
+        return <MyCoursesPage userData={userAuthData} />;
       case 'allCategory':
         return <AvailableCategory />;
       case 'instructor-dashboard':
