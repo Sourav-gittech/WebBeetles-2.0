@@ -44,7 +44,7 @@ const MyCoursesPage = ({ userData }) => {
           <p className="text-gray-400">Continue your learning journey</p>
         </div>
 
-        <StudentMyCourseStats purchaseItems={purchaseItems} />
+        <StudentMyCourseStats purchaseItems={purchaseItems} userAuthData={userAuthData} />
 
         {purchaseItems?.length > 0 ? purchaseItems?.map(course => (
           <CourseCard key={course?.id} course={course} setSelectedCourse={setSelectedCourse} userData={userData} />
