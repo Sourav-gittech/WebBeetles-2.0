@@ -39,7 +39,7 @@ export const fetchActivityRequest = createAsyncThunk("activitySlice/fetchActivit
             }
 
             const res = await query;
-            console.log('Response for fetching activity details', res);
+            // console.log('Response for fetching activity details', res);
 
             if (res?.error) throw res?.error;
 

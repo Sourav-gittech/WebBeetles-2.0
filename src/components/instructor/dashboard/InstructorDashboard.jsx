@@ -49,20 +49,7 @@ const InstructorDashboard = ({ instructorDetails }) => {
 
 
   const [data, setData] = useState({
-    stats: { totalCourses: 0, totalStudents: 0 }, courses:
-      [
-        { id: 1, title: "Advanced React & Redux Masterclass", students: 1245, revenue: 18675, rating: 4.9, thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400", trend: "+12%", views: 8934, completion: 78 },
-        { id: 2, title: "Full Stack Web Development Bootcamp", students: 892, revenue: 13380, rating: 4.7, thumbnail: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400", trend: "+8%", views: 6721, completion: 65 },
-        { id: 3, title: "UI/UX Design Fundamentals", students: 654, revenue: 9810, rating: 4.8, thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400", trend: "+15%", views: 5432, completion: 82 }
-      ]
-    , activity:
-      [
-        { id: 1, student: "Sarah Johnson", action: "Completed your course", course: "React Masterclass", time: "2h ago", type: "completed" },
-        { id: 2, student: "Mike Chen", action: "Left a 5-star review", course: "Full Stack Bootcamp", time: "5h ago", type: "review" },
-        { id: 3, student: "Emma Davis", action: "Asked a question", course: "UI/UX Design", time: "1d ago", type: "question" },
-        { id: 4, student: "John Smith", action: "Enrolled in your course", course: "React Masterclass", time: "2d ago", type: "enrolled" }
-      ]
-    , tasks:
+    stats: { totalCourses: 0, totalStudents: 0 },  tasks:
       [
         { id: 1, task: "Review Assignment Submissions", course: "React Masterclass", date: "Oct 15, 2025", priority: "high", count: 23 },
         { id: 2, task: "Update Course Content", course: "Full Stack Dev", date: "Oct 18, 2025", priority: "medium", count: 5 },
@@ -128,7 +115,7 @@ const InstructorDashboard = ({ instructorDetails }) => {
             <InstructorMyCourse courses={getCourseData} />
 
             {/* ACTIVITY */}
-            <InstructorRecentActivity activity={data?.activity} />
+            <InstructorRecentActivity instructorDetails={instructorDetails} />
           </div>
 
           {/* RIGHT COL */}

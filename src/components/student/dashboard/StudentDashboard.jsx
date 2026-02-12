@@ -27,7 +27,7 @@ const StudentDashboard = ({ studentDetails: getStudentData }) => {
           <StudentDashboardContinueLearning />
 
           {/* Recent Activity */}
-          <StudentDashboardRecentActivity />
+          <StudentDashboardRecentActivity studentDetails={getStudentData} />
         </div>
 
 
