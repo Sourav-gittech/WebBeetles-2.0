@@ -41,6 +41,19 @@ import InstructorRequestForm from "../pages/instructor/request/form/InstructorRe
 import InstructorRequestStatus from "../pages/instructor/request/status/InstructorRequestStatus";
 
 
+// Admin - Layout
+import AdminLayout from "../layout/admin/AdminLayout";
+
+// Pages - admin
+import AdminSignin from "../Pages/admin/auth/login/AdminSignin";
+import Dashboard from "../Pages/admin/Dashboard";
+import Users from "../Pages/admin/Users";
+import Instructors from "../Pages/admin/Instructors";
+import InstructorReviews from "../Pages/admin/InstructorReviews";
+import ApproveCourses from "../Pages/admin/ApproveCourses";
+import Analytics from "../Pages/admin/Analytics";
+import Settings from "../Pages/admin/Settings";
+
 // Student Layout wrapper (must be used inside Router!)
 const StudentLayout = ({ children }) => {
   const location = useLocation();
@@ -117,6 +130,22 @@ const Routing = () => {
         <Route path="/instructor/profile-form" element={<InstructorRequestForm />} />
         <Route path="/instructor/request-status" element={<InstructorRequestStatus />} />
 
+
+        {/* admin */}
+
+        {/* Pages with Layout */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="users" element={<Users />} />
+          <Route path="instructors" element={<Instructors />} />
+          <Route path="instructor-reviews" element={<InstructorReviews />} />
+          <Route path="approve-courses" element={<ApproveCourses />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+
+        {/* Pages (no navbar/footer) */}
+        <Route path="/admin/signin" element={<AdminSignin />} />
 
         {/* common  */}
 

@@ -11,17 +11,18 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^3.27.0",
-    "@emotion/react": "^11.14.0",
     "@reduxjs/toolkit": "^2.9.0",
     "@supabase/supabase-js": "^2.81.1",
     "@tanstack/react-query": "^5.90.2",
     "axios": "^1.12.2",
+    "chart.js": "^4.5.1",
     "framer-motion": "^12.23.16",
     "gsap": "^3.13.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.544.0",
     "notistack": "^3.0.2",
     "react": "^19.1.1",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.63.0",
     "react-hot-toast": "^2.6.0",
@@ -31,7 +32,8 @@
     "react-router-dom": "^7.9.1",
     "react-toastify": "^11.0.5",
     "sweetalert2": "^11.23.0",
-    "swiper": "^12.0.2"
+    "swiper": "^12.0.2",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
