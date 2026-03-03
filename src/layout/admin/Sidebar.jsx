@@ -16,6 +16,7 @@ import {
     User,
     ClipboardCheck,
     BookOpenCheck,
+    IndianRupee,
 } from "lucide-react";
 
 const NavItem = ({ to, icon: Icon, children, collapsed, onClick, badge }) => (
@@ -104,10 +105,17 @@ export default function Sidebar({ onNavigate }) {
     const navItems = [
         { to: "/admin/dashboard", label: "Dashboard", icon: Home },
         { to: "/admin/users", label: "Users", icon: Users },
+        { to: "/admin/profile", label: "Profile", icon: User },
         { to: "/admin/instructors", label: "Instructors", icon: User },
         { to: "/admin/instructor-reviews", label: "Instructor Reviews", icon: ClipboardCheck, badge: "5" },
-        { to: "/admin/approve-courses", label: "Approve Courses", icon: BookOpenCheck, badge: "8" },
+        { to: "/admin/approve-courses", label: "Courses", icon: BookOpenCheck, badge: "8" },
         { to: "/admin/analytics", label: "Analytics", icon: BarChart2 },
+        { to: "/admin/charge", label: "Charge", icon: IndianRupee },
+        { to: "/admin/category", label: "Category", icon: IndianRupee },
+        { to: "/admin/message", label: "Message", icon: IndianRupee },
+        { to: "/admin/admin", label: "Admin", icon: IndianRupee },
+        { to: "/admin/notification", label: "Notification", icon: IndianRupee },
+        { to: "/admin/examset", label: "Exam set", icon: IndianRupee },
         { to: "/admin/settings", label: "Settings", icon: Settings },
     ];
 

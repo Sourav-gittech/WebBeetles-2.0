@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { FaFacebook, FaInstagram, FaLinkedinIn, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import { Link, useNavigate } from 'react-router-dom'
-import toastifyAlert from '../../../../util/alert/toastify'
+import toastifyAlert from '../../../util/alert/toastify'
 
 const AdminSignin = () => {
 
@@ -84,9 +84,9 @@ const AdminSignin = () => {
                 {errors.password && <p className='text-xs text-red-400 mt-1'>{errors.password?.message}</p>}
               </div>
 
-              <Link to="/forget-password" className="block text-center text-sm lg:text-base text-white hover:text-[#87CEEB] transition-colors">
+              {/* <Link to="/forget-password" className="block text-center text-sm lg:text-base text-white hover:text-[#87CEEB] transition-colors">
                 Forgot your password?
-              </Link>
+              </Link> */}
 
               <button type="submit" disabled={isLoading}
                 className={`w-full py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold text-white transition-colors
@@ -95,7 +95,7 @@ const AdminSignin = () => {
               </button>
             </form>
 
-            <div className="flex items-center gap-4 my-4">
+            {/* <div className="flex items-center gap-4 my-4">
               <hr className="flex-1 border-t border-white/30" />
               <span className="text-white/80 text-sm lg:text-base">OR</span>
               <hr className="flex-1 border-t border-white/30" />
@@ -105,7 +105,7 @@ const AdminSignin = () => {
               <Link to="/signup" className="block w-full text-center border-2 border-[#b97fff] text-[#b97fff] hover:bg-[#b97fff] hover:text-white py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold transition-all">
                 Register
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

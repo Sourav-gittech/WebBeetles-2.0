@@ -45,7 +45,7 @@ import InstructorRequestStatus from "../pages/instructor/request/status/Instruct
 import AdminLayout from "../layout/admin/AdminLayout";
 
 // Pages - admin
-import AdminSignin from "../Pages/admin/auth/login/AdminSignin";
+import AdminSignin from "../pages/admin/auth/AdminSignin";
 import Dashboard from "../Pages/admin/Dashboard";
 import Users from "../Pages/admin/Users";
 import Instructors from "../Pages/admin/Instructors";
@@ -53,6 +53,13 @@ import InstructorReviews from "../Pages/admin/InstructorReviews";
 import ApproveCourses from "../Pages/admin/ApproveCourses";
 import Analytics from "../Pages/admin/Analytics";
 import Settings from "../Pages/admin/Settings";
+import Charges from "../pages/admin/Charges";
+import Contact from "../pages/admin/Contact";
+import AllCategory from "../pages/admin/AllCategory";
+import Notification from "../pages/admin/Notification";
+import Admin from "../pages/admin/Admin";
+import ExamSet from "../pages/admin/ExamSet";
+import AdminProfile from "../pages/admin/AdminProfile";
 
 // Student Layout wrapper (must be used inside Router!)
 const StudentLayout = ({ children }) => {
@@ -141,6 +148,13 @@ const Routing = () => {
           <Route path="instructor-reviews" element={<InstructorReviews />} />
           <Route path="approve-courses" element={<ApproveCourses />} />
           <Route path="analytics" element={<Analytics />} />
+          <Route path="charge" element={<Charges />} />
+          <Route path="category" element={<AllCategory />} />
+          <Route path="admin" element={<Admin />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="notification" element={<Notification />} />
+          <Route path="examset" element={<ExamSet />} />
+          <Route path="profile" element={<AdminProfile />} />
           <Route path="settings" element={<Settings />} />
         </Route>
 
