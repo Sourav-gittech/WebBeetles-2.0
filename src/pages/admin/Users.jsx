@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import { Users as UsersIcon, Search, Filter, Mail, Shield, Calendar, MoreVertical, Eye, Trash2, Ban, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Users as UsersIcon, Search, Filter, Mail, Shield, Calendar, MoreVertical, Eye, Trash2, Ban, X, Loader2 } from "lucide-react";
 import UserHeader from "../../components/admin/user/UserHeader";
 import SummaryStats from "../../components/admin/user/SummaryStats";
 import UserTable from "../../components/admin/user/UserTable";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllStudents } from "../../redux/slice/allStudentSlice";
 
 const USERS = [
     { id: 1, name: "Subhradeep Nath", email: "subhradeep@example.com", joined: "2024-02-20", role: "Student", courses: 5, spent: "₹9,995", status: "Active" },
@@ -15,8 +17,24 @@ const USERS = [
 ];
 
 export default function Users() {
+
+    const dispatch = useDispatch(),
+        { isAllStudentLoading, getAllStudentData, isAllStudentError } = useSelector(state => state.allStudent);
+
+    useEffect(() => {
+        dispatch(fetchAllStudents())
+            .then(res => {
+                // console.log('Response for fetching all students', res);
+            })
+            .catch(err => {
+                console.log('Error occured', err);
+            })
+    }, [dispatch]);
+
     const [search, setSearch] = useState("");
-    const filtered = USERS.filter(u => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()));
+    const filtered = getAllStudentData?.filter(u => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()));
+
+    // console.log('All available students', getAllStudentData);
 
     return (
         <div className="space-y-6">
@@ -24,10 +42,11 @@ export default function Users() {
             <UserHeader search={search} setSearch={setSearch} />
 
             {/* Summary stats */}
-            <SummaryStats />
+            <SummaryStats getAllStudentData={getAllStudentData} />
 
             {/* Table */}
-            <UserTable filtered={filtered} />
+            {isAllStudentLoading ? <Loader2 className="inline animate-spin my-5 mx-50 w-12 h-12" /> :
+                <UserTable filtered={filtered} allStudentData={getAllStudentData} />}
 
         </div>
     );

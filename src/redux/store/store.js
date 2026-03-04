@@ -15,12 +15,14 @@ import purchaseSliceReducer from "../slice/purchaseSlice";
 import paymentSliceReducer from "../slice/paymentSlice";
 import activitySliceReducer from "../slice/activitySlice";
 import videoProgressSliceReducer from "../slice/videoProgressSlice";
+import studentSliceReducer from "../slice/allStudentSlice";
 
 const store = configureStore({
     reducer: {
         checkAuth: checkUserAuthSliceReducer,
         auth: authSliceReducer,
         student: studentProfileSliceReducer,
+        allStudent: studentSliceReducer,
         instructor: instructorSliceReducer,
         category: categorySliceReducer,
         course: courseSliceReducer,

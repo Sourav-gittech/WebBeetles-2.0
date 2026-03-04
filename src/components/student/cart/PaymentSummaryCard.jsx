@@ -12,7 +12,7 @@ import { addActivityRequest } from '../../../redux/slice/activitySlice';
 
 const PaymentSummaryCard = ({
     cartId, cartItems, userAuthData, allCharges, promoCodes, subtotal, tax, total, discountAmount, discount, setDiscount }) => {
-    console.log(cartItems);
+    // console.log(cartItems);
 
     const [promoCode, setPromoCode] = useState('');
     const [agreeTerms, setAgreeTerms] = useState(false);

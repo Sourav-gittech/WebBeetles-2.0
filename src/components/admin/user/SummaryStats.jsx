@@ -1,13 +1,17 @@
 import React from 'react'
+import { useTotalRevenue } from '../../../tanstack/query/fetchTotalRevenue'
 
-const SummaryStats = () => {
+const SummaryStats = ({ getAllStudentData }) => {
+
+    const { isLoading, data } = useTotalRevenue();
+
     return (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-                { label: "Total Students", value: "12,847" },
-                { label: "Active Users", value: "10,921" },
-                { label: "Inactive / Churned", value: "1,926" },
-                { label: "Revenue from Users", value: "₹1.42 Cr" },
+                { label: "Total Students", value: getAllStudentData?.length ?? 0 },
+                { label: "Active Users", value: getAllStudentData?.filter(student => !student?.is_blocked)?.length ?? 0 },
+                { label: "Inactive / Churned", value: getAllStudentData?.filter(student => student?.is_blocked)?.length ?? 0 },
+                { label: "Total Revenue", value: "₹" + (data?.reduce((acc, cur) => acc + cur?.amount, 0)?.toLocaleString()) ?? 0 },
             ].map((s, i) => (
                 <div key={i} className="bg-[#111] p-4 rounded-xl border border-white/5 shadow-xl">
                     <div className="text-xl font-bold text-white">{s.value}</div>
