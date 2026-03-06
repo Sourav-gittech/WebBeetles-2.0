@@ -1,30 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InstructorHeader from "../../components/admin/instructor/InstructorHeader";
 import SummaryStats from "../../components/admin/instructor/SummaryStats";
 import InstructorTable from "../../components/admin/instructor/InstructorTable";
+import { allInstructor } from "../../redux/slice/instructorSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { Loader2 } from "lucide-react";
+import { allCourse } from "../../redux/slice/couseSlice";
+import { useTotalRevenue } from "../../tanstack/query/fetchTotalRevenue";
 
-const INSTRUCTORS = [
-    { id: 1, name: "Dr. Sarah Jenkins", email: "sarah@example.com", joined: "2023-11-10", subject: "Web Development", courses: 14, students: 4280, revenue: "₹2,14,000", rating: 4.9, status: "Active" },
-    { id: 2, name: "Prof. Arthur Pendelton", email: "arthur@example.com", joined: "2023-12-05", subject: "Data Science", courses: 8, students: 2190, revenue: "₹1,09,500", rating: 4.7, status: "Active" },
-    { id: 3, name: "Dr. Elena Rostova", email: "elena@example.com", joined: "2024-01-15", subject: "Design", courses: 3, students: 875, revenue: "₹43,750", rating: 4.5, status: "Suspended" },
-    { id: 4, name: "Michael Chang", email: "michael@example.com", joined: "2024-02-01", subject: "Data Science", courses: 5, students: 1460, revenue: "₹73,000", rating: 4.8, status: "Active" },
-    { id: 5, name: "Jessica Wong", email: "jessica@example.com", joined: "2024-02-12", subject: "Design", courses: 2, students: 560, revenue: "₹28,000", rating: 4.6, status: "Active" },
-];
 
 export default function Instructors() {
+    const dispatch = useDispatch(),
+        { isInstructorLoading, getInstructorData, isInstructorError } = useSelector(state => state?.instructor),
+        { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state?.course),
+        { isLoading: isRevenueLoading, data: revenueData, error: hasRevenueError } = useTotalRevenue();
+
     const [search, setSearch] = useState("");
 
-    const filtered = INSTRUCTORS.filter(i => i.name.toLowerCase().includes(search.toLowerCase()) || i.email.toLowerCase().includes(search.toLowerCase()));
+    const filtered = getInstructorData?.filter(i => i?.name?.toLowerCase()?.includes(search?.toLowerCase()) || i?.email?.toLowerCase()?.includes(search?.toLowerCase()));
+
+    useEffect(() => {
+        dispatch(allInstructor())
+            .then(res => {
+                // console.log('Response for fetching all instructor', res)
+            }).catch(err => {
+                console.log('Error occured', err);
+            })
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(allCourse({ status: 'approved' }))
+            .then(res => {
+                // console.log('Response for fetching all instructor', res)
+            }).catch(err => {
+                console.log('Error occured', err);
+            })
+    }, [dispatch]);
+
+    // console.log('All available instructors', getInstructorData);
 
     return (
         <div className="space-y-6">
             <InstructorHeader search={search} setSearch={setSearch} />
 
             {/* Summary */}
-            <SummaryStats />
+            <SummaryStats isInstructorLoading={isInstructorLoading} getInstructorData={getInstructorData} getCourseData={getCourseData}
+                isCourseLoading={isCourseLoading} isRevenueLoading={isRevenueLoading} revenueData={revenueData} />
 
             {/* Table + Expandable Course Rows */}
-            <InstructorTable filtered={filtered} />
+            {isInstructorLoading ? <Loader2 className="inline animate-spin my-5 mx-50 w-12 h-12" /> :
+                <InstructorTable filtered={filtered} getInstructorData={getInstructorData} />}
         </div>
     );
 }

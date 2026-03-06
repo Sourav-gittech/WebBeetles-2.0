@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../../api/axiosInstance/axiosInstance";
-import { endPoint_allInstructor, endPoint_editInstructorProfile, endPoint_requestInstructor, endPoint_requestInstructorStatus, endPoint_sepeficInstructor } from "../../api/apiUrl/apiUrl";
 import supabase from "../../util/supabase/supabase";
 
 // request instructor action 
@@ -41,40 +39,37 @@ export const instructorRequest = createAsyncThunk('instructorSlice/instructorReq
         return res.data;
     });
 
-
-// request status action 
-export const instructorRequestStatus = createAsyncThunk('instructorSlice/instructorRequestStatus',
-    async (data) => {
-        console.log('Received data in instructor request status slice', data);
-
-        const res = await axiosInstance.post(endPoint_requestInstructorStatus, data);
-        console.log('Response from instructor request status slice', res);
-
-        return res.data;
-    });
-
 // all instructor action 
 export const allInstructor = createAsyncThunk('instructorSlice/allInstructor',
-    async () => {
-        const res = await axiosInstance.get(endPoint_allInstructor);
-        // console.log('Response from all instructor slice', res);
+    async ({ application_status, application_complete, is_blocked } = {}, { rejectWithValue }) => {
+        try {
+            let query = supabase.from("instructors").select("*");
 
-        return res.data;
-    });
+            if (application_status) {
+                query = query.eq("application_status", application_status);
+            }
 
-// specific instructor action 
-export const specificInstructor = createAsyncThunk('instructorSlice/specificInstructor',
-    async (id) => {
-        // console.log('Received data in specific instructor details slice', id);
+            if (application_complete !== undefined) {
+                query = query.eq("application_complete", application_complete);
+            }
 
-        const res = await axiosInstance.get(`${endPoint_sepeficInstructor}/${id}`);
-        // console.log('Response from specific instructor slice', res);
+            if (is_blocked !== undefined) {
+                query = query.eq("is_blocked", is_blocked);
+            }
 
-        return res.data;
+            const res = await query;
+            // console.log('Response for fetching instructors', res);
+
+            if (res?.error) throw res?.error;
+
+            return res?.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
     });
 
 // Update instructor action 
-export const updateInstructor = createAsyncThunk('updateInstructor/specificInstructor',
+export const updateInstructor = createAsyncThunk('instructorSlice/updateInstructor',
     async ({ data, id }, { rejectWithValue, dispatch }) => {
         // console.log('update data', data, ' instructor Id', id);
 
@@ -129,9 +124,26 @@ export const updateInstructor = createAsyncThunk('updateInstructor/specificInstr
     }
 );
 
+// updates `blocked or not`
+export const updateInstructorBlockUnblockStatus = createAsyncThunk("instructorSlice/updateInstructorBlockUnblockStatus",
+    async ({ id, status }, { rejectWithValue }) => {
+        // console.log('update block-unblock status data', id);
+
+        try {
+            const res = await supabase.from("instructors").update({ is_blocked: status }).eq("id", id).select();
+
+            // console.log('Response for updating status', res);
+
+            if (res?.error) return rejectWithValue(res?.error);
+
+            return res?.data;
+        } catch (err) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
 
 const initialState = {
-    isInstructorPending: false,
     isInstructorLoading: false,
     getInstructorData: [],
     isInstructorError: null
@@ -156,21 +168,6 @@ export const instructorSlice = createSlice({
             state.isInstructorError = action.error?.message;
         })
 
-        // instructor request status slice 
-        builder.addCase(instructorRequestStatus.pending, (state, action) => {
-            state.isInstructorLoading = true;
-        })
-        builder.addCase(instructorRequestStatus.fulfilled, (state, action) => {
-            state.isInstructorLoading = false;
-            state.getInstructorData = action.payload;
-            state.isInstructorError = null;
-        })
-        builder.addCase(instructorRequestStatus.rejected, (state, action) => {
-            state.isInstructorLoading = false;
-            state.getInstructorData = [];
-            state.isInstructorError = action.error?.message;
-        })
-
         // all instructor slice 
         builder.addCase(allInstructor.pending, (state, action) => {
             state.isInstructorLoading = true;
@@ -181,21 +178,6 @@ export const instructorSlice = createSlice({
             state.isInstructorError = null;
         })
         builder.addCase(allInstructor.rejected, (state, action) => {
-            state.isInstructorLoading = false;
-            state.getInstructorData = [];
-            state.isInstructorError = action.error?.message;
-        })
-
-        // specific instructor slice 
-        builder.addCase(specificInstructor.pending, (state, action) => {
-            state.isInstructorLoading = true;
-        })
-        builder.addCase(specificInstructor.fulfilled, (state, action) => {
-            state.isInstructorLoading = false;
-            state.getInstructorData = action.payload;
-            state.isInstructorError = null;
-        })
-        builder.addCase(specificInstructor.rejected, (state, action) => {
             state.isInstructorLoading = false;
             state.getInstructorData = [];
             state.isInstructorError = action.error?.message;
@@ -215,6 +197,21 @@ export const instructorSlice = createSlice({
             state.getInstructorData = [];
             state.isInstructorError = action.error?.message;
         })
+
+        // update instructor status slice 
+        builder.addCase(updateInstructorBlockUnblockStatus.pending, (state, action) => {
+            state.isInstructorLoading = true;
+        })
+        builder.addCase(updateInstructorBlockUnblockStatus.fulfilled, (state, action) => {
+            state.isInstructorLoading = false;
+            state.getInstructorData = action.payload;
+            state.isInstructorError = null;
+        })
+        builder.addCase(updateInstructorBlockUnblockStatus.rejected, (state, action) => {
+            state.isInstructorLoading = false;
+            state.getInstructorData = [];
+            state.isInstructorError = action.error?.message;
+        });
 
     }
 })

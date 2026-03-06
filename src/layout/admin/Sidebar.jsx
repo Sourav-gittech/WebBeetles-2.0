@@ -104,7 +104,7 @@ export default function Sidebar({ onNavigate }) {
 
     const navItems = [
         { to: "/admin/dashboard", label: "Dashboard", icon: Home },
-        { to: "/admin/users", label: "Users", icon: Users },
+        { to: "/admin/students", label: "Students", icon: Users },
         { to: "/admin/profile", label: "Profile", icon: User },
         { to: "/admin/instructors", label: "Instructors", icon: User },
         { to: "/admin/instructor-reviews", label: "Instructor Reviews", icon: ClipboardCheck, badge: "5" },

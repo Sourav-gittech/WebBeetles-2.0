@@ -47,7 +47,7 @@ import AdminLayout from "../layout/admin/AdminLayout";
 // Pages - admin
 import AdminSignin from "../pages/admin/auth/AdminSignin";
 import Dashboard from "../Pages/admin/Dashboard";
-import Users from "../Pages/admin/Users";
+import Students from "../pages/admin/Student";
 import Instructors from "../Pages/admin/Instructors";
 import InstructorReviews from "../Pages/admin/InstructorReviews";
 import ApproveCourses from "../Pages/admin/ApproveCourses";
@@ -143,7 +143,7 @@ const Routing = () => {
         {/* Pages with Layout */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="users" element={<Users />} />
+          <Route path="students" element={<Students />} />
           <Route path="instructors" element={<Instructors />} />
           <Route path="instructor-reviews" element={<InstructorReviews />} />
           <Route path="approve-courses" element={<ApproveCourses />} />
