@@ -3,7 +3,7 @@ import React from 'react';
 const ConfirmStatusModal = ({ isLoading, setOpenMarkModal, title, subTitle, handleMark }) => {
 
     return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-150 p-4">
             <div className="bg-gray-900 rounded-xl p-8 max-w-md w-full border border-gray-800">
                 <h2 className="text-2xl font-bold mb-4">{title}</h2>
                 <p className="text-gray-400 mb-6">{subTitle} ?</p>

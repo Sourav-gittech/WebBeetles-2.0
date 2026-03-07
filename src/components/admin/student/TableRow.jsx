@@ -23,7 +23,7 @@ const TableRow = ({ u }) => {
     // console.log("User wise course", data);
 
     const STATUS_COLORS = {
-        Active: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+        Active: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20 px-4",
         Inactive: "bg-red-500/10 text-red-500 border-red-500/20",
     };
 

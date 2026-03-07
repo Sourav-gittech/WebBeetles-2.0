@@ -49,7 +49,7 @@ import AdminSignin from "../pages/admin/auth/AdminSignin";
 import Dashboard from "../Pages/admin/Dashboard";
 import Students from "../pages/admin/Student";
 import Instructors from "../Pages/admin/Instructors";
-import InstructorReviews from "../Pages/admin/InstructorReviews";
+import InstructorReviews from "../pages/admin/InstructorReviews";
 import ApproveCourses from "../Pages/admin/ApproveCourses";
 import Analytics from "../Pages/admin/Analytics";
 import Settings from "../Pages/admin/Settings";

@@ -143,6 +143,25 @@ export const updateInstructorBlockUnblockStatus = createAsyncThunk("instructorSl
     }
 );
 
+// updates `approve status`
+export const updateInstructorApproveRejectStatus = createAsyncThunk("instructorSlice/updateInstructorApproveRejectStatus",
+    async ({ id, status }, { rejectWithValue }) => {
+        // console.log('update block-unblock status data', id);
+
+        try {
+            const res = await supabase.from("instructors").update({ application_status: status }).eq("id", id).select();
+
+            // console.log('Response for updating status', res);
+
+            if (res?.error) return rejectWithValue(res?.error);
+
+            return res?.data;
+        } catch (err) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 const initialState = {
     isInstructorLoading: false,
     getInstructorData: [],
@@ -208,6 +227,21 @@ export const instructorSlice = createSlice({
             state.isInstructorError = null;
         })
         builder.addCase(updateInstructorBlockUnblockStatus.rejected, (state, action) => {
+            state.isInstructorLoading = false;
+            state.getInstructorData = [];
+            state.isInstructorError = action.error?.message;
+        })
+
+        // update instructor access status slice 
+        builder.addCase(updateInstructorApproveRejectStatus.pending, (state, action) => {
+            state.isInstructorLoading = true;
+        })
+        builder.addCase(updateInstructorApproveRejectStatus.fulfilled, (state, action) => {
+            state.isInstructorLoading = false;
+            state.getInstructorData = action.payload;
+            state.isInstructorError = null;
+        })
+        builder.addCase(updateInstructorApproveRejectStatus.rejected, (state, action) => {
             state.isInstructorLoading = false;
             state.getInstructorData = [];
             state.isInstructorError = action.error?.message;

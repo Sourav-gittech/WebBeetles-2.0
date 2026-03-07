@@ -85,7 +85,7 @@ const InstructorRequestStatus = () => {
     }
   };
 
-  const status = statusConfig[requestData?.application_status];
+  const status = statusConfig[requestData?.application_status] || statusConfig["pending"];
 
   return (
     <div className="min-h-screen bg-black p-3 sm:p-4">

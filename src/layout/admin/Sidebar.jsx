@@ -17,7 +17,10 @@ import {
     ClipboardCheck,
     BookOpenCheck,
     IndianRupee,
+    Loader2,
 } from "lucide-react";
+import { allInstructor } from "../../redux/slice/instructorSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const NavItem = ({ to, icon: Icon, children, collapsed, onClick, badge }) => (
     <NavLink
@@ -51,6 +54,10 @@ const NavItem = ({ to, icon: Icon, children, collapsed, onClick, badge }) => (
 );
 
 export default function Sidebar({ onNavigate }) {
+
+    const dispatch = useDispatch(),
+        { isInstructorLoading, getInstructorData, isInstructorError } = useSelector(state => state?.instructor);
+
     const collapsed = useSidebarStore((s) => s.collapsed);
     const toggle = useSidebarStore((s) => s.toggle);
     const navigate = useNavigate();
@@ -102,12 +109,21 @@ export default function Sidebar({ onNavigate }) {
         }
     };
 
+    useEffect(() => {
+        dispatch(allInstructor())
+            .then(res => {
+                // console.log('Response for fetching all instructor', res)
+            }).catch(err => {
+                console.log('Error occured', err);
+            })
+    }, [dispatch]);
+
     const navItems = [
         { to: "/admin/dashboard", label: "Dashboard", icon: Home },
         { to: "/admin/students", label: "Students", icon: Users },
         { to: "/admin/profile", label: "Profile", icon: User },
         { to: "/admin/instructors", label: "Instructors", icon: User },
-        { to: "/admin/instructor-reviews", label: "Instructor Reviews", icon: ClipboardCheck, badge: "5" },
+        { to: "/admin/instructor-reviews", label: "Instructor Reviews", icon: ClipboardCheck, badge: isInstructorLoading ? <Loader2 className="inline h-3 w-3 mb-1" /> : getInstructorData?.filter(inst => inst?.application_status == 'pending' && inst?.application_complete)?.length ?? 0 },
         { to: "/admin/approve-courses", label: "Courses", icon: BookOpenCheck, badge: "8" },
         { to: "/admin/analytics", label: "Analytics", icon: BarChart2 },
         { to: "/admin/charge", label: "Charge", icon: IndianRupee },

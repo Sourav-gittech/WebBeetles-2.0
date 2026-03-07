@@ -23,8 +23,14 @@ const TableRow = ({ inst }) => {
     const { isLoading: isStatsLoading, data: statusData, error: statsError } = useInstructorStats(inst?.id);
 
     const STATUS_COLORS = {
-        Active: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+        Active: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20 px-4",
         Suspended: "bg-red-500/10 text-red-500 border-red-500/20",
+        NA: "bg-purple-500/10 text-purple-500 border-purple-500/20 px-6.5",
+    };
+
+    const APPROVAL_STATUS_COLORS = {
+        approved: "bg-green-500/10 text-green-500 border-green-500/20",
+        rejected: "bg-red-500/10 text-red-500 border-red-500/20 px-3.5",
     };
 
     const handleMark = () => {
@@ -43,13 +49,14 @@ const TableRow = ({ inst }) => {
                 getSweetAlert("Error", `Something went wrong while ${!changeStatus ? 'blocked' : 'unblocked'} the instructor.`, "error");
             })
     }
+    // console.log(getInstructorData);
 
 
     return (
         <>
             <tr className="hover:bg-white/[0.02] transition-colors group text-center">
                 <td className="pl-6 py-4">
-                    <ChevronDown size={16} className={`text-gray-600 transition-transform duration-200 cursor-pointer ${expanded === inst?.id ? "rotate-180" : ""}`} onClick={() => setExpanded(expanded === inst?.id ? null : inst?.id)} />
+                    <ChevronDown size={16} className={`text-gray-600 transition-transform duration-200 ${inst?.application_status === "approved"?'cursor-pointer':'cursor-not-allowed'} ${expanded === inst?.id ? "rotate-180" : ""}`} onClick={() => { if (inst?.application_status === "approved") { setExpanded(expanded === inst?.id ? null : inst?.id) } }} />
                 </td>
                 <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -63,26 +70,30 @@ const TableRow = ({ inst }) => {
                     </div>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-300 font-medium">
-                    <div className="flex items-center gap-1.5"><BookOpen size={13} className="text-purple-400" />{isCourseLoading ? <Loader2 className='w-4 h-4 inline animate-spin' /> : courseData?.length ?? 'N/A'}</div>
+                    <div className="flex items-center gap-1.5"><BookOpen size={13} className="text-purple-400" />{inst?.application_status === "approved" ? (isCourseLoading ? <Loader2 className='w-4 h-4 inline animate-spin' /> : courseData?.length ?? 'N/A') : '0'}</div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-300 font-medium">{isStatsLoading ? <Loader2 className='w-4 h-4 inline animate-spin' /> : statusData?.totalStudents ?? 'N/A'}</td>
-                <td className="px-6 py-4 text-sm text-yellow-500 font-semibold">{"₹" + (isStatsLoading ? <Loader2 className='w-4 h-4 inline animate-spin' /> : statusData?.totalRevenue?.toLocaleString() ?? 'N/A')}</td>
+                <td className="px-6 py-4 text-sm text-gray-300 font-medium">{inst?.application_status === "approved" ? (isStatsLoading ? <Loader2 className='w-4 h-4 inline animate-spin' /> : statusData?.totalStudents ?? 'N/A') : '0'}</td>
+                <td className="px-6 py-4 text-sm text-yellow-500 font-semibold">{"₹" + (inst?.application_status === "approved" ? (isStatsLoading ? <Loader2 className='w-4 h-4 inline animate-spin' /> : statusData?.totalRevenue?.toLocaleString() ?? 'N/A') : '0')}</td>
                 <td className="px-6 py-4">
                     <div className="flex items-center gap-1 text-sm text-gray-300">
-                        {formatDateDDMMYYYYHHMM(inst?.last_login)}
+                        {inst?.application_status === "approved" ? formatDateDDMMYYYYHHMM(inst?.last_login) : 'N/A'}
                     </div>
                 </td>
                 <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${STATUS_COLORS[inst?.is_blocked ? 'Suspended' : 'Active']}`}>{inst?.is_blocked ? 'Blocked' : 'Active'}</span>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${APPROVAL_STATUS_COLORS[inst?.application_status]}`}>{inst?.application_status?.charAt(0)?.toUpperCase() + inst?.application_status?.slice(1)?.toLowerCase()}</span>
                 </td>
                 <td className="px-6 py-4">
-                    <button className={`px-3 py-1 rounded-xl cursor-pointer ${inst?.is_blocked ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:text-green-200 hover:bg-green-500/40 hover:border-green-500/50' :
-                        'bg-red-500/10 text-red-500 border-red-500/20 hover:text-red-200 hover:bg-red-500/40 hover:border-red-500/50'}`} onClick={() => { setOpenMarkModal(true); setInstructorId(inst?.id); setChangeStatus(!inst?.is_blocked); }}>{!inst?.is_blocked ? 'Block' : 'Active'}</button>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${STATUS_COLORS[inst?.application_status === "approved" ? inst?.is_blocked ? 'Suspended' : 'Active' : 'NA']}`}>{inst?.application_status === "approved" ? inst?.is_blocked ? 'Suspended' : 'Active' : 'N/A'}</span>
+                </td>
+                <td className="px-6 py-4">
+                    <button className={`py-1 rounded-xl ${inst?.application_status === "approved" ? inst?.is_blocked ? 'px-4 bg-green-500/10 text-green-500 border-green-500/20 hover:text-green-200 hover:bg-green-500/40 hover:border-green-500/50 cursor-pointer' :
+                        'px-5 bg-red-500/10 text-red-500 border-red-500/20 hover:text-red-200 hover:bg-red-500/40 hover:border-red-500/50 cursor-pointer' : 'px-2 bg-gray-500/10 text-gray-500 border-gray-500/20 cursor-not-allowed'}`} onClick={() => { setOpenMarkModal(true); setInstructorId(inst?.id); setChangeStatus(!inst?.is_blocked); }}>
+                        {inst?.application_status === "approved" ? !inst?.is_blocked ? 'Block' : 'Active' : 'Disabled'}</button>
                 </td>
             </tr>
             {expanded === inst?.id && (
                 <tr className="bg-[#0d0d0d]">
-                    <td colSpan={8} className="px-8 py-4 text-sm">
+                    <td colSpan={12} className="px-8 py-4 text-sm">
                         <div className="mb-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Published Courses by {inst?.name}</div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             {courseData?.slice(0, 3)?.map((course, i) => (

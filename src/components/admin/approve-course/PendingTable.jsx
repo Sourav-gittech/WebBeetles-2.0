@@ -8,17 +8,17 @@ const PendingTable = ({ pending, setPreview, decide }) => {
                 <h2 className="text-sm font-semibold text-white">Pending Review</h2>
                 <span className="text-xs text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded-md border border-yellow-500/20">{pending.length} Awaiting</span>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto h-[330px] overflow-y-auto">
                 <table className="w-full text-left">
                     <thead>
-                        <tr className="border-b border-white/5">
+                        <tr className="border-b border-white/5 text-center">
                             <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Course</th>
                             <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Instructor</th>
                             <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
                             <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Content</th>
                             <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
                             <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Submitted</th>
-                            <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                            <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">

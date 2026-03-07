@@ -6,9 +6,10 @@ const UserTable = ({ filtered, allStudentData }) => {
     return (
         <div className="bg-[#111] rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
             <div className="overflow-x-auto">
+                {filtered?.length > 0 ? (
                 <table className="w-full text-left">
                     <thead>
-                        <tr className="border-b border-white/5 bg-[#151515]">
+                        <tr className="border-b border-white/5 bg-[#151515] text-center">
                             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
                             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
                             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Courses</th>
@@ -25,6 +26,7 @@ const UserTable = ({ filtered, allStudentData }) => {
                         ))}
                     </tbody>
                 </table>
+                ) : <p className='text-center py-2'>No Student available</p>}
             </div>
             <div className="px-6 py-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-500 bg-[#151515]">
                 <div>Showing {filtered?.length ?? 0} of {allStudentData?.length ?? 0} users</div>

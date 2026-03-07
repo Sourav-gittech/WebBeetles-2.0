@@ -3,13 +3,13 @@ import { BookOpen, User, Clock, Check, X, Eye } from "lucide-react";
 
 const PendingTableRow = ({ course, setPreview, decide }) => {
     return (
-        <tr className="hover:bg-white/[0.02] transition-colors group">
+        <tr className="hover:bg-white/[0.02] transition-colors group text-center">
             <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 flex-shrink-0">
                         <BookOpen size={18} />
                     </div>
-                    <p className="text-sm font-semibold text-white group-hover:text-yellow-400 transition-colors max-w-[200px]">{course.title}</p>
+                    <p className="text-sm font-semibold text-white group-hover:text-yellow-400 transition-colors max-w-[200px] text-left">{course.title}</p>
                 </div>
             </td>
             <td className="px-6 py-4 text-sm text-gray-400 font-medium">

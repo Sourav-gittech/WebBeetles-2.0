@@ -21,7 +21,7 @@ const DocumentViewerModal = ({ app, onClose }) =>{
                     <div className="flex items-center gap-3">
                         <button
                             onClick={onClose}
-                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer"
                         >
                             <ChevronLeft size={18} />
                         </button>
@@ -55,7 +55,7 @@ const DocumentViewerModal = ({ app, onClose }) =>{
                         )}
                         <button
                             onClick={onClose}
-                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all ml-2"
+                            className="p-1.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all ml-2 cursor-pointer"
                         >
                             <X size={18} />
                         </button>
