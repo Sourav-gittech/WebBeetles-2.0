@@ -4,21 +4,11 @@ import { formatDateDDMMYYYYHHMM } from '../../../util/dateFormat/dateFormat';
 import { useInstructorCourses } from '../../../tanstack/query/fetchInstructorCourses';
 import { useInstructorStats } from '../../../tanstack/query/fetchInstructorStats';
 import CourseRow from './CourseRow';
-import ConfirmStatusModal from '../common/modal/ConfirmStatusModal';
-import { useDispatch, useSelector } from 'react-redux';
-import { allInstructor, updateInstructorBlockUnblockStatus } from '../../../redux/slice/instructorSlice';
-import hotToast from '../../../util/alert/hot-toast';
-import getSweetAlert from '../../../util/alert/sweetAlert';
 
-const TableRow = ({ inst }) => {
+const TableRow = ({ inst,setOpenMarkModal, setInstructorId, setChangeStatus }) => {
 
     const [expanded, setExpanded] = useState(null);
-    const [openMarkModal, setOpenMarkModal] = useState(false);
-    const [instructorId, setInstructorId] = useState(null);
-    const [changeStatus, setChangeStatus] = useState(null);
 
-    const dispatch = useDispatch();
-    const { isInstructorLoading, getInstructorData, isInstructorError } = useSelector(state => state?.instructor);
     const { isLoading: isCourseLoading, data: courseData, error: courseError } = useInstructorCourses(inst?.id);
     const { isLoading: isStatsLoading, data: statusData, error: statsError } = useInstructorStats(inst?.id);
 
@@ -33,24 +23,7 @@ const TableRow = ({ inst }) => {
         rejected: "bg-red-500/10 text-red-500 border-red-500/20 px-3.5",
     };
 
-    const handleMark = () => {
-        dispatch(updateInstructorBlockUnblockStatus({ id: instructorId, status: changeStatus }))
-            .then(res => {
-                // console.log('Response for updating status', res);
-
-                if (res.meta.requestStatus === "fulfilled") {
-                    dispatch(allInstructor());
-                    hotToast(`Instructor ${changeStatus ? 'blocked' : 'unblocked'} successfully!`, "success");
-                    setOpenMarkModal(false);
-                }
-            })
-            .catch(err => {
-                console.log('Error occured', err);
-                getSweetAlert("Error", `Something went wrong while ${!changeStatus ? 'blocked' : 'unblocked'} the instructor.`, "error");
-            })
-    }
     // console.log(getInstructorData);
-
 
     return (
         <>
@@ -107,11 +80,6 @@ const TableRow = ({ inst }) => {
                         </div>
                     </td>
                 </tr>
-            )}
-
-            {openMarkModal && (
-                <ConfirmStatusModal setOpenMarkModal={setOpenMarkModal} handleMark={handleMark} isLoading={isInstructorLoading}
-                    title={`${!changeStatus ? 'Unblock' : 'Block'} instructor`} subTitle={`Are you sure you want to ${!changeStatus ? 'unblock' : 'block'} the instructor`} />
             )}
         </>
     )

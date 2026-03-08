@@ -3,9 +3,9 @@ import supabase from "../../util/supabase/supabase";
 
 // all course action
 export const allCourse = createAsyncThunk('courseSlice/allCourse',
-    async ({ category_id, instructor_id, is_active, status, is_admin_block, is_deleted = false }, { rejectWithValue }) => {
+    async ({ category_id, instructor_id, is_active, status, is_admin_block, is_deleted = false }= {}, { rejectWithValue }) => {
 
-        let query = supabase.from("courses").select(`id,title,description,price,status,feature,thumbnail,created_at,is_active,is_completed,is_admin_block,
+        let query = supabase.from("courses").select(`id,title,description,price,status,feature,thumbnail,created_at,updated_at,is_active,is_completed,is_admin_block,
                     is_exam_scheduled,category:categories (id,name,description,category_image,status),
                     instructor:instructors (id,name,email,profile_image_url,bio,expertise,social_links,is_verified,application_status)
                     `).eq("is_deleted", is_deleted).order("created_at", { ascending: false });
@@ -122,7 +122,7 @@ export const updateCourseCompletion = createAsyncThunk('courseSlice/updateCourse
 // block/unblock course 
 export const updateCourseBlockUnblock = createAsyncThunk('courseSlice/updateCourseBlockUnblock',
     async ({ id, status }, { rejectWithValue }) => {
-        // console.log('Received data for block-unblock course', id, is_completed);
+        // console.log('Received data for block-unblock course', id, status);
 
         try {
             const res = await supabase.from('courses').update({
@@ -130,6 +130,48 @@ export const updateCourseBlockUnblock = createAsyncThunk('courseSlice/updateCour
                 updated_at: new Date().toISOString()
             }).eq('id', id).select().single();
             // console.log('Response after block-unblock course in slice', res);
+
+            if (res.error) throw res.error;
+
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// admin-block/unblock course 
+export const updateCourseBlockUnblockByAdmin = createAsyncThunk('courseSlice/updateCourseBlockUnblockByAdmin',
+    async ({ id, status }, { rejectWithValue }) => {
+        // console.log('Received data for block-unblock by admin course', id, status);
+
+        try {
+            const res = await supabase.from('courses').update({
+                is_admin_block: status,
+                updated_at: new Date().toISOString()
+            }).eq('id', id).select().single();
+            // console.log('Response after block-unblock by admin course in slice', res);
+
+            if (res.error) throw res.error;
+
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// approve/reject course 
+export const updateCourseApproveReject = createAsyncThunk('courseSlice/updateCourseApproveReject',
+    async ({ id, status }, { rejectWithValue }) => {
+        // console.log('Received data for approve-reject course', id, is_completed);
+
+        try {
+            const res = await supabase.from('courses').update({
+                status: status,
+                updated_at: new Date().toISOString()
+            }).eq('id', id).select().single();
+            // console.log('Response after approve-reject course in slice', res);
 
             if (res.error) throw res.error;
 
@@ -264,6 +306,46 @@ export const courseSlice = createSlice({
                 state.isCourseError = null;
             })
             .addCase(updateCourseBlockUnblock.rejected, (state, action) => {
+                state.isCourseLoading = false;
+                state.isCourseError = action.payload;
+            })
+           
+            // block/unblock-admin
+            .addCase(updateCourseBlockUnblockByAdmin.pending, (state) => {
+                state.isCourseLoading = true;
+            })
+            .addCase(updateCourseBlockUnblockByAdmin.fulfilled, (state, action) => {
+                state.isCourseLoading = false;
+
+                const updatedCourse = action.payload;
+
+                state.getCourseData = state.getCourseData.map(course =>
+                    course.id === updatedCourse.id ? { ...course, is_completed: updatedCourse.is_completed } : course
+                );
+
+                state.isCourseError = null;
+            })
+            .addCase(updateCourseBlockUnblockByAdmin.rejected, (state, action) => {
+                state.isCourseLoading = false;
+                state.isCourseError = action.payload;
+            })
+           
+            // approve/reject
+            .addCase(updateCourseApproveReject.pending, (state) => {
+                state.isCourseLoading = true;
+            })
+            .addCase(updateCourseApproveReject.fulfilled, (state, action) => {
+                state.isCourseLoading = false;
+
+                const updatedCourse = action.payload;
+
+                state.getCourseData = state.getCourseData.map(course =>
+                    course.id === updatedCourse.id ? { ...course, is_completed: updatedCourse.is_completed } : course
+                );
+
+                state.isCourseError = null;
+            })
+            .addCase(updateCourseApproveReject.rejected, (state, action) => {
                 state.isCourseLoading = false;
                 state.isCourseError = action.payload;
             })

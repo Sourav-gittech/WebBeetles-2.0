@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ApproveCourseHeader from "../../components/admin/approve-course/ApproveCourseHeader";
 import ApproveCourseStats from "../../components/admin/approve-course/ApproveCourseStats";
 import PendingTable from "../../components/admin/approve-course/PendingTable";
 import LiveCourseTable from "../../components/admin/approve-course/live-course/LiveCourseTable";
 import PreviewModal from "../../components/admin/approve-course/modal/previewModal";
 import RejectedCourseTable from "../../components/admin/approve-course/reject-course/RejectedCourseTable";
+import { useDispatch, useSelector } from "react-redux";
+import { allCourse, updateCourseApproveReject, updateCourseBlockUnblockByAdmin } from "../../redux/slice/couseSlice";
+import { Loader2 } from "lucide-react";
+import VideoPlayerModal from "../../components/admin/approve-course/modal/VideoPlayerModal";
+import ImageViewerModal from "../../components/admin/approve-course/modal/ImageViewerModal";
+import ConfirmStatusModal from "../../components/admin/common/modal/ConfirmStatusModal";
+import hotToast from "../../util/alert/hot-toast";
+import getSweetAlert from "../../util/alert/sweetAlert";
 
 const PENDING_COURSES = [
     { id: 1, title: "Flutter & Dart Complete Bootcamp", instructor: "Michael Chang", cat: "Development", submitted: "2024-02-25", duration: "18h 45m", modules: 12, price: "₹2,499", lessons: 148, level: "Beginner to Advanced", preview: "Build stunning mobile apps for iOS and Android with Flutter 3.0 and native Dart. Includes real-world e-commerce project build from scratch." },
@@ -28,37 +36,119 @@ const APPROVED_COURSES = [
 
 export default function ApproveCourses() {
 
+    const [search, setSearch] = useState("");
     const [preview, setPreview] = useState(null);
-    const [decisions, setDecisions] = useState({});
+    const [videoModal, setVideoModal] = useState(null);
+    const [videoTitle, setVideoTitle] = useState(null);
+    const [imageModal, setImageModal] = useState(null);
+    const [imageTitle, setImageTitle] = useState(null);
+    const [openMarkModal, setOpenMarkModal] = useState(false);
+    const [courseId, setCourseId] = useState(null);
+    const [changeStatus, setChangeStatus] = useState(null);
+    const [openBlockUnblockModal, setOpenBlockUnblockModal] = useState(false);
+    const [blockUnblockCourseId, setBlockUnblockCourseId] = useState(null);
+    const [blockUnblockChangeStatus, setBlockUnblockChangeStatus] = useState(null);
 
-    const decide = (id, action) => {
-        setDecisions(prev => ({ ...prev, [id]: action }));
-        setPreview(null);
-    };
+    const dispatch = useDispatch(),
+        { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state?.course);
 
-    const pending = PENDING_COURSES.filter(c => !decisions[c.id]);
-    const approved = [...APPROVED_COURSES, ...PENDING_COURSES.filter(c => decisions[c.id] === "approved")];
-    const rejected = PENDING_COURSES.filter(c => decisions[c.id] === "rejected");
+    useEffect(() => {
+        dispatch(allCourse())
+            .then(res => {
+                // console.log('Response for fetching courses', res);
+            })
+            .catch(err => {
+                console.log('Error occured', err);
+            })
+    }, [dispatch]);
+
+    const handleUpdateStatus = () => {
+        dispatch(updateCourseApproveReject({ id: courseId, status: changeStatus }))
+            .then(res => {
+                // console.log('Response for updating status', res);
+
+                if (res.meta.requestStatus === "fulfilled") {
+                    dispatch(allCourse());
+                    hotToast(`Course ${changeStatus} successfully!`, "success");
+                    setOpenMarkModal(false);
+                }
+            })
+            .catch(err => {
+                console.log('Error occured', err);
+                getSweetAlert("Error", `Something went wrong while ${changeStatus} the course.`, "error");
+            })
+    }
+
+    const handleUpdateBlockUnblock = () => {
+        dispatch(updateCourseBlockUnblockByAdmin({ id: blockUnblockCourseId, status: blockUnblockChangeStatus == 'block' }))
+            .then(res => {
+                // console.log('Response for updating status', res);
+
+                if (res.meta.requestStatus === "fulfilled") {
+                    dispatch(allCourse());
+                    hotToast(`Course ${blockUnblockChangeStatus == 'block' ? 'block' : 'unblock'} successfully!`, "success");
+                    setOpenBlockUnblockModal(false);
+                }
+            })
+            .catch(err => {
+                console.log('Error occured', err);
+                getSweetAlert("Error", `Something went wrong while ${!blockUnblockChangeStatus != 'block' ? 'block' : 'unblock'} the course.`, "error");
+            })
+    }
+
+    const pending = getCourseData?.filter(c => c?.status == 'pending');
+    const approved = getCourseData?.filter(c => c?.status == 'approved');
+    const rejected = getCourseData?.filter(c => c?.status == 'rejected');
+
+    const filtered = pending?.filter(i => i?.title?.toLowerCase()?.includes(search?.toLowerCase()));
+
+    // console.log('All available course', approved);
 
     return (
         <div className="space-y-6">
-            <ApproveCourseHeader />
+            <ApproveCourseHeader search={search} setSearch={setSearch} />
 
             {/* Counts */}
-            <ApproveCourseStats pending={pending} approved={approved} rejected={rejected} />
+            <ApproveCourseStats pending={pending} approved={approved} rejected={rejected} isCourseLoading={isCourseLoading} />
 
             {/* Pending Table */}
-            <PendingTable pending={pending} setPreview={setPreview} decide={decide} />
+            {isCourseLoading ? <Loader2 className="inline animate-spin my-5 mx-50 w-12 h-12" /> : 
+                <PendingTable pending={filtered} setPreview={setPreview} setCourseId={setCourseId} setChangeStatus={setChangeStatus}
+                    setOpenMarkModal={setOpenMarkModal} />}
 
             {/* Approved Courses List */}
-            <LiveCourseTable approved={approved} />
-            
+            {isCourseLoading ? <Loader2 className="inline animate-spin my-5 mx-50 w-12 h-12" /> :
+            <LiveCourseTable approved={approved} setOpenBlockUnblockModal={setOpenBlockUnblockModal} setBlockUnblockCourseId={setBlockUnblockCourseId}
+                setBlockUnblockChangeStatus={setBlockUnblockChangeStatus} />}
+
             {/* Rejected Courses List */}
-            <RejectedCourseTable rejected={approved} />
+            {isCourseLoading ? <Loader2 className="inline animate-spin my-5 mx-50 w-12 h-12" /> : <RejectedCourseTable rejected={rejected} />}
 
             {/* Preview Modal */}
             {preview && (
-                <PreviewModal preview={preview} setPreview={setPreview} />
+                <PreviewModal preview={preview} setPreview={setPreview} setVideoModal={setVideoModal} setImageModal={setImageModal}
+                    setVideoTitle={setVideoTitle} setImageTitle={setImageTitle} setCourseId={setCourseId} setChangeStatus={setChangeStatus}
+                    setOpenMarkModal={setOpenMarkModal} />
+            )}
+
+            {/* Video Modal */}
+            {videoModal && (
+                <VideoPlayerModal videoUrl={videoModal} onClose={setVideoModal} setVideoTitle={setVideoTitle} title={videoTitle} />
+            )}
+
+            {/* Thumbnail Modal */}
+            {imageModal && (
+                <ImageViewerModal imageUrl={imageModal} onClose={setImageModal} title={imageTitle} setImageTitle={setImageTitle} />
+            )}
+
+            {openMarkModal && (
+                <ConfirmStatusModal setOpenMarkModal={setOpenMarkModal} handleMark={handleUpdateStatus} isLoading={isCourseLoading}
+                    title={`${changeStatus == 'approved' ? 'Approve' : 'Reject'} Course`} subTitle={`Are you sure you want to ${changeStatus == 'approved' ? 'approve' : 'reject'} the course`} />
+            )}
+
+            {openBlockUnblockModal && (
+                <ConfirmStatusModal setOpenMarkModal={setOpenBlockUnblockModal} handleMark={handleUpdateBlockUnblock} isLoading={isCourseLoading}
+                    title={`${blockUnblockChangeStatus == 'block' ? 'Block' : 'Unblock'} Course`} subTitle={`Are you sure you want to ${blockUnblockChangeStatus == 'block' ? 'block' : 'unblock'} the course`} />
             )}
         </div>
     );

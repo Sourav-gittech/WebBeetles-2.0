@@ -5,13 +5,20 @@ import ApplicationTable from "../../components/admin/instructor-review/Applicati
 import DocumentViewerModal from "../../components/admin/instructor-review/modal/DocumentViewerModal";
 import ProfileModal from "../../components/admin/instructor-review/modal/ProfileModal";
 import { useDispatch, useSelector } from "react-redux";
-import { allInstructor } from "../../redux/slice/instructorSlice";
+import { allInstructor, updateInstructorApproveRejectStatus } from "../../redux/slice/instructorSlice";
+import ConfirmStatusModal from "../../components/admin/common/modal/ConfirmStatusModal";
+import hotToast from "../../util/alert/hot-toast";
+import getSweetAlert from "../../util/alert/sweetAlert";
+import { Loader2 } from "lucide-react";
 
 export default function InstructorReviews() {
 
     const [search, setSearch] = useState("");
     const [modal, setModal] = useState(null);
     const [docViewer, setDocViewer] = useState(null);
+    const [openMarkModal, setOpenMarkModal] = useState(false);
+    const [instructorId, setInstructor] = useState(null);
+    const [changeStatus, setChangeStatus] = useState(null);
 
     const dispatch = useDispatch(),
         { isInstructorLoading, getInstructorData, isInstructorError } = useSelector(state => state?.instructor);
@@ -29,6 +36,23 @@ export default function InstructorReviews() {
             })
     }, [dispatch]);
 
+    const handleUpdateStatus = () => {
+        dispatch(updateInstructorApproveRejectStatus({ id: instructorId, status: changeStatus }))
+            .then(res => {
+                // console.log('Response for updating status', res);
+
+                if (res.meta.requestStatus === "fulfilled") {
+                    dispatch(allInstructor());
+                    hotToast(`Instructor ${changeStatus} successfully!`, "success");
+                    setOpenMarkModal(false);
+                }
+            })
+            .catch(err => {
+                console.log('Error occured', err);
+                getSweetAlert("Error", `Something went wrong while ${changeStatus} the instructor.`, "error");
+            })
+    }
+
     // console.log('Instructor list', pendingRequest);
 
     return (
@@ -39,7 +63,9 @@ export default function InstructorReviews() {
             <StatsCounter isInstructorLoading={isInstructorLoading} getInstructorData={getInstructorData} />
 
             {/* Applications Table */}
-            <ApplicationTable filtered={filtered} setModal={setModal} setDocViewer={setDocViewer} />
+            {isInstructorLoading ? <Loader2 className="inline animate-spin my-5 mx-50 w-12 h-12" /> :
+            <ApplicationTable filtered={filtered} setModal={setModal} setDocViewer={setDocViewer} setOpenMarkModal={setOpenMarkModal} setInstructor={setInstructor}
+                setChangeStatus={setChangeStatus} />}
 
             {/* Profile Modal */}
             {modal && (
@@ -48,6 +74,12 @@ export default function InstructorReviews() {
 
             {/* Document Viewer Modal */}
             {docViewer && <DocumentViewerModal app={docViewer} onClose={() => setDocViewer(null)} />}
+
+            {/* mark complete Course Modal */}
+            {openMarkModal && (
+                <ConfirmStatusModal setOpenMarkModal={setOpenMarkModal} handleMark={handleUpdateStatus} isLoading={isInstructorLoading}
+                    title={`${changeStatus == 'approved' ? 'Approve' : 'Reject'} instructor`} subTitle={`Are you sure you want to ${changeStatus == 'approved' ? 'approve' : 'reject'} the instructor`} />
+            )}
         </div>
     );
 }

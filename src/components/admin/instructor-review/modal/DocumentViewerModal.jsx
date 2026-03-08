@@ -80,7 +80,6 @@ const DocumentViewerModal = ({ app, onClose }) =>{
                             />
                         </>
                     ) : (
-                        // Placeholder — shown until Supabase bucket is connected
                         <div className="flex flex-col items-center justify-center h-full gap-5 px-8 text-center">
                             <div className="w-20 h-20 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
                                 <FileText size={36} className="text-purple-400" />

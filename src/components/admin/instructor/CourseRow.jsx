@@ -1,13 +1,11 @@
 import React from 'react'
 import { BookOpen, Loader2, Star } from 'lucide-react'
 import { useCourseStudents } from '../../../tanstack/query/fetchCourseStudents'
-import { useCourseReviews } from '../../../tanstack/query/fetchSpecificCourseReview';
 import CourseRating from '../../student/dashboard/student-myCourse/rating-review/CourseRating';
 
 const CourseRow = ({ course, i }) => {
 
     const { isLoading: isStudentDataLoading, data: studentData, error: hasStudentDataError } = useCourseStudents(course?.id);
-    const { isLoading, data, error } = useCourseReviews(course?.id);
 
     return (
         <div className="bg-[#161616] rounded-xl p-3 border border-white/5 hover:border-purple-500/20 transition-colors">

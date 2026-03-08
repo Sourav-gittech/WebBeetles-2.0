@@ -1,42 +1,13 @@
 import React, { useState } from 'react'
 import { Eye, Check, X, FileText, Mail, Calendar } from "lucide-react";
 import { formatDateDDMMYYYY } from '../../../util/dateFormat/dateFormat';
-import ConfirmStatusModal from '../common/modal/ConfirmStatusModal';
-import { useDispatch, useSelector } from 'react-redux';
-import { allInstructor, updateInstructorApproveRejectStatus } from '../../../redux/slice/instructorSlice';
-import getSweetAlert from '../../../util/alert/sweetAlert';
-import hotToast from '../../../util/alert/hot-toast';
 
-const ApplicationRow = ({ app, setModal, setDocViewer }) => {
-
-    const [openMarkModal, setOpenMarkModal] = useState(false);
-    const [instructorId, setInstructor] = useState(null);
-    const [changeStatus, setChangeStatus] = useState(null);
-
-    const dispatch = useDispatch(),
-        { isInstructorLoading, getInstructorData, isInstructorError } = useSelector(state => state?.instructor);
+const ApplicationRow = ({ app, setModal, setDocViewer, setOpenMarkModal, setInstructor, setChangeStatus }) => {
 
     const EMAIL_VERIFICATION_COLOR = {
         Verified: "bg-green-500/10 text-green-400 border-green-500/20",
         Failed: "bg-red-500/10 text-red-400 border-red-500/20",
         pending: "bg-purple-500/10 text-purple-400 border-purple-500/20"
-    }
-
-    const handleUpdateStatus = () => {
-        dispatch(updateInstructorApproveRejectStatus({ id: instructorId, status: changeStatus }))
-            .then(res => {
-                // console.log('Response for updating status', res);
-
-                if (res.meta.requestStatus === "fulfilled") {
-                    dispatch(allInstructor());
-                    hotToast(`Instructor ${changeStatus} successfully!`, "success");
-                    setOpenMarkModal(false);
-                }
-            })
-            .catch(err => {
-                console.log('Error occured', err);
-                getSweetAlert("Error", `Something went wrong while ${changeStatus} the instructor.`, "error");
-            })
     }
 
     return (
@@ -129,11 +100,6 @@ const ApplicationRow = ({ app, setModal, setDocViewer }) => {
                 </td>
             </tr>
 
-            {/* mark complete Course Modal */}
-            {openMarkModal && (
-                <ConfirmStatusModal setOpenMarkModal={setOpenMarkModal} handleMark={handleUpdateStatus} isLoading={isInstructorLoading}
-                    title={`${changeStatus == 'approved' ? 'Approve' : 'Reject'} instructor`} subTitle={`Are you sure you want to ${changeStatus == 'approved' ? 'approve' : 'reject'} the instructor`} />
-            )}
         </>
     )
 }

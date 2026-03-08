@@ -62,14 +62,6 @@ const AboutCourseDetails = ({ courseData: getSpecificCourseData }) => {
                     <h3 className="text-xl font-semibold mb-3">Key Points</h3>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                         {
-                            // [
-                            //     "Core principles of human-centered design",
-                            //     "Case studies & practical examples",
-                            //     "Wireframing & prototyping basics",
-                            //     "Usability testing & feedback collection",
-                            //     "Designing across devices",
-                            //     "Applying design critiques & revisions",
-                            // ]
                             getSpecificCourseData?.feature?.map((point, i) => (
                                 <li key={i} className="flex items-center gap-2">
                                     <FaCheckCircle className="text-purple-500" /> {point}
@@ -88,8 +80,7 @@ const AboutCourseDetails = ({ courseData: getSpecificCourseData }) => {
                                 }
                                 className={`flex items-center justify-between w-full px-5 py-3 rounded-xl border transition ${lesson?.isPreview
                                     ? "bg-purple-600 text-white border-purple-600"
-                                    : "bg-gray-900 border-gray-700 text-gray-300 hover:bg-gray-800"
-                                    }`}
+                                    : "bg-gray-900 border-gray-700 text-gray-300 hover:bg-gray-800" }`}
                             >
                                 <span>{lesson?.video_title ?? 'N/A'}</span>
                                 {lesson?.isPreview ? (

@@ -1,7 +1,7 @@
 import React from 'react'
 import TableRow from './TableRow'
 
-const InstructorTable = ({ filtered, getInstructorData }) => {
+const InstructorTable = ({ filtered, setOpenMarkModal, setInstructorId, setChangeStatus }) => {
     return (
         <div className="bg-[#111] rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
             <div className="overflow-x-auto">
@@ -22,7 +22,8 @@ const InstructorTable = ({ filtered, getInstructorData }) => {
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {filtered.map(inst => (
-                                <TableRow key={inst.id} inst={inst} />
+                                <TableRow key={inst.id} inst={inst} setOpenMarkModal={setOpenMarkModal} setInstructorId={setInstructorId}
+                                    setChangeStatus={setChangeStatus} />
                             ))}
                         </tbody>
                     </table>

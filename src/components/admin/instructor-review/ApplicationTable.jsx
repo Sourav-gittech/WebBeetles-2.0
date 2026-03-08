@@ -1,7 +1,7 @@
 import React from 'react'
 import ApplicationRow from './ApplicationRow'
 
-const ApplicationTable = ({ filtered, setModal, setDocViewer }) => {
+const ApplicationTable = ({ filtered, setModal, setDocViewer, setOpenMarkModal, setInstructor, setChangeStatus }) => {
 
     return (
         <div className="bg-[#111] rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
@@ -21,7 +21,8 @@ const ApplicationTable = ({ filtered, setModal, setDocViewer }) => {
 
                         <tbody className="divide-y divide-white/5">
                             {filtered?.map(app => (
-                                <ApplicationRow key={app?.id} app={app} setModal={setModal} setDocViewer={setDocViewer} />
+                                <ApplicationRow key={app?.id} app={app} setModal={setModal} setDocViewer={setDocViewer} setOpenMarkModal={setOpenMarkModal} setInstructor={setInstructor}
+                                    setChangeStatus={setChangeStatus} />
                             ))}
                         </tbody>
                     </table>

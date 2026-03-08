@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react';
 import React from 'react';
 
 const ConfirmStatusModal = ({ isLoading, setOpenMarkModal, title, subTitle, handleMark }) => {
@@ -9,7 +10,7 @@ const ConfirmStatusModal = ({ isLoading, setOpenMarkModal, title, subTitle, hand
                 <p className="text-gray-400 mb-6">{subTitle} ?</p>
                 <div className="flex gap-3">
                     <button disabled={isLoading} onClick={() => handleMark()} className={`flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors ${isLoading ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                        Confirm
+                        {isLoading && <Loader2 className='w-4 h-h inline mb-1 animate-spin' />} Confirm
                     </button>
                     <button disabled={isLoading} onClick={() => setOpenMarkModal(false)} className={`flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors ${isLoading ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                         Cancel
