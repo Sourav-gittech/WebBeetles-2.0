@@ -11,7 +11,7 @@ export const addCharge = createAsyncThunk("chargesSlice/addCharge",
             // console.log('Response for adding new charge', res);
 
             if (res.error) return rejectWithValue(res.error.message);
-            return rea?.data[0];
+            return res?.data[0];
         } catch (err) {
             return rejectWithValue(err.message);
         }
@@ -113,8 +113,8 @@ export const chargesSlice = createSlice({
             })
             .addCase(addCharge.fulfilled, (state, action) => {
                 state.isChargesLoading = false;
-                const { data } = action.payload;
-                state.allCharges.push(data);
+                // const { data } = action.payload;
+                state.allCharges.push(action.payload);
             })
             .addCase(addCharge.rejected, (state, action) => {
                 state.isChargesLoading = false;

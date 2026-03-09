@@ -111,9 +111,9 @@ export const promocodeSlice = createSlice({
                 state.isCodeLoading = true;
             })
             .addCase(addCode.fulfilled, (state, action) => {
-    state.isCodeLoading = false;
-    state.allCode.push(action.payload); 
-})
+                state.isCodeLoading = false;
+                state.allCode.push(action.payload);
+            })
             .addCase(addCode.rejected, (state, action) => {
                 state.isCodeLoading = false;
                 state.hasCodesError = action.payload;
