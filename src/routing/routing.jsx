@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 
 import ScrollToTop from "../layout/scrollonTop";
 
+import useAppSettings from "../tanstack/query/fetchAppSettings";
+import MaintenanceGuard from "../layout/common/MaintenanceGuard";
+
 // student - Layouts
 import StudentNavbar from "../layout/student/StudentNavbar";
 import StudentFooter from "../layout/student/StudentFooter";
@@ -60,6 +63,7 @@ import Notification from "../pages/admin/Notification";
 import Admin from "../pages/admin/Admin";
 import ExamSet from "../pages/admin/ExamSet";
 import AdminProfile from "../pages/admin/AdminProfile";
+import { Loader2 } from "lucide-react";
 
 // Student Layout wrapper (must be used inside Router!)
 const StudentLayout = ({ children }) => {
@@ -96,6 +100,14 @@ const InstructorLayout = ({ children }) => {
 };
 
 const Routing = () => {
+  const { settings, loading } = useAppSettings();
+
+  if (loading) {
+    return <div className="text-white p-10 h-screen"><Loader2 className="w-15 h-15 mx-auto text-center inline animate-spin my-auto" /></div>;
+  }
+
+  const isMaintenance = settings?.maintenance_mode;
+
   return (
     <>
       <ScrollToTop />
@@ -104,38 +116,38 @@ const Routing = () => {
         {/* student  */}
 
         {/* Pages with Layout */}
-        <Route path="/" element={<StudentLayout> <Home /></StudentLayout>} />
-        <Route path="/about" element={<StudentLayout> <AboutUs /></StudentLayout>} />
-        <Route path="/course" element={<StudentLayout> <Course /></StudentLayout>} />
-        <Route path="/course/course-details/:courseId" element={<StudentLayout> <CourseDetails /></StudentLayout>} />
-        <Route path="/category" element={<StudentLayout> <Category /></StudentLayout>} />
-        <Route path="/category/category-details/:categoryId" element={<StudentLayout> <CategoryDetails /></StudentLayout>} />
-        <Route path="/contact" element={<StudentLayout> <ContactUs /></StudentLayout>} />
-        <Route path="/terms" element={<StudentLayout> <TermsOfService /></StudentLayout>} />
-        <Route path="/privacy" element={<StudentLayout> <PrivacyPolicy /></StudentLayout>} />
+        <Route path="/" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout><Home /></StudentLayout></MaintenanceGuard>} />
+        <Route path="/about" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout> <AboutUs /></StudentLayout></MaintenanceGuard>} />
+        <Route path="/course" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout> <Course /></StudentLayout></MaintenanceGuard>} />
+        <Route path="/course/course-details/:courseId" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout> <CourseDetails /></StudentLayout></MaintenanceGuard>} />
+        <Route path="/category" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout> <Category /></StudentLayout></MaintenanceGuard>} />
+        <Route path="/category/category-details/:categoryId" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout> <CategoryDetails /></StudentLayout></MaintenanceGuard>} />
+        <Route path="/contact" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout> <ContactUs /></StudentLayout></MaintenanceGuard>} />
+        <Route path="/terms" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout> <TermsOfService /></StudentLayout></MaintenanceGuard>} />
+        <Route path="/privacy" element={<MaintenanceGuard isMaintenance={isMaintenance}><StudentLayout> <PrivacyPolicy /></StudentLayout></MaintenanceGuard>} />
 
         {/* Pages (no navbar/footer) */}
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/forget-password" element={<ForgetPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/otp" element={<Otp />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/signin" element={<MaintenanceGuard isMaintenance={isMaintenance}><Signin /></MaintenanceGuard>} />
+        <Route path="/signup" element={<MaintenanceGuard isMaintenance={isMaintenance}><Signup /></MaintenanceGuard>} />
+        <Route path="/forget-password" element={<MaintenanceGuard isMaintenance={isMaintenance}><ForgetPassword /></MaintenanceGuard>} />
+        <Route path="/reset-password" element={<MaintenanceGuard isMaintenance={isMaintenance}><ResetPassword /></MaintenanceGuard>} />
+        <Route path="/otp" element={<MaintenanceGuard isMaintenance={isMaintenance}><Otp /></MaintenanceGuard>} />
+        <Route path="/cart" element={<MaintenanceGuard isMaintenance={isMaintenance}><Cart /></MaintenanceGuard>} />
 
 
         {/* instructor */}
 
         {/* Pages with Layout */}
-        <Route path="/instructor/" element={<InstructorLayout> <InstructorHome /></InstructorLayout>} />
+        <Route path="/instructor/" element={<MaintenanceGuard isMaintenance={isMaintenance}><InstructorLayout> <InstructorHome /></InstructorLayout></MaintenanceGuard>} />
 
         {/* Pages (no navbar/footer) */}
-        <Route path="/instructor/signin" element={<InstructorSignin />} />
-        <Route path="/instructor/signup" element={<InstructorSignup />} />
-        <Route path="/instructor/forget-password" element={<InstructorForgetPassword />} />
-        <Route path="/instructor/reset-password" element={<InstructorResetPassword />} />
-        <Route path="/instructor/otp" element={<InstructorOtp />} />
-        <Route path="/instructor/profile-form" element={<InstructorRequestForm />} />
-        <Route path="/instructor/request-status" element={<InstructorRequestStatus />} />
+        <Route path="/instructor/signin" element={<MaintenanceGuard isMaintenance={isMaintenance}><InstructorSignin /></MaintenanceGuard>} />
+        <Route path="/instructor/signup" element={<MaintenanceGuard isMaintenance={isMaintenance}><InstructorSignup /></MaintenanceGuard>} />
+        <Route path="/instructor/forget-password" element={<MaintenanceGuard isMaintenance={isMaintenance}><InstructorForgetPassword /></MaintenanceGuard>} />
+        <Route path="/instructor/reset-password" element={<MaintenanceGuard isMaintenance={isMaintenance}><InstructorResetPassword /></MaintenanceGuard>} />
+        <Route path="/instructor/otp" element={<MaintenanceGuard isMaintenance={isMaintenance}><InstructorOtp /></MaintenanceGuard>} />
+        <Route path="/instructor/profile-form" element={<MaintenanceGuard isMaintenance={isMaintenance}><InstructorRequestForm /></MaintenanceGuard>} />
+        <Route path="/instructor/request-status" element={<MaintenanceGuard isMaintenance={isMaintenance}><InstructorRequestStatus /></MaintenanceGuard>} />
 
 
         {/* admin */}

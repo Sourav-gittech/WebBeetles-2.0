@@ -1,17 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-    Search,
-    Bell,
-    User,
-    LogOut,
-    Settings,
-    ChevronDown,
-    Moon,
-    Sun,
-    Menu,
-    X,
-} from "lucide-react";
+import { Search, Bell, LogOut, Settings, ChevronDown, Moon, Sun, Menu, X, } from "lucide-react";
 import Sidebar from "./Sidebar";
 
 // Constants
@@ -178,7 +167,7 @@ export default function Navbar() {
 
                         <button
                             onClick={toggleTheme}
-                            className="p-2 md:p-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all"
+                            className="p-2 md:p-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all cursor-pointer"
                             aria-label="Toggle theme"
                             title="Toggle theme"
                         >
@@ -188,7 +177,7 @@ export default function Navbar() {
                         <div className="relative" ref={notificationRef}>
                             <button
                                 onClick={() => setShowNotifications(!showNotifications)}
-                                className="relative p-2 md:p-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all"
+                                className="relative p-2 md:p-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all cursor-pointer"
                                 aria-label="Notifications"
                                 title="Notifications"
                             >
@@ -207,7 +196,7 @@ export default function Navbar() {
                                         {unreadCount > 0 && (
                                             <button
                                                 onClick={markAllAsRead}
-                                                className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
+                                                className="text-xs text-purple-400 hover:text-purple-300 transition-colors cursor-pointer"
                                             >
                                                 Mark all read
                                             </button>
@@ -240,10 +229,10 @@ export default function Navbar() {
                                     <div className="p-3 border-t border-white/5">
                                         <button
                                             onClick={() => {
-                                                navigate("/admin/notifications");
+                                                navigate("/admin/notification");
                                                 setShowNotifications(false);
                                             }}
-                                            className="w-full text-center text-sm text-purple-400 hover:text-purple-300 transition-colors"
+                                            className="w-full text-center text-sm text-purple-400 hover:text-purple-300 transition-colors cursor-pointer"
                                         >
                                             View all notifications
                                         </button>
@@ -255,7 +244,7 @@ export default function Navbar() {
                         <div className="relative" ref={userMenuRef}>
                             <button
                                 onClick={() => setShowUserMenu(!showUserMenu)}
-                                className="flex items-center gap-2 md:gap-3 p-1.5 md:p-2 pr-2 md:pr-3 rounded-lg bg-transparent hover:bg-white/10 transition-all group"
+                                className="flex items-center gap-2 md:gap-3 p-1.5 md:p-2 pr-2 md:pr-3 rounded-lg bg-transparent hover:bg-white/10 transition-all group cursor-pointer"
                                 aria-label="User menu"
                             >
                                 <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-white/20 to-white/50 flex items-center justify-center text-white font-semibold text-xs md:text-xs shadow-sm border-white">
@@ -266,10 +255,7 @@ export default function Navbar() {
                                     <p className="text-gray-400 text-xs">admin@webbeetles.com</p>
                                 </div>
                                 <ChevronDown
-                                    className={`hidden md:block text-gray-400 transition-transform ${showUserMenu ? "rotate-180" : ""
-                                        }`}
-                                    size={16}
-                                />
+                                    className={`hidden md:block text-gray-400 transition-transform ${showUserMenu ? "rotate-180" : "" }`} size={16} />
                             </button>
 
                             {showUserMenu && (
@@ -285,7 +271,7 @@ export default function Navbar() {
                                                 navigate("/admin/settings");
                                                 setShowUserMenu(false);
                                             }}
-                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-all text-sm"
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-all text-sm cursor-pointer"
                                         >
                                             <Settings size={16} />
                                             <span>Settings</span>
@@ -295,7 +281,7 @@ export default function Navbar() {
                                     <div className="p-2 border-t shadow-[0_0_15px_rgba(0,0,0,0.5)] border-transparent">
                                         <button
                                             onClick={handleLogout}
-                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all text-sm"
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all text-sm cursor-pointer"
                                         >
                                             <LogOut size={16} />
                                             <span>Logout</span>

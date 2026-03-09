@@ -2,22 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSidebarStore } from "../../store/useSidebarStore";
 import {
-    Home,
-    Users,
-    CreditCard,
-    Settings,
-    Bell,
-    BarChart2,
-    Menu,
-    LogOut,
-    X,
-    ChevronLeft,
-    ChevronRight,
-    User,
-    ClipboardCheck,
-    BookOpenCheck,
-    IndianRupee,
-    Loader2,
+    Home, Users, Settings, BarChart2, Menu, LogOut, X, ChevronLeft, ChevronRight, User, ClipboardCheck, BookOpenCheck,
+    IndianRupee, Loader2, ShieldUser, ChartBarStacked, MessageSquareText, BellRing, Blinds
 } from "lucide-react";
 import { allInstructor } from "../../redux/slice/instructorSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -136,18 +122,18 @@ export default function Sidebar({ onNavigate }) {
 
     const navItems = [
         { to: "/admin/dashboard", label: "Dashboard", icon: Home },
-        { to: "/admin/students", label: "Students", icon: Users },
         { to: "/admin/profile", label: "Profile", icon: User },
+        { to: "/admin/students", label: "Students", icon: Users },
         { to: "/admin/instructors", label: "Instructors", icon: User },
+        { to: "/admin/admin", label: "Admin", icon: ShieldUser },
         { to: "/admin/instructor-reviews", label: "Instructor Reviews", icon: ClipboardCheck, badge: isInstructorLoading ? <Loader2 className="inline h-3 w-3 mb-1 animate-spin" /> : getInstructorData?.filter(inst => inst?.application_status == 'pending' && inst?.application_complete)?.length ?? 0 },
         { to: "/admin/approve-courses", label: "Courses", icon: BookOpenCheck, badge: isCourseLoading ? <Loader2 className="inline h-3 w-3 mb-1 animate-spin" /> : pending?.length ?? 0 },
         { to: "/admin/analytics", label: "Analytics", icon: BarChart2 },
         { to: "/admin/charge", label: "Charge", icon: IndianRupee },
-        { to: "/admin/category", label: "Category", icon: IndianRupee },
-        { to: "/admin/message", label: "Message", icon: IndianRupee },
-        { to: "/admin/admin", label: "Admin", icon: IndianRupee },
-        { to: "/admin/notification", label: "Notification", icon: IndianRupee },
-        { to: "/admin/examset", label: "Exam set", icon: IndianRupee },
+        { to: "/admin/category", label: "Category", icon: ChartBarStacked },
+        { to: "/admin/contact", label: "Message", icon: MessageSquareText, badge: 5 },
+        { to: "/admin/notification", label: "Notification", icon: BellRing, badge: 5 },
+        { to: "/admin/examset", label: "Exam set", icon: Blinds },
         { to: "/admin/settings", label: "Settings", icon: Settings },
     ];
 
@@ -194,7 +180,7 @@ export default function Sidebar({ onNavigate }) {
                     {!collapsed && (
                         <button
                             onClick={toggle}
-                            className="hidden md:flex p-2 rounded-lg hover:bg-white/5 transition-colors text-gray-300 hover:text-white"
+                            className="hidden md:flex p-2 rounded-lg hover:bg-white/5 transition-colors text-gray-300 hover:text-white cursor-pointer"
                             aria-label="Collapse sidebar"
                             title="Collapse sidebar"
                         >
@@ -229,7 +215,7 @@ export default function Sidebar({ onNavigate }) {
                     {collapsed && (
                         <button
                             onClick={toggle}
-                            className="w-full flex items-center justify-center p-3 rounded-lg hover:bg-white/5 transition-colors text-gray-300 hover:text-white mb-2"
+                            className="w-full flex items-center justify-center p-3 rounded-lg hover:bg-white/5 transition-colors text-gray-300 hover:text-white mb-2 cursor-pointer"
                             aria-label="Expand sidebar"
                             title="Expand sidebar"
                         >
@@ -255,9 +241,8 @@ export default function Sidebar({ onNavigate }) {
                     <button
                         onClick={handleLogout}
                         disabled={isLoggingOut}
-                        className={`w-full flex items-center justify-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all
-              ${isLoggingOut
-                                ? "bg-white/5 text-gray-500 cursor-not-allowed"
+                        className={`w-full flex items-center justify-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer
+              ${isLoggingOut ? "bg-white/5 text-gray-500 cursor-not-allowed"
                                 : "text-gray-300 hover:bg-red-500/10 hover:text-red-400"
                             }`}
                         aria-label="Logout"
