@@ -23,7 +23,7 @@ const hotToast = (message, type = "success", icon, options = {}) => {
         case "info":
             toast(message, {
                 ...baseOptions,
-                icon: icon ??  "ⓘ",
+                icon: icon ??  "⚠️",
             });
             break;
 

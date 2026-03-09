@@ -1,7 +1,7 @@
 import React from 'react'
 import { Pencil, Trash2 } from "lucide-react";
 
-const PromocodeRow = ({ promocode, togglePromo, removePromo, openEdit }) => {
+const PromocodeRow = ({ promocode, togglePromo, openEdit, setOpenMarkModal, setChargeId, setType }) => {
 
     const percentUsed = Math.min((promocode?.uses / promocode?.max) * 100, 100);
 
@@ -9,7 +9,7 @@ const PromocodeRow = ({ promocode, togglePromo, removePromo, openEdit }) => {
         <div className="flex items-center justify-between bg-black border border-white/10 rounded-lg px-4 py-3 hover:border-white/20 transition w-full">
 
             {/* Info */}
-            <div className="flex flex-col w-[200px]">
+            <div className="flex flex-col">
 
 
                 <div className="flex items-center gap-2">
@@ -47,8 +47,8 @@ const PromocodeRow = ({ promocode, togglePromo, removePromo, openEdit }) => {
             </div> */}
             <div className='flex'>
                 {/* Toggle */}
-                <button onClick={() => togglePromo(promocode?.id, promocode?.status)}
-                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition mt-1
+                <button onClick={() => togglePromo(promocode?.id, !promocode?.status)}
+                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition mt-1 cursor-pointer
           ${promocode?.status ? "bg-green-500" : "bg-gray-600"}`}>
 
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition
@@ -59,13 +59,13 @@ const PromocodeRow = ({ promocode, togglePromo, removePromo, openEdit }) => {
                 <div className="flex items-center gap-3 ml-4">
 
                     <button onClick={() => openEdit(promocode)}
-                        className="p-1.5 hover:bg-white/10 rounded-lg"
+                        className="p-1.5 hover:bg-white/10 rounded-lg cursor-pointer"
                     >
                         <Pencil size={16} className="text-blue-400" />
                     </button>
 
-                    <button onClick={() => removePromo(promocode?.id)}
-                        className="p-1.5 hover:bg-white/10 rounded-lg"
+                    <button onClick={() => { setOpenMarkModal(true); setChargeId(promocode?.id); setType('promocode') }}
+                        className="p-1.5 hover:bg-white/10 rounded-lg cursor-pointer"
                     >
                         <Trash2 size={16} className="text-red-400" />
                     </button>

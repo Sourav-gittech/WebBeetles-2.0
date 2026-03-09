@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Plus, Ticket } from "lucide-react";
+import { Loader2, Plus, Ticket } from "lucide-react";
 import PromocodeRow from "./PromocodeRow";
 import PromocodeModal from '../modal/PromocodeModal';
 import SectionCard from '../../common/SectionCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCode, fetchCodes, updateCode } from '../../../../redux/slice/promocodeSlice';
+import hotToast from '../../../../util/alert/hot-toast';
+import getSweetAlert from '../../../../util/alert/sweetAlert';
 
-const Promocode = ({ toggleCharge, setOpenMarkModal, setChargeId, setType }) => {
+const Promocode = ({ togglePromo, setOpenMarkModal, setChargeId, setType }) => {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [editPromocode, setEditPromocode] = useState(null);
@@ -16,8 +18,14 @@ const Promocode = ({ toggleCharge, setOpenMarkModal, setChargeId, setType }) => 
 
     const savePromocode = (code) => {
 
+        const promoObj = {
+            apply_mode: code?.apply_mode,
+            discount_amount: code?.discount_amount,
+            name: code?.name?.toUpperCase()
+        }
+
         if (editPromocode) {
-            const existCharge = allCharges?.filter(existch => existch?.name?.toLowerCase() == charge?.name?.toLowerCase());
+            const existCharge = allCode?.filter(existch => existch?.name?.toLowerCase() == code?.name?.toLowerCase());
             const removeCurrent = existCharge?.find(ch => ch?.id != editPromocode?.id);
 
             if (removeCurrent) {
@@ -25,7 +33,7 @@ const Promocode = ({ toggleCharge, setOpenMarkModal, setChargeId, setType }) => 
                 setModalOpen(false);
             }
             else {
-                dispatch(updateCode({ id: editPromocode?.id, updatedData: code }))
+                dispatch(updateCode({ id: editPromocode?.id, updatedData: promoObj }))
                     .then(res => {
                         // console.log('Response for updating promocode', res);
 
@@ -42,14 +50,14 @@ const Promocode = ({ toggleCharge, setOpenMarkModal, setChargeId, setType }) => 
                     })
             }
         } else {
-            const existCharge = allCode?.find(existch => existch?.name?.toLowerCase() == charge?.name?.toLowerCase());
+            const existCharge = allCode?.find(existch => existch?.name?.toLowerCase() == code?.name?.toLowerCase());
 
             if (existCharge) {
                 hotToast('Promocode already exist!', "info");
                 setModalOpen(false);
             }
             else {
-                dispatch(addCode({ ...charge, status: true }))
+                dispatch(addCode({ ...promoObj, status: true }))
                     .then(res => {
                         // console.log('Response for adding promocode', res);
 
@@ -82,21 +90,21 @@ const Promocode = ({ toggleCharge, setOpenMarkModal, setChargeId, setType }) => 
             });
     }, [dispatch]);
 
-    console.log('All available promocodes', allCode);
+    // console.log('All available promocodes', allCode);
 
     return (
-        <div className="bg-[#0f0f0f] border border-white/10 rounded-xl p-6 h-[480px] overflow-y-auto">
+        <div className="bg-[#0f0f0f] border border-white/10 rounded-xl p-6 h-[480px] w-full overflow-y-auto md:ml-1.5 mt-2 md:mt-0">
 
             {/* Header */}
             <SectionCard icon={Ticket} title="Promo Codes & Discounts"></SectionCard>
 
             {/* List */}
             <div className="space-y-3">
-
-                {allCode?.map(promocode => (
-                    <PromocodeRow key={promocode?.id} promocode={promocode} toggleCharge={toggleCharge} openEdit={openEdit}
-                        setOpenMarkModal={setOpenMarkModal} setChargeId={setChargeId} setType={setType} />
-                ))}
+                {isCodeLoading ? <Loader2 className="text-center inline w-10 h-10 animate-spin" /> :
+                    allCode?.map(promocode => (
+                        <PromocodeRow key={promocode?.id} promocode={promocode} togglePromo={togglePromo} openEdit={openEdit}
+                            setOpenMarkModal={setOpenMarkModal} setChargeId={setChargeId} setType={setType} />
+                    ))}
 
                 {/* Add button */}
                 <button

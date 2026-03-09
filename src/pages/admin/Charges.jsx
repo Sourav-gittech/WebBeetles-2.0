@@ -7,6 +7,7 @@ import { deleteCharge, fetchCharges, updateChargeStatus } from '../../redux/slic
 import hotToast from '../../util/alert/hot-toast';
 import getSweetAlert from '../../util/alert/sweetAlert';
 import { useDispatch, useSelector } from 'react-redux';
+import { deleteCode, fetchCodes, updateCodeStatus } from '../../redux/slice/promocodeSlice';
 
 const Charges = () => {
 
@@ -20,7 +21,7 @@ const Charges = () => {
     const toggleCharge = (id, updateStatus) => {
         dispatch(updateChargeStatus({ id, updateStatus }))
             .then(res => {
-                // console.log('Response for changing charges status', res);
+                // console.log(`Response for changing charge status`, res);
 
                 if (res.meta.requestStatus === "fulfilled") {
                     hotToast(`Charge ${updateStatus ? 'activated' : 'blocked'} successfully!`, "success");
@@ -32,20 +33,35 @@ const Charges = () => {
             })
     };
 
-    const deleteChargeFn = () => {
-        dispatch(deleteCharge(chargeId))
+    const togglePromo = (id, updateStatus) => {
+        dispatch(updateCodeStatus({ id, updateStatus }))
             .then(res => {
-                // console.log('Response for deleting charges', res);
+                // console.log(`Response for changing promocode status`, res);
 
                 if (res.meta.requestStatus === "fulfilled") {
-                    dispatch(fetchCharges());
-                    hotToast('Charge deleted successfully!', "success");
+                    hotToast(`Promocode ${updateStatus ? 'activated' : 'blocked'} successfully!`, "success");
+                }
+            })
+            .catch(err => {
+                console.log('Error occured', err);
+                getSweetAlert("Error", `Something went wrong while updating promocode status.`, "error");
+            })
+    };
+
+    const deleteChargeFn = () => {
+        dispatch(type == 'charge' ? deleteCharge(chargeId) : deleteCode(chargeId))
+            .then(res => {
+                // console.log(`Response for deleting ${type == 'charge'?'charge':'promocode'}`, res);
+
+                if (res.meta.requestStatus === "fulfilled") {
+                    dispatch(type == 'charge' ? fetchCharges() : fetchCodes());
+                    hotToast(`${type == 'charge' ? 'Charge' : 'Promocode'} deleted successfully!`, "success");
                     setOpenMarkModal(false);
                 }
             })
             .catch(err => {
                 console.log('Error occured', err);
-                getSweetAlert("Error", `Something went wrong while deleting charge.`, "error");
+                getSweetAlert("Error", `Something went wrong while deleting ${type == 'charge' ? 'charge' : 'promocode'}.`, "error");
             })
     };
 
@@ -55,20 +71,21 @@ const Charges = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <ChargeHeader />
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <div className="w-full">
 
                     {/* Main Settings */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="flex w-full justify-between flex-col md:flex-row">
                         {/* Tax & GST */}
                         <ChargeManager toggleCharge={toggleCharge} setOpenMarkModal={setOpenMarkModal} setChargeId={setChargeId} setType={setType} />
 
                         {/* Promo Codes */}
-                        <Promocode toggleCharge={toggleCharge} setOpenMarkModal={setOpenMarkModal} setChargeId={setChargeId} setType={setType} />
+                        <Promocode togglePromo={togglePromo} setOpenMarkModal={setOpenMarkModal} setChargeId={setChargeId} setType={setType} />
                     </div>
                 </div>
             </div>
             {openMarkModal && (
-                <ConfirmStatusModal setOpenMarkModal={setOpenMarkModal} handleMark={type == 'charge' ? deleteChargeFn : null} isLoading={type == 'charge' ? isChargesLoading : null}
+                <ConfirmStatusModal setOpenMarkModal={setOpenMarkModal} handleMark={deleteChargeFn} isLoading={type == 'charge' ? isChargesLoading : null}
                     title={`Delete ${type}`} subTitle={`Are you sure you want to delete the ${type}`} />
             )}
         </>

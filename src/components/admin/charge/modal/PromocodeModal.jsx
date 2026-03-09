@@ -43,7 +43,7 @@ const PromocodeModal = ({ isOpen, onClose, editData, onSave, isCodeLoading }) =>
                         {editData ? "Update Promocode" : "Add Promocode"}
                     </h3>
 
-                    <button onClick={onClose}>
+                    <button onClick={onClose} className="cursor-pointer">
                         <X size={18} className="text-gray-400" />
                     </button>
                 </div>
@@ -91,7 +91,11 @@ const PromocodeModal = ({ isOpen, onClose, editData, onSave, isCodeLoading }) =>
                                 required: "Discount amount is required",
                                 min: {
                                     value: 1,
-                                    message: "Discount must be greater than 0"
+                                    message: "Must be greater than 1"
+                                },
+                                max: {
+                                    value: 100,
+                                    message: "Cannot exceed 100%"
                                 }
                             })}
                             placeholder="Enter discount"
@@ -132,7 +136,7 @@ const PromocodeModal = ({ isOpen, onClose, editData, onSave, isCodeLoading }) =>
 
                     {/* Submit Button */}
                     <button type="submit" disabled={isCodeLoading}
-                        className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded text-white text-sm font-medium transition"
+                        className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded text-white text-sm font-medium transition cursor-pointer"
                     >
                         {isCodeLoading ? "Saving..." : editData ? "Update Promocode" : "Add Promocode"}
                     </button>

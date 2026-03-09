@@ -3,7 +3,7 @@ import supabase from "../../util/supabase/supabase";
 
 // slice to add new promocode
 export const addCode = createAsyncThunk("promocodeSlice/addCode",
-    async ({ codeData }, { rejectWithValue }) => {
+    async (codeData, { rejectWithValue }) => {
         // console.log('New promocode details',codeData);
 
         try {

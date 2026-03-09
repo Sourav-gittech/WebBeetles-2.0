@@ -87,7 +87,7 @@ const ChargeManager = ({ toggleCharge, setOpenMarkModal, setChargeId, setType })
     // console.log('All available charges', allCharges);
 
     return (
-        <div className="bg-[#0f0f0f] border border-white/10 rounded-xl p-6 h-[480px] overflow-y-auto">
+        <div className="bg-[#0f0f0f] border border-white/10 rounded-xl p-6 h-[480px] w-full overflow-y-auto md:mr-1.5">
 
             {/* Header */}
             <SectionCard icon={BadgePercent} title="Course Charges"></SectionCard>
