@@ -60,7 +60,7 @@ const StudentDashboardHeader = ({ userDetails }) => {
                 if (res.meta.requestStatus === "fulfilled") {
                     const freshUrl = res.payload.profile_image_url + `?t=${Date.now()}`;
                     setUserPhoto(freshUrl);
-                    hotToast('Profile image successfully', "success");
+                    hotToast('Profile image updated successfully', "success");
                 }
                 else {
                     hotToast('Something went wrong!', "error");
