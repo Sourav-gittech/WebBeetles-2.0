@@ -95,7 +95,7 @@ const InstructorForgetPassword = () => {
                             </div>
 
                             <button type="submit" disabled={isUserAuthLoading} className={`w-full text-white py-2 rounded-full text-base font-semibold mt-0 transition-colors
-                                ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}>
+                                ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed" : "cursor-pointer bg-blue-500 hover:bg-blue-600"}`}>
                                 {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Processing..." : "Get OTP"}
                             </button>
                         </form>

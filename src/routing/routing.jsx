@@ -171,7 +171,7 @@ const Routing = () => {
         </Route>
 
         {/* Pages (no navbar/footer) */}
-        <Route path="/admin/signin" element={<AdminSignin />} />
+        <Route path="/admin/" element={<AdminSignin />} />
 
         {/* common  */}
 

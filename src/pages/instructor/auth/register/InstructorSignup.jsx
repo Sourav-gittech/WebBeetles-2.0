@@ -143,7 +143,7 @@ const InstructorSignup = () => {
                   className="absolute inset-y-0 right-2 flex items-center mr-2 text-gray-600"
                   onClick={() => setShow(!show)}
                 >
-                  {show ? <FaRegEyeSlash className='text-[#ec0505]' /> : <FaRegEye className='text-[#ec0505]' />}
+                  {show ? <FaRegEyeSlash className='text-[#ec0505] cursor-pointer' /> : <FaRegEye className='text-[#ec0505] cursor-pointer' />}
                 </button>
               </div>
               <p className="text-xs text-red-400 mb-2 mt-1">{errors.password?.message}</p>
@@ -161,7 +161,7 @@ const InstructorSignup = () => {
                   className="absolute inset-y-0 right-2 flex items-center mr-2 text-gray-600"
                   onClick={() => setConfirmShow(!confirmShow)}
                 >
-                  {confirmShow ? <FaRegEyeSlash className='text-[#ec0505]' /> : <FaRegEye className='text-[#ec0505]' />}
+                  {confirmShow ? <FaRegEyeSlash className='text-[#ec0505] cursor-pointer' /> : <FaRegEye className='text-[#ec0505] cursor-pointer' />}
                 </button>
               </div>
 
@@ -169,7 +169,7 @@ const InstructorSignup = () => {
               <button
                 type="submit" disabled={isUserAuthLoading}
                 className={`w-full mt-6 py-3 rounded-full text-base font-semibold text-white transition
-    ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed opacity-70" : "bg-red-600 hover:bg-red-700 hover:border-2 hover:border-white"}`}>
+    ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed opacity-70" : "cursor-pointer bg-red-600 hover:bg-red-700 hover:border-2 hover:border-white"}`}>
                 {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Registering..." : "Register"}
               </button>
             </form>

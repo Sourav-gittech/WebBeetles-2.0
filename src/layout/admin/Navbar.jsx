@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Bell, LogOut, Settings, ChevronDown, Moon, Sun, Menu, X, } from "lucide-react";
 import Sidebar from "./Sidebar";
+import { useDispatch, useSelector } from "react-redux";
+import { checkLoggedInUser, logoutUser } from "../../redux/slice/authSlice/checkUserAuthSlice";
+import toastifyAlert from "../../util/alert/toastify";
+import getSweetAlert from "../../util/alert/sweetAlert";
 
 // Constants
 const NOTIFICATIONS = [
@@ -11,7 +15,10 @@ const NOTIFICATIONS = [
 ];
 
 export default function Navbar() {
+
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const [searchQuery, setSearchQuery] = useState("");
     const [showNotifications, setShowNotifications] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
@@ -19,10 +26,24 @@ export default function Navbar() {
     const [unreadCount, setUnreadCount] = useState(2);
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const notificationRef = useRef(null);
     const userMenuRef = useRef(null);
     const searchInputRef = useRef(null);
+
+    const { isUserLoading, userAuthData: getAdminData, userError } = useSelector(state => state.checkAuth);
+    
+    useEffect(() => {
+        dispatch(checkLoggedInUser())
+          .then(res => {
+            // console.log('Response for fetching user profile', res);
+          })
+          .catch((err) => {
+            getSweetAlert('Oops...', 'Something went wrong!', 'error');
+            console.log("Error occurred", err);
+          });
+      }, [dispatch]);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -89,15 +110,20 @@ export default function Navbar() {
         setShowNotifications(false);
     }, []);
 
-    const handleLogout = useCallback(async () => {
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
         try {
-            console.log("Logging out...");
-            // Add real logout logic here
-            navigate("/admin", { replace: true });
+            dispatch(logoutUser({ user_type: 'admin', status: false }));
+            sessionStorage.removeItem('admin_token');
+            toastifyAlert.success('Logged out Successfully');
+            navigate("/admin");
         } catch (error) {
             console.error("Logout failed:", error);
+            toastifyAlert.error("Failed to logout. Please try again.");
+        } finally {
+            setIsLoggingOut(false);
         }
-    }, [navigate]);
+    };
 
     const toggleTheme = useCallback(() => {
         setIsDarkMode((prev) => !prev);
@@ -252,17 +278,17 @@ export default function Navbar() {
                                 </div>
                                 <div className="hidden lg:block text-left">
                                     <p className="text-white text-sm font-medium">Admin</p>
-                                    <p className="text-gray-400 text-xs">admin@webbeetles.com</p>
+                                    <p className="text-gray-400 text-xs">{getAdminData?.email ?? 'admin@webbeetles.com'}</p>
                                 </div>
                                 <ChevronDown
-                                    className={`hidden md:block text-gray-400 transition-transform ${showUserMenu ? "rotate-180" : "" }`} size={16} />
+                                    className={`hidden md:block text-gray-400 transition-transform ${showUserMenu ? "rotate-180" : ""}`} size={16} />
                             </button>
 
                             {showUserMenu && (
                                 <div className="absolute right-0 mt-2 w-56 bg-[#111] border border-white/5 rounded-xl shadow-2xl overflow-hidden">
                                     <div className="p-4 border-b border-white/5">
                                         <p className="text-white text-sm font-medium">WebBeetles Admin</p>
-                                        <p className="text-gray-400 text-xs mt-0.5">admin@webbeetles.com</p>
+                                        <p className="text-gray-400 text-xs mt-0.5">{getAdminData?.email ?? 'admin@webbeetles.com'}</p>
                                     </div>
 
                                     <div className="p-2">
@@ -280,11 +306,11 @@ export default function Navbar() {
 
                                     <div className="p-2 border-t shadow-[0_0_15px_rgba(0,0,0,0.5)] border-transparent">
                                         <button
-                                            onClick={handleLogout}
+                                            onClick={() => handleLogout()} disabled={isLoggingOut}
                                             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all text-sm cursor-pointer"
                                         >
-                                            <LogOut size={16} />
-                                            <span>Logout</span>
+                                            <LogOut size={16} className={isLoggingOut ? "animate-spin" : ""} />
+                                            <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
                                         </button>
                                     </div>
                                 </div>

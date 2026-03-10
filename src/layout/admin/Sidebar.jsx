@@ -8,6 +8,9 @@ import {
 import { allInstructor } from "../../redux/slice/instructorSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { allCourse } from "../../redux/slice/couseSlice";
+import { checkLoggedInUser, logoutUser } from "../../redux/slice/authSlice/checkUserAuthSlice";
+import toastifyAlert from "../../util/alert/toastify";
+import getSweetAlert from "../../util/alert/sweetAlert";
 
 const NavItem = ({ to, icon: Icon, children, collapsed, onClick, badge }) => (
     <NavLink
@@ -44,11 +47,10 @@ export default function Sidebar({ onNavigate }) {
 
     const dispatch = useDispatch(),
         { isInstructorLoading, getInstructorData, isInstructorError } = useSelector(state => state?.instructor),
-        { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state?.course);
+        { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state?.course),
+        { isUserLoading, userAuthData: getAdminData, userError } = useSelector(state => state.checkAuth);
 
     const pending = getCourseData?.filter(c => c?.status == 'pending');
-    const approved = getCourseData?.filter(c => c?.status == 'approved');
-    const rejected = getCourseData?.filter(c => c?.status == 'rejected');
 
     const collapsed = useSidebarStore((s) => s.collapsed);
     const toggle = useSidebarStore((s) => s.toggle);
@@ -57,6 +59,17 @@ export default function Sidebar({ onNavigate }) {
 
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    useEffect(() => {
+        dispatch(checkLoggedInUser())
+            .then(res => {
+                // console.log('Response for fetching user profile', res);
+            })
+            .catch((err) => {
+                getSweetAlert('Oops...', 'Something went wrong!', 'error');
+                console.log("Error occurred", err);
+            });
+    }, [dispatch]);
 
     useEffect(() => {
         const handleEscape = (e) => {
@@ -88,14 +101,13 @@ export default function Sidebar({ onNavigate }) {
     const handleLogout = async () => {
         setIsLoggingOut(true);
         try {
-            console.log("Logging out...");
-            await new Promise((resolve) => setTimeout(resolve, 800));
-            localStorage.removeItem("authToken");
-            sessionStorage.clear();
+            dispatch(logoutUser({ user_type: 'admin', status: false }));
+            sessionStorage.removeItem('admin_token');
+            toastifyAlert.success('Logged out Successfully');
             navigate("/admin");
         } catch (error) {
             console.error("Logout failed:", error);
-            alert("Failed to logout. Please try again.");
+            toastifyAlert.error("Failed to logout. Please try again.");
         } finally {
             setIsLoggingOut(false);
         }
@@ -136,6 +148,8 @@ export default function Sidebar({ onNavigate }) {
         { to: "/admin/examset", label: "Exam set", icon: Blinds },
         { to: "/admin/settings", label: "Settings", icon: Settings },
     ];
+
+    // console.log('Logged admin data', getAdminData);
 
     return (
         <>
@@ -205,7 +219,7 @@ export default function Sidebar({ onNavigate }) {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-white text-sm font-medium truncate">Admin</p>
-                                <p className="text-gray-400 text-xs truncate">admin@webbeetles.com</p>
+                                <p className="text-gray-400 text-xs truncate">{getAdminData?.email ?? 'admin@webbeetles.com'}</p>
                             </div>
                         </div>
                     </div>
@@ -239,7 +253,7 @@ export default function Sidebar({ onNavigate }) {
 
                 <div className="p-4 border-t shadow-[0_0_15px_rgba(0,0,0,0.5)] border-transparent space-y-3">
                     <button
-                        onClick={handleLogout}
+                        onClick={() => handleLogout()}
                         disabled={isLoggingOut}
                         className={`w-full flex items-center justify-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer
               ${isLoggingOut ? "bg-white/5 text-gray-500 cursor-not-allowed"

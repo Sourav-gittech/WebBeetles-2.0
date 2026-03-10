@@ -151,7 +151,7 @@ const InstructorSignin = () => {
                       }
                     })} />
                   <button type="button" className="absolute inset-y-0 right-4 flex items-center text-lg text-gray-600 hover:text-[rgba(44,6,159,0.8)]" onClick={() => setShow(!show)}>
-                    {show ? <FaRegEyeSlash className='text-[#ec0505]' /> : <FaRegEye className='text-[#ec0505]' />}
+                    {show ? <FaRegEyeSlash className='text-[#ec0505] cursor-pointer' /> : <FaRegEye className='text-[#ec0505] cursor-pointer' />}
                   </button>
                 </div>
                 {errors.password && <p className='text-xs text-red-400 mt-1'>{errors.password?.message}</p>}
@@ -163,7 +163,7 @@ const InstructorSignin = () => {
 
               <button type="submit" disabled={isUserAuthLoading}
                 className={`w-full py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold text-white transition-colors
-                ${isUserAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "bg-[#f70202] hover:bg-[#f74747] hover:border-2 hover:border-white"}`}>
+                ${isUserAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "cursor-pointer bg-[#f70202] hover:bg-[#f74747] hover:border-2 hover:border-white"}`}>
                 {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Logging in..." : "Login"}
               </button>
             </form>

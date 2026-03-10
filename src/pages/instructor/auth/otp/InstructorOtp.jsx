@@ -210,7 +210,7 @@ const InstructorOtp = () => {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                className={`w-full bg-red-500 hover:bg-red-600 border-2 border-white text-white py-2 rounded-full text-base font-semibold ${isUserAuthLoading ? 'cursor-pointer' : ''}`}
+                                className={`w-full bg-red-500 hover:bg-red-600 border-2 border-white text-white py-2 rounded-full text-base font-semibold ${!isUserAuthLoading ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                             >
                                 {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? 'Verifying...' : 'Verify OTP'}
                             </button>

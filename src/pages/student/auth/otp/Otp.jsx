@@ -209,7 +209,7 @@ const Otp = () => {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full text-base font-semibold"
+                                className={`w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full text-base font-semibold ${isUserAuthLoading ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                                 {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? 'Verifying...' : 'Verify OTP'}
                             </button>

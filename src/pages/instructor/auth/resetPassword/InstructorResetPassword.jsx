@@ -237,7 +237,7 @@ const InstructorResetPassword = () => {
                                         }
                                     })} className="w-full rounded-full px-6 py-2 lg:py-3 text-sm text-gray-800 bg-white outline-0 mb-0" />
                                     <button type="button" className="absolute inset-y-0 right-4 flex items-center text-lg text-gray-600 hover:text-[rgba(44,6,159,0.8)]" onClick={() => setPassShow(!passShow)}>
-                                        {passShow ? <FaRegEyeSlash className='text-[#8200db]' /> : <FaRegEye className='text-[#8200db]' />}
+                                        {passShow ? <FaRegEyeSlash className='text-[#8200db] cursor-pointer' /> : <FaRegEye className='text-[#8200db] cursor-pointer' />}
                                     </button>
                                 </div>
                                 <p className="text-xs text-red-400 mb-2 mt-1">{errors.pwd?.message}</p>
@@ -249,7 +249,7 @@ const InstructorResetPassword = () => {
                                 <div className="relative">
                                     <input type={conPassShow ? "text" : "password"} autoComplete='new-password' placeholder="Enter password" {...register('cpwd')} className="w-full rounded-full px-6 py-2 lg:py-3 text-sm text-gray-800 bg-white outline-0 mb-0" />
                                     <button type="button" className="absolute inset-y-0 right-4 flex items-center text-lg text-gray-600 hover:text-[rgba(44,6,159,0.8)]" onClick={() => setConPassShow(!conPassShow)}>
-                                        {conPassShow ? <FaRegEyeSlash className='text-[#8200db]' /> : <FaRegEye className='text-[#8200db]' />}
+                                        {conPassShow ? <FaRegEyeSlash className='text-[#8200db] cursor-pointer' /> : <FaRegEye className='text-[#8200db] cursor-pointer' />}
                                     </button>
                                 </div>
                             </div>
@@ -257,7 +257,7 @@ const InstructorResetPassword = () => {
                             <button
                                 type="submit" disabled={isUserAuthLoading}
                                 className={`w-full text-white py-2 rounded-full text-base font-semibold mt-0 transition-colors
-                                ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`}>
+                                ${isUserAuthLoading ? "bg-blue-400 cursor-not-allowed" : "cursor-pointer bg-blue-500 hover:bg-blue-600"}`}>
                                 {isUserAuthLoading ? <Loader2 className='text-white animate-spin m-0 p-0 w-4 h-4 inline' /> : ''} {isUserAuthLoading ? "Processing..." : "Reset Password"}
                             </button>
                         </form>

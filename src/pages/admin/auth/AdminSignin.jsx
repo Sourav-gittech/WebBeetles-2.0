@@ -1,27 +1,78 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaFacebook, FaInstagram, FaLinkedinIn, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
-import { FaXTwitter } from 'react-icons/fa6'
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import toastifyAlert from '../../../util/alert/toastify'
+import getSweetAlert from '../../../util/alert/sweetAlert'
+import { loginSlice, updateLastSignInAt } from '../../../redux/slice/authSlice/authSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { logoutUser } from '../../../redux/slice/authSlice/checkUserAuthSlice'
 
 const AdminSignin = () => {
 
   const form = useForm(),
     navigate = useNavigate(),
     [show, setShow] = useState(false),
-    [isLoading, setIsLoading] = useState(false),
     { register, handleSubmit, formState } = form,
-    { errors } = formState;
+    { errors } = formState,
+    dispatch = useDispatch(),
+    { isAuth } = useSelector(state => state.checkAuth),
+    { isUserAuthLoading } = useSelector(state => state.auth),
+    user_type = 'admin';
+
+  useEffect(() => {
+
+    if (isAuth) {
+      navigate("admin/", { replace: true });
+    }
+  }, [isAuth, navigate]);
 
   const loginDataHandler = (data) => {
-    setIsLoading(true);
-    // Simulate API call for static UI
-    setTimeout(() => {
-      setIsLoading(false);
-      toastifyAlert.success('Admin Logged In Successfully');
-      navigate(`/admin/dashboard`);
-    }, 1000);
+    // console.log('Login form data', data);
+
+    const login_obj = {
+      email: data.email,
+      password: data.password
+    }
+
+    dispatch(loginSlice({ data: login_obj, role: 'admin' }))
+      .then(res => {
+        // console.log("Response after user login:", res);
+
+        if (res?.payload?.userData?.role !== user_type) {
+          getSweetAlert('Oops...', "Invalid login credentials", 'error');
+          dispatch(logoutUser({ user_type, status: false }))
+          return;
+        }
+
+        if (res.meta.requestStatus === "fulfilled") {
+          sessionStorage.setItem('admin_token', res.payload.session.access_token);
+
+          dispatch(updateLastSignInAt({ id: res?.payload?.user?.id, user_type }))
+            .then(res => {
+
+              if (res.meta.requestStatus === "fulfilled") {
+
+                toastifyAlert.success('Logged In Successfully');
+                navigate(`/${user_type}/dashboard`);
+              } else {
+                getSweetAlert('Oops...', res.payload, 'info');
+              }
+            })
+            .catch(err => {
+              console.log('Error occured', err);
+              getSweetAlert('Oops...', 'Something went wrong!', 'error');
+            });
+        }
+        else {
+          // getSweetAlert('Oops...', 'Something went wrong!', 'error');
+          getSweetAlert('Oops...', res.payload.message, 'error');
+        }
+      })
+      .catch(err => {
+        console.error('Error occured in user login', err);
+        getSweetAlert('Oops...', 'Something went wrong!', 'error');
+      })
   }
 
   return (
@@ -78,7 +129,7 @@ const AdminSignin = () => {
                       }
                     })} />
                   <button type="button" className="absolute inset-y-0 right-4 flex items-center text-lg text-gray-600 hover:text-[rgba(44,6,159,0.8)]" onClick={() => setShow(!show)}>
-                    {show ? <FaRegEyeSlash className='text-[#8200db]' /> : <FaRegEye className='text-[#8200db]' />}
+                    {show ? <FaRegEyeSlash className='text-[#8200db] cursor-pointer' /> : <FaRegEye className='text-[#8200db] cursor-pointer' />}
                   </button>
                 </div>
                 {errors.password && <p className='text-xs text-red-400 mt-1'>{errors.password?.message}</p>}
@@ -88,10 +139,10 @@ const AdminSignin = () => {
                 Forgot your password?
               </Link> */}
 
-              <button type="submit" disabled={isLoading}
+              <button type="submit" disabled={isUserAuthLoading}
                 className={`w-full py-2 lg:py-3 rounded-full text-base lg:text-lg font-semibold text-white transition-colors
-                ${isLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "bg-[#2696f5] hover:bg-[#1679c1]"}`}>
-                {isLoading ? "Logging in..." : "Login"}
+                ${isUserAuthLoading ? "bg-[#7fc4fb] cursor-not-allowed opacity-70" : "cursor-pointer bg-[#2696f5] hover:bg-[#1679c1]"}`}>
+                {isUserAuthLoading ? "Logging in..." : "Login"}
               </button>
             </form>
 

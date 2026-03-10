@@ -34,7 +34,20 @@ export const registerSlice = createAsyncThunk('authSlice/registerSlice',
             // Insert into public.users table 
             let res;
 
-            if (userType == 'student') {
+            if (userType == 'admin') {
+                res = await supabase.from("admins").insert([{
+                    id: userId,
+                    name: data.name,
+                    email: data.email,
+                    is_verified: "pending",
+                    role: "admin",
+                    is_blocked: false,
+                    last_login: null,
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                }]);
+            }
+            else if (userType == 'student') {
                 res = await supabase.from("students").insert([{
                     id: userId,
                     name: data.name,
@@ -98,20 +111,20 @@ export const emailVerifySlice = createAsyncThunk('authSlice/emailVerifySlice',
 
             if (error) {
                 // On failed OTP verification → mark rejected if still pending
-                const { data: user } = await supabase.from(userType == 'student' ? "students" : "instructors").select("is_verified").eq("email", verificationData?.email).single();
+                const { data: user } = await supabase.from(userType == 'student' ? "students" : userType == 'admin' ? "admins" : "instructors").select("is_verified").eq("email", verificationData?.email).single();
 
                 if (user?.is_verified === "pending") {
-                    await supabase.from(userType == 'student' ? "students" : "instructors").update({ is_verified: "rejected" }).eq("email", verificationData?.email);
+                    await supabase.from(userType == 'student' ? "students" : userType == 'admin' ? "admins" : "instructors").update({ is_verified: "rejected" }).eq("email", verificationData?.email);
                 }
 
                 throw error;
             }
 
             // OTP success → mark fulfilled if still pending
-            const { data: user } = await supabase.from(userType == 'student' ? "students" : "instructors").select("is_verified").eq("email", verificationData?.email).single();
+            const { data: user } = await supabase.from(userType == 'student' ? "students" : userType == 'admin' ? "admins" : "instructors").select("is_verified").eq("email", verificationData?.email).single();
 
             if (user?.is_verified === "pending" || user?.is_verified === "rejected") {
-                await supabase.from(userType == 'student' ? "students" : "instructors").update({ is_verified: "fulfilled" }).eq("email", verificationData?.email);
+                await supabase.from(userType == 'student' ? "students" : userType == 'admin' ? "admins" : "instructors").update({ is_verified: "fulfilled" }).eq("email", verificationData?.email);
             }
 
             return data;
@@ -144,6 +157,9 @@ export const loginSlice = createAsyncThunk('authSlice/loginSlice',
             else if (role == 'instructor') {
                 ({ data: userData, error: userError } = await supabase.from("instructors").select("*").eq("id", userId).single());
             }
+            else if (role == 'admin') {
+                ({ data: userData, error: userError } = await supabase.from("admins").select("*").eq("id", userId).single());
+            }
             else {
                 userData = null, userError = null;
             }
@@ -168,7 +184,10 @@ export const updateLastSignInAt = createAsyncThunk("authSlice/updateLastSignInAt
 
         try {
             let res = null;
-            if (user_type == 'student') {
+            if (user_type == 'admin') {
+                res = await supabase.from("admins").update({ last_login: new Date().toISOString() }).eq("id", id).select();
+            }
+            else if (user_type == 'student') {
                 res = await supabase.from("students").update({ last_login: new Date().toISOString() }).eq("id", id).select();
             }
             else {
