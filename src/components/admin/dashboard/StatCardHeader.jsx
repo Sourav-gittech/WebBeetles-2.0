@@ -1,7 +1,34 @@
-import React from 'react'
-import { Users, BookOpen, ShoppingCart, TrendingUp, ClipboardCheck, BookOpenCheck, DollarSign } from "lucide-react";
+import React, { useEffect } from 'react'
+import { Users, BookOpen, ShoppingCart, TrendingUp, ClipboardCheck, BookOpenCheck, Loader2, IndianRupee, UserStar, Blinds } from "lucide-react";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllStudents } from '../../../redux/slice/allStudentSlice';
+import { allCourse } from '../../../redux/slice/couseSlice';
+import { allInstructor } from '../../../redux/slice/instructorSlice';
+import { useTotalRevenue } from '../../../tanstack/query/fetchTotalRevenue';
+import { fetchAllCart } from '../../../redux/slice/cartSlice';
 
 const StatCardHeader = () => {
+
+  const dispatch = useDispatch(),
+    { isAllStudentLoading, getAllStudentData, isAllStudentError } = useSelector(state => state.allStudent),
+    { isCourseLoading, getCourseData, isCourseError } = useSelector(state => state?.course),
+    { isInstructorLoading, getInstructorData, isInstructorError } = useSelector(state => state?.instructor),
+    { isCartLoading, cartItems, hasCartError } = useSelector(state => state?.cart),
+    { isLoading: isRevenueLoading, data: revenueData, error: hasRevenueError } = useTotalRevenue();
+
+  useEffect(() => {
+    dispatch(fetchAllStudents());
+    dispatch(allCourse());
+    dispatch(allInstructor());
+    dispatch(fetchAllCart());
+  }, [dispatch]);
+
+  const activeCourse = getCourseData?.filter(c => c?.status == 'approved' && !c?.is_completed);
+  const examScheduledCourse = getCourseData?.filter(c => c?.status == 'approved' && c?.is_completed && c?.is_exam_scheduled);
+    const pendingCourse = getCourseData?.filter(c => c?.status == 'pending');
+  const approvedInstructor = getInstructorData?.filter(inst => inst?.application_status == 'approved');
+  const pendingApplication = getInstructorData?.filter(ins => ins?.application_status == "pending");
+  const totalRevenue = revenueData?.reduce((acc, cur) => acc + Number(cur?.amount), 0);
 
   function StatCard({ icon: Icon, label, value, sub, trend, trendUp = true, iconColor = "text-purple-400" }) {
     return (
@@ -25,14 +52,14 @@ const StatCardHeader = () => {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <StatCard icon={Users} label="Total Students" value="12,847" trend="+15.5%" sub="Registered users" />
-      <StatCard icon={BookOpen} label="Active Courses" value="328" trend="+5.3%" sub="Published & live" />
-      <StatCard icon={Users} label="Total Instructors" value="142" trend="+2.2%" iconColor="text-yellow-400" sub="Approved experts" />
-      <StatCard icon={DollarSign} label="Total Revenue" value="₹14.2L" trend="+18.4%" sub="This financial year" />
-      <StatCard icon={ShoppingCart} label="Active Cart Sessions" value="1,284" trend="-3.1%" trendUp={false} iconColor="text-yellow-400" sub="Pending checkout" />
-      <StatCard icon={TrendingUp} label="Completion Rate" value="82%" trend="+4.1%" sub="Avg across all courses" />
-      <StatCard icon={ClipboardCheck} label="Pending Reviews" value="3" trend="New" sub="Instructor applications" iconColor="text-yellow-400" />
-      <StatCard icon={BookOpenCheck} label="Courses to Approve" value="8" trend="Pending" sub="Awaiting admin review" />
+      <StatCard icon={Users} label="Total Students" value={(isAllStudentLoading ? <Loader2 className='inline animate-spin w-5 h-5' /> : getAllStudentData?.length) ?? 0} trend="+15.5%" sub="Registered users" />
+      <StatCard icon={BookOpenCheck} label="Active Courses" value={(isCourseLoading ? <Loader2 className='inline animate-spin w-5 h-5' /> : activeCourse?.length) ?? 0} trend="+5.3%" sub="Published & live" />
+      <StatCard icon={UserStar} label="Total Instructors" value={(isInstructorLoading ? <Loader2 className='inline animate-spin w-5 h-5' /> : approvedInstructor?.length) ?? 0} trend="+2.2%" iconColor="text-yellow-400" sub="Approved experts" />
+      <StatCard icon={IndianRupee} label="Total Revenue" value={(isRevenueLoading ? <Loader2 className='inline animate-spin w-5 h-5' /> : totalRevenue?.toLocaleString()) ?? 0} trend="+18.4%" sub="This financial year (without tax)" />
+      <StatCard icon={ShoppingCart} label="Active Cart Sessions" value={(isCartLoading ? <Loader2 className='inline animate-spin w-5 h-5' /> : cartItems?.length) ?? 0} trend="-3.1%" trendUp={false} iconColor="text-yellow-400" sub="Pending checkout" />
+      <StatCard icon={Blinds} label="Exam Scheduled" value={(isCourseLoading ? <Loader2 className='inline animate-spin w-5 h-5' /> : examScheduledCourse?.length) ?? 0} trend="+4.1%" sub="Across all courses" />
+      <StatCard icon={ClipboardCheck} label="Pending Reviews" value={(isInstructorLoading ? <Loader2 className='inline animate-spin w-5 h-5' /> : pendingApplication?.length) ?? 0} trend="New" sub="Instructor applications" iconColor="text-yellow-400" />
+      <StatCard icon={BookOpen} label="Courses to Approve" value={(isCourseLoading ? <Loader2 className='inline animate-spin w-5 h-5' /> : pendingCourse?.length) ?? 0} trend="Pending" sub="Awaiting admin review" />
     </div>
   )
 }

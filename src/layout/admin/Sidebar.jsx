@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useSidebarStore } from "../../store/useSidebarStore";
 import {
     Home, Users, Settings, BarChart2, Menu, LogOut, X, ChevronLeft, ChevronRight, User, ClipboardCheck, BookOpenCheck,
-    IndianRupee, Loader2, ShieldUser, ChartBarStacked, MessageSquareText, BellRing, Blinds
+    IndianRupee, Loader2, ShieldUser, ChartBarStacked, MessageSquareText, BellRing, Blinds, UserStar
 } from "lucide-react";
 import { allInstructor } from "../../redux/slice/instructorSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -124,7 +124,7 @@ export default function Sidebar({ onNavigate }) {
         { to: "/admin/dashboard", label: "Dashboard", icon: Home },
         { to: "/admin/profile", label: "Profile", icon: User },
         { to: "/admin/students", label: "Students", icon: Users },
-        { to: "/admin/instructors", label: "Instructors", icon: User },
+        { to: "/admin/instructors", label: "Instructors", icon: UserStar },
         { to: "/admin/admin", label: "Admin", icon: ShieldUser },
         { to: "/admin/instructor-reviews", label: "Instructor Reviews", icon: ClipboardCheck, badge: isInstructorLoading ? <Loader2 className="inline h-3 w-3 mb-1 animate-spin" /> : getInstructorData?.filter(inst => inst?.application_status == 'pending' && inst?.application_complete)?.length ?? 0 },
         { to: "/admin/approve-courses", label: "Courses", icon: BookOpenCheck, badge: isCourseLoading ? <Loader2 className="inline h-3 w-3 mb-1 animate-spin" /> : pending?.length ?? 0 },

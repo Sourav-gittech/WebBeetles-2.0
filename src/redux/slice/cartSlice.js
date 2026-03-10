@@ -43,6 +43,22 @@ export const fetchCartItems = createAsyncThunk("cartSlice/fetchCartItems",
     }
 );
 
+// all cart 
+export const fetchAllCart = createAsyncThunk("cartSlice/fetchAllCart",
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await supabase.from("cart_items").select('*');
+            // console.log('Response for all cart', res);
+
+            if (res?.error) throw res?.error;
+
+            return res?.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 // add item cart 
 export const addCartItem = createAsyncThunk("cartSlice/addCartItem",
     async ({ cartId, courseId }, { rejectWithValue }) => {
@@ -139,6 +155,19 @@ export const cartSlice = createSlice({
                 state.cartItems = action.payload;
             })
             .addCase(fetchCartItems.rejected, (state, action) => {
+                state.isCartLoading = false;
+                state.hasCartError = action.payload;
+            })
+            
+            /* Fetch All Cart */
+            .addCase(fetchAllCart.pending, (state) => {
+                state.isCartLoading = true;
+            })
+            .addCase(fetchAllCart.fulfilled, (state, action) => {
+                state.isCartLoading = false;
+                state.cartItems = action.payload;
+            })
+            .addCase(fetchAllCart.rejected, (state, action) => {
                 state.isCartLoading = false;
                 state.hasCartError = action.payload;
             })

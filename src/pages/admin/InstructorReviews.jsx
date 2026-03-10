@@ -17,7 +17,7 @@ export default function InstructorReviews() {
     const [modal, setModal] = useState(null);
     const [docViewer, setDocViewer] = useState(null);
     const [openMarkModal, setOpenMarkModal] = useState(false);
-    const [instructorId, setInstructor] = useState(null);
+    const [instructorId, setInstructorId] = useState(null);
     const [changeStatus, setChangeStatus] = useState(null);
 
     const dispatch = useDispatch(),
@@ -64,8 +64,8 @@ export default function InstructorReviews() {
 
             {/* Applications Table */}
             {isInstructorLoading ? <Loader2 className="inline animate-spin my-5 mx-50 w-12 h-12" /> :
-            <ApplicationTable filtered={filtered} setModal={setModal} setDocViewer={setDocViewer} setOpenMarkModal={setOpenMarkModal} setInstructor={setInstructor}
-                setChangeStatus={setChangeStatus} />}
+                <ApplicationTable filtered={filtered} setModal={setModal} setDocViewer={setDocViewer} setOpenMarkModal={setOpenMarkModal} setInstructor={setInstructorId}
+                    setChangeStatus={setChangeStatus} />}
 
             {/* Profile Modal */}
             {modal && (

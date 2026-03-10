@@ -1,40 +1,63 @@
-import React, { useMemo } from 'react'
-import { Line } from 'react-chartjs-2';
-import baseChartOptions from "./../common/ChartOptions";
+import React, { useEffect, useState } from "react";
+import RevenueChart from "../../charts/revenueChart";
+import { fetchMonthlyRevenue } from "../../../../function/getPayments";
 
-function EnrollmentChart() {
-    const data = useMemo(() => ({
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        datasets: [{
-            label: "Enrollments",
-            data: [310, 420, 380, 520, 490, 640, 580, 710, 660, 820, 775, 940],
-            fill: true,
-            backgroundColor: (ctx) => {
-                const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 240);
-                g.addColorStop(0, "rgba(168,85,247,0.3)"); g.addColorStop(1, "rgba(168,85,247,0)"); return g;
-            },
-            borderColor: "#a855f7", borderWidth: 2.5,
-            tension: 0.4, pointRadius: 0, pointHoverRadius: 5,
-            pointHoverBackgroundColor: "#a855f7", pointHoverBorderColor: "#fff",
-        }],
-    }), []);
-    return <div className="h-full"><Line data={data} options={baseChartOptions()} /></div>;
-}
+const RevenueChartView = () => {
+    const currentYear = new Date().getFullYear();
 
-const EnrollmentChartView = () => {
+    const [monthlyRevenue, setMonthlyRevenue] = useState(Array(12).fill(0));
+    const [totalRevenue, setTotalRevenue] = useState(0);
+
+    const buildMonthlyRevenue = (rows = []) => {
+        const monthly = Array(12).fill(0);
+
+        rows.forEach((row) => {
+            if (!row?.created_at) return;
+
+            const date = new Date(row.created_at);
+            const monthIndex = date.getMonth();
+
+            monthly[monthIndex] += Number(row.amount || 0);
+        });
+
+        return monthly;
+    };
+
+    const calculateTotalRevenue = (rows = []) =>
+        rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+
+    useEffect(() => {
+        fetchMonthlyRevenue(currentYear)
+            .then(rows => {
+                setMonthlyRevenue(buildMonthlyRevenue(rows));
+                setTotalRevenue(calculateTotalRevenue(rows));
+            })
+            .catch(console.error);
+    }, [currentYear]);
 
     return (
         <div className="bg-[#111] p-6 rounded-2xl border border-white/5 lg:col-span-2 shadow-xl">
             <div className="flex items-center justify-between mb-1">
-                <h2 className="text-base font-semibold text-white">Monthly Enrollments</h2>
-                <span className="text-xs text-gray-500">2024 — All Courses</span>
+                <h2 className="text-base font-semibold text-white">
+                    Monthly Revenue
+                </h2>
+                <span className="text-xs text-gray-500">
+                    {currentYear} — All Payments
+                </span>
             </div>
-            <p className="text-2xl font-bold text-white mb-6">9,248 <span className="text-sm font-normal text-yellow-500 ml-1">+22.4%</span></p>
+
+            <p className="text-2xl font-bold text-white mb-6">
+                ₹{totalRevenue.toLocaleString("en-IN")}
+                {/* <span className="text-sm font-normal text-green-500 ml-1">
+                    +18.6%
+                </span> */}
+            </p>
+
             <div className="h-56">
-                <EnrollmentChart />
+                <RevenueChart monthlyRevenue={monthlyRevenue} />
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default EnrollmentChartView
+export default RevenueChartView;

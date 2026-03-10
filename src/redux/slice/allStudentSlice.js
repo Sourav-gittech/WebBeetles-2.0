@@ -5,7 +5,7 @@ import supabase from "../../util/supabase/supabase";
 export const fetchAllStudents = createAsyncThunk("userSlice/fetchAllStudents",
     async (_, { rejectWithValue }) => {
         try {
-            const res = await supabase.from("students").select("*");
+            const res = await supabase.from("students").select("*").order("created_at", { ascending: false });
 
             // console.log('Response for fetching all students', res);
 

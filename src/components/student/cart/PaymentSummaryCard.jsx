@@ -22,9 +22,9 @@ const PaymentSummaryCard = ({
     const dispatch = useDispatch();
     const razorpayRef = useRef(null);
 
-    const CREATE_ORDER_URL = "https://eqmsrzosavtfxwmpipii.functions.supabase.co/create-order";
-    const VERIFY_PAYMENT_URL = "https://eqmsrzosavtfxwmpipii.functions.supabase.co/verify-payment";
-    const CANCEL_PAYMENT_URL = "https://eqmsrzosavtfxwmpipii.functions.supabase.co/cancel-payment";
+    const CREATE_ORDER_URL = import.meta.env.VITE_CREATE_ORDER_URL;
+    const VERIFY_PAYMENT_URL = import.meta.env.VITE_VERIFY_PAYMENT_URL;
+    const CANCEL_PAYMENT_URL = import.meta.env.VITE_CANCEL_PAYMENT_URL;
 
     const handleApplyPromo = () => {
         const code = promoCode.toUpperCase();
@@ -144,7 +144,7 @@ const PaymentSummaryCard = ({
                 }),
             });
 
-            getSweetAlert("Payment failed", response.error.description || "Payment failed. Please try again.", "error");
+            // getSweetAlert("Payment failed", response.error.description || "Payment failed. Please try again.", "error");
         });
 
         razorpayRef.current = rzp;

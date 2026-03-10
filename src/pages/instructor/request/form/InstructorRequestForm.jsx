@@ -76,6 +76,7 @@ const InstructorRequestForm = () => {
                 // console.log('Response after adding details in function', res);
 
                 if (res.meta.requestStatus === "fulfilled") {
+                    
                     reset();
                     setUploadedFile(null);
                     setUploadProgress(0);

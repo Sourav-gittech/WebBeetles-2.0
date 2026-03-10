@@ -29,7 +29,7 @@ const StudentDashboardRecentActivity = ({ studentDetails }) => {
                     <Loader2 className='w-8 h-8 animate-spin' />
                 ) : (
                     activityList?.length > 0 ? activityList?.slice(0, 6)?.map(activity => (
-                        <StudentActivityCard activity={activity} />
+                        <StudentActivityCard key={activity?.id} activity={activity} />
                     )) : <p className='text-center'>No activity available</p>
                 )}
             </div>

@@ -43,7 +43,7 @@ export const instructorRequest = createAsyncThunk('instructorSlice/instructorReq
 export const allInstructor = createAsyncThunk('instructorSlice/allInstructor',
     async ({ application_status, application_complete, is_blocked } = {}, { rejectWithValue }) => {
         try {
-            let query = supabase.from("instructors").select("*");
+            let query = supabase.from("instructors").select("*").order("created_at", { ascending: false });;
 
             if (application_status) {
                 query = query.eq("application_status", application_status);

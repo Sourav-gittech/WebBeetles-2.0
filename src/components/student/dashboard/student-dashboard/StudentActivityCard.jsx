@@ -19,7 +19,7 @@ const StudentActivityCard = ({ activity }) => {
     return (
         <div key={activity?.id} className="flex items-start gap-4 pb-4 border-b border-white/10 last:border-0 last:pb-0 hover:bg-white/5 p-3 rounded-xl transition-all">
             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/20">
-                {activityIcons(activity.title)}
+                {activityIcons(activity?.title)}
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-white mb-1">{activity?.message ?? 'N/A'}</p>
